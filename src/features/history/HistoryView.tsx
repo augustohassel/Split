@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -81,6 +81,50 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   const [timingFilter, setTimingFilter] = useState<TimingMethod | 'all'>('all');
   const [chartMode, setChartMode] = useState<'evolution' | 'splits'>('evolution');
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
+  // Sincronizar cuando se navega desde otra pestaña con prueba/pileta específica
+  useEffect(() => {
+    if (initialEventId) setSelectedEventId(initialEventId);
+    if (initialPoolLength) setPoolLength(initialPoolLength);
+  }, [initialEventId, initialPoolLength]);
+
+  // Agrupar combinaciones de (eventId + poolLength) que tienen marcas cargadas
+  const populatedEventPools = useMemo(() => {
+    const map = new Map<
+      string,
+      { eventId: SwimEventId; poolLength: PoolLength; count: number; latestId: number }
+    >();
+    for (const m of marks) {
+      const key = `${m.eventId}:${m.poolLength}`;
+      const prev = map.get(key);
+      if (prev) {
+        prev.count += 1;
+        prev.latestId = Math.max(prev.latestId, m.id ?? 0);
+      } else {
+        map.set(key, {
+          eventId: m.eventId,
+          poolLength: m.poolLength,
+          count: 1,
+          latestId: m.id ?? 0,
+        });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.latestId - a.latestId || b.count - a.count);
+  }, [marks]);
+
+  // Si la combinación actual no tiene marcas pero el usuario sí tiene marcas en otra prueba/pileta,
+  // posicionarse automáticamente en la última prueba cargada para no mostrar "0 marcas" por error.
+  useEffect(() => {
+    if (marks.length === 0) return;
+    const hasCurrent = marks.some(
+      (m) => m.eventId === selectedEventId && m.poolLength === poolLength
+    );
+    if (!hasCurrent && populatedEventPools.length > 0) {
+      setSelectedEventId(populatedEventPools[0].eventId);
+      setPoolLength(populatedEventPools[0].poolLength);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marks.length]);
 
   const currentEvent = getEventById(selectedEventId);
 
@@ -177,9 +221,50 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           Evolución e Historial
         </h1>
         <p className="text-xs text-slate-400">
-          Curvas temporales de marca y comparativa de parciales por prueba
+          Curvas temporales de marca y comparativa de parciales por prueba ({marks.length} marcas
+          totales)
         </p>
       </div>
+
+      {/* Acceso directo a las pruebas que tienen marcas cargadas */}
+      {populatedEventPools.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            Tus Pruebas con Marcas Cargadas:
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {populatedEventPools.map((item) => {
+              const ev = getEventById(item.eventId);
+              const isSelected =
+                selectedEventId === item.eventId && poolLength === item.poolLength;
+              return (
+                <button
+                  key={`${item.eventId}-${item.poolLength}`}
+                  type="button"
+                  onClick={() => {
+                    setSelectedEventId(item.eventId);
+                    setPoolLength(item.poolLength);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-sm shadow-cyan-500/20'
+                      : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <span>{ev.name}</span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                      isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-cyan-300'
+                    }`}
+                  >
+                    {item.poolLength}m · {item.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filtros Principales: Pileta y Prueba */}
       <div className="glass-card rounded-2xl p-4 space-y-3">

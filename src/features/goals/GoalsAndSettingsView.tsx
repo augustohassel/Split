@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   PoolLength,
   SplitEntry,
@@ -25,6 +25,7 @@ import {
 import { calculateFinaPoints, FINA_TABLE_VERSION, getFinaBaseTime } from '../../utils/fina';
 import { FinaBadge } from '../../components/common/FinaBadge';
 import {
+  AlertCircle,
   AlertTriangle,
   CheckCircle2,
   Database,
@@ -54,6 +55,38 @@ interface GoalsAndSettingsViewProps {
   onClearAllData: (resetProfile?: boolean) => Promise<void>;
 }
 
+interface GoalDraftState {
+  subTab: 'goals' | 'profile' | 'backup';
+  goalPoolLength: PoolLength;
+  goalEventId: SwimEventId;
+  goalTimeStr: string;
+  goalLabel: string;
+  showGoalSplits: boolean;
+  goalSplitInputs: Record<number, string>;
+}
+
+const GOAL_DRAFT_KEY = 'split_goal_draft_v1';
+
+function readGoalDraft(): Partial<GoalDraftState> | null {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    const raw = window.localStorage.getItem(GOAL_DRAFT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as Partial<GoalDraftState>;
+  } catch {
+    return null;
+  }
+}
+
+function writeGoalDraft(draft: GoalDraftState): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.setItem(GOAL_DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    // Ignorar errores de almacenamiento
+  }
+}
+
 export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   profile,
   marks,
@@ -67,20 +100,30 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onLoadDemo,
   onClearAllData,
 }) => {
-  const [subTab, setSubTab] = useState<'goals' | 'profile' | 'backup'>('goals');
+  const initialDraft = useMemo(() => readGoalDraft(), []);
+
+  const [subTab, setSubTab] = useState<'goals' | 'profile' | 'backup'>(
+    initialDraft?.subTab ?? 'goals'
+  );
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmClearMode, setConfirmClearMode] = useState<'none' | 'marks' | 'all'>('none');
 
-  // Estado formulario de Objetivo
-  const [goalPoolLength, setGoalPoolLength] = useState<PoolLength>(profile.defaultPoolLength);
-  const [goalEventId, setGoalEventId] = useState<SwimEventId>(
-    profile.favoriteEventIds?.[0] ?? '50-fly'
+  // Estado formulario de Objetivo (con borrador persistente)
+  const [goalPoolLength, setGoalPoolLength] = useState<PoolLength>(
+    initialDraft?.goalPoolLength ?? profile.defaultPoolLength
   );
-  const [goalTimeStr, setGoalTimeStr] = useState<string>('');
-  const [goalLabel, setGoalLabel] = useState<string>('');
-  const [showGoalSplits, setShowGoalSplits] = useState<boolean>(false);
-  const [goalSplitInputs, setGoalSplitInputs] = useState<Record<number, string>>({});
+  const [goalEventId, setGoalEventId] = useState<SwimEventId>(
+    initialDraft?.goalEventId ?? profile.favoriteEventIds?.[0] ?? '50-fly'
+  );
+  const [goalTimeStr, setGoalTimeStr] = useState<string>(initialDraft?.goalTimeStr ?? '');
+  const [goalLabel, setGoalLabel] = useState<string>(initialDraft?.goalLabel ?? '');
+  const [showGoalSplits, setShowGoalSplits] = useState<boolean>(
+    Boolean(initialDraft?.showGoalSplits)
+  );
+  const [goalSplitInputs, setGoalSplitInputs] = useState<Record<number, string>>(
+    initialDraft?.goalSplitInputs ?? {}
+  );
 
   // Estado formulario de Perfil
   const [name, setName] = useState<string>(profile.name);
@@ -95,6 +138,47 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   );
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const goalTimeInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Sincronizar campos de perfil cuando se hidrata desde la base de datos
+  useEffect(() => {
+    setName(profile.name);
+    setGender(profile.gender);
+    setCategory(profile.category ?? '');
+    setClub(profile.club ?? '');
+    setDefaultPoolLength(profile.defaultPoolLength);
+    setFavoriteEventIds(
+      profile.favoriteEventIds?.length ? profile.favoriteEventIds : ['50-fly']
+    );
+  }, [
+    profile.name,
+    profile.gender,
+    profile.category,
+    profile.club,
+    profile.defaultPoolLength,
+    profile.favoriteEventIds,
+  ]);
+
+  // Persistir borrador de objetivo y pestaña activa en localStorage
+  useEffect(() => {
+    writeGoalDraft({
+      subTab,
+      goalPoolLength,
+      goalEventId,
+      goalTimeStr,
+      goalLabel,
+      showGoalSplits,
+      goalSplitInputs,
+    });
+  }, [
+    subTab,
+    goalPoolLength,
+    goalEventId,
+    goalTimeStr,
+    goalLabel,
+    showGoalSplits,
+    goalSplitInputs,
+  ]);
 
   const currentGoalEvent = getEventById(goalEventId);
   const goalCheckpoints = useMemo(
@@ -107,6 +191,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   );
 
   const parsedGoalSec = useMemo(() => parseTimeInput(goalTimeStr), [goalTimeStr]);
+  const hasInvalidGoalInput = Boolean(goalTimeStr.trim()) && parsedGoalSec === null;
+
   const liveGoalFina = useMemo(
     () =>
       parsedGoalSec
@@ -119,6 +205,22 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     () => goals.map((g) => analyzeGoalGap(g, marks, profile.gender)),
     [goals, marks, profile.gender]
   );
+
+  const persistProfileImmediately = async (overrides: Partial<SwimmerProfile>) => {
+    const nextFavs =
+      overrides.favoriteEventIds ??
+      (favoriteEventIds.length > 0 ? favoriteEventIds : ['50-fly']);
+    await onUpdateProfile({
+      ...profile,
+      name: (overrides.name ?? name).trim() || 'Nadador',
+      gender: overrides.gender ?? gender,
+      category: (overrides.category ?? category).trim() || undefined,
+      club: (overrides.club ?? club).trim() || undefined,
+      defaultPoolLength: overrides.defaultPoolLength ?? defaultPoolLength,
+      favoriteEventIds: nextFavs.length > 0 ? nextFavs : ['50-fly'],
+      updatedAt: new Date().toISOString(),
+    });
+  };
 
   const handleLoadExistingGoalIntoForm = (g: SwimGoal) => {
     setGoalPoolLength(g.poolLength);
@@ -144,7 +246,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     setStatusBanner(null);
 
     if (!parsedGoalSec || parsedGoalSec <= 0) {
-      setErrorMsg('Ingresa un tiempo objetivo válido (ej. 26.20 o 58.50).');
+      setErrorMsg(
+        'Ingresa un tiempo objetivo válido. Ejemplos: 26.20, 1:02.40 o con doble punto 1.02.40.'
+      );
       return;
     }
 
@@ -172,7 +276,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     });
 
     setStatusBanner(
-      `Objetivo guardado para ${currentGoalEvent.name} (${goalPoolLength}m): ${formatSwimTime(
+      `¡Objetivo guardado en tu dispositivo! ${currentGoalEvent.name} (${goalPoolLength}m): ${formatSwimTime(
         parsedGoalSec
       )} (${liveGoalFina} pts FINA).`
     );
@@ -186,27 +290,18 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     setErrorMsg(null);
     setStatusBanner(null);
 
-    const safeFavs: SwimEventId[] =
-      favoriteEventIds.length > 0 ? favoriteEventIds : ['50-fly'];
-
-    await onUpdateProfile({
-      ...profile,
-      name: name.trim() || 'Nadador',
-      gender,
-      category: category.trim() || undefined,
-      club: club.trim() || undefined,
-      defaultPoolLength,
-      favoriteEventIds: safeFavs,
-      updatedAt: new Date().toISOString(),
-    });
-
-    setStatusBanner('Perfil del nadador y preferencias actualizadas correctamente.');
+    await persistProfileImmediately({});
+    setStatusBanner('¡Perfil del nadador y pruebas favoritas guardados en tu dispositivo!');
   };
 
   const toggleFavoriteEvent = (id: SwimEventId) => {
-    setFavoriteEventIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const next = favoriteEventIds.includes(id)
+      ? favoriteEventIds.filter((item) => item !== id)
+      : [...favoriteEventIds, id];
+    const safeNext: SwimEventId[] = next.length > 0 ? next : ['50-fly'];
+    setFavoriteEventIds(safeNext);
+    void persistProfileImmediately({ favoriteEventIds: safeNext });
+    setStatusBanner('Pruebas favoritas actualizadas y guardadas automáticamente.');
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,14 +329,17 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             Objetivos y Ajustes
           </h1>
           <p className="text-xs text-slate-400">
-            Metas por prueba y pileta, perfil FINA y respaldo offline
+            Metas por prueba y pileta, perfil FINA con autoguardado y respaldo offline
           </p>
         </div>
 
         <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 text-xs">
           <button
             type="button"
-            onClick={() => setSubTab('goals')}
+            onClick={() => {
+              setSubTab('goals');
+              setErrorMsg(null);
+            }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'goals'
                 ? 'bg-cyan-500 text-slate-950'
@@ -253,7 +351,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setSubTab('profile')}
+            onClick={() => {
+              setSubTab('profile');
+              setErrorMsg(null);
+            }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'profile'
                 ? 'bg-cyan-500 text-slate-950'
@@ -265,7 +366,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setSubTab('backup')}
+            onClick={() => {
+              setSubTab('backup');
+              setErrorMsg(null);
+            }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'backup'
                 ? 'bg-cyan-500 text-slate-950'
@@ -279,22 +383,29 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       </div>
 
       {statusBanner && (
-        <div className="rounded-2xl p-3.5 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
+        <div
+          role="status"
+          className="rounded-2xl p-3.5 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
+        >
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{statusBanner}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="rounded-2xl p-3.5 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs">
-          {errorMsg}
+        <div
+          role="alert"
+          className="rounded-2xl p-3.5 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
+        >
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <span>{errorMsg}</span>
         </div>
       )}
 
       {/* SUBTAB 1: OBJETIVOS */}
       {subTab === 'goals' && (
         <div className="space-y-5">
-          <form onSubmit={handleGoalSubmit} className="glass-card rounded-2xl p-4 space-y-4">
+          <form onSubmit={handleGoalSubmit} noValidate className="glass-card rounded-2xl p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
                 <Plus className="w-4 h-4 text-cyan-400" />
@@ -350,19 +461,61 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Tiempo Meta (mm:ss.cc o ss.cc)
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Tiempo Meta (ej. 26.20, 1:02.40 o 1.02.40)
                 </label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="Ej: 26.20"
-                  value={goalTimeStr}
-                  onChange={(e) => setGoalTimeStr(e.target.value)}
-                  className="w-full rounded-xl bg-slate-950 border border-emerald-500/40 px-3 py-2 text-base font-extrabold font-mono text-white"
-                  required
-                />
+                <div className="flex items-center gap-1.5">
+                  <input
+                    ref={goalTimeInputRef}
+                    type="text"
+                    inputMode="decimal"
+                    placeholder={
+                      currentGoalEvent.distance === 50 ? 'Ej: 26.20' : 'Ej: 1.02.40 o 1:02.40'
+                    }
+                    value={goalTimeStr}
+                    onChange={(e) => {
+                      setErrorMsg(null);
+                      setGoalTimeStr(e.target.value);
+                    }}
+                    onBlur={() => {
+                      const sec = parseTimeInput(goalTimeStr);
+                      if (sec && sec > 0) setGoalTimeStr(formatSwimTime(sec));
+                    }}
+                    className={`w-full rounded-xl bg-slate-950 border px-3 py-2 text-base font-extrabold font-mono text-white ${
+                      hasInvalidGoalInput
+                        ? 'border-rose-500'
+                        : 'border-emerald-500/40'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      if (!goalTimeStr.includes(':')) {
+                        setGoalTimeStr((prev) => `${prev}:`);
+                      }
+                      goalTimeInputRef.current?.focus();
+                    }}
+                    className="shrink-0 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-mono font-extrabold text-base"
+                    title="Insertar dos puntos (:)"
+                  >
+                    :
+                  </button>
+                </div>
+                {parsedGoalSec ? (
+                  <div className="text-[11px] text-emerald-300 font-medium">
+                    ✓ Interpretado: <strong className="font-mono">{formatSwimTime(parsedGoalSec)}</strong> ({liveGoalFina} pts FINA)
+                  </div>
+                ) : hasInvalidGoalInput ? (
+                  <div className="text-[11px] text-rose-300">
+                    Formato inválido. Usa ej: <strong>1.02.40</strong> o <strong>1:02.40</strong>.
+                  </div>
+                ) : (
+                  <div className="text-[10px] text-slate-400">
+                    En celular puedes usar doble punto (<code>1.02.40</code>) o el botón <code>:</code>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -410,6 +563,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                         onChange={(e) =>
                           setGoalSplitInputs((prev) => ({ ...prev, [dist]: e.target.value }))
                         }
+                        onBlur={() => {
+                          const raw = goalSplitInputs[dist];
+                          const sec = raw ? parseTimeInput(raw) : null;
+                          if (sec && sec > 0) {
+                            setGoalSplitInputs((prev) => ({
+                              ...prev,
+                              [dist]: formatSwimTime(sec),
+                            }));
+                          }
+                        }}
                         className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2 py-1 text-xs font-mono text-white"
                       />
                     </div>
@@ -420,7 +583,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-500/15"
             >
               <Save className="w-4 h-4" />
               Guardar Objetivo
@@ -602,10 +765,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       {subTab === 'profile' && (
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div className="glass-card rounded-2xl p-4 space-y-4">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <User className="w-4 h-4 text-cyan-400" />
-              Perfil del Nadador &amp; Parámetros FINA
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <User className="w-4 h-4 text-cyan-400" />
+                Perfil del Nadador &amp; Parámetros FINA
+              </h2>
+              <span className="text-[11px] px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-medium flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Autoguardado activo
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -616,6 +785,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={() => void persistProfileImmediately({ name })}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                   required
                 />
@@ -628,7 +798,11 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
                   <button
                     type="button"
-                    onClick={() => setGender('male')}
+                    onClick={() => {
+                      setGender('male');
+                      void persistProfileImmediately({ gender: 'male' });
+                      setStatusBanner('Género actualizado a Hombre (guardado automáticamente).');
+                    }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'male'
                         ? 'bg-cyan-500 text-slate-950'
@@ -639,7 +813,11 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setGender('female')}
+                    onClick={() => {
+                      setGender('female');
+                      void persistProfileImmediately({ gender: 'female' });
+                      setStatusBanner('Género actualizado a Mujer (guardado automáticamente).');
+                    }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'female'
                         ? 'bg-cyan-500 text-slate-950'
@@ -660,6 +838,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   placeholder="Ej: Juvenil, Primera, Master 30-34..."
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  onBlur={() => void persistProfileImmediately({ category })}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                 />
               </div>
@@ -673,7 +852,13 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     <button
                       key={len}
                       type="button"
-                      onClick={() => setDefaultPoolLength(len)}
+                      onClick={() => {
+                        setDefaultPoolLength(len);
+                        void persistProfileImmediately({ defaultPoolLength: len });
+                        setStatusBanner(
+                          `Pileta predeterminada cambiada a ${len}m (guardado automáticamente).`
+                        );
+                      }}
                       className={`py-2 rounded-lg text-xs font-bold ${
                         defaultPoolLength === len
                           ? 'bg-cyan-500 text-slate-950'
@@ -695,6 +880,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   placeholder="Nombre de tu club o equipo..."
                   value={club}
                   onChange={(e) => setClub(e.target.value)}
+                  onBlur={() => void persistProfileImmediately({ club })}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                 />
               </div>
@@ -744,7 +930,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-cyan-500/15"
             >
               <Save className="w-4 h-4" />
               Guardar Perfil y Pruebas Favoritas

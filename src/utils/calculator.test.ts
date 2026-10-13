@@ -38,13 +38,26 @@ describe('Parser y Formateador de Tiempos', () => {
     expect(parseTimeInput('26,8')).toBe(26.8);
     expect(parseTimeInput('0:26.45')).toBe(26.45);
     expect(parseTimeInput('1:02.40')).toBe(62.4);
+    expect(parseTimeInput('1:02,40')).toBe(62.4);
     expect(parseTimeInput('15:20.48')).toBe(920.48);
   });
 
-  it('rechaza entradas inválidas o segundos >= 60 en formato mm:ss.cc', () => {
+  it('parsea tiempos >60s ingresados en teclado numérico móvil con doble punto o coma (sin dos puntos)', () => {
+    expect(parseTimeInput('1.02.40')).toBe(62.4);
+    expect(parseTimeInput('1,02,40')).toBe(62.4);
+    expect(parseTimeInput('1.02,40')).toBe(62.4);
+    expect(parseTimeInput('2.15.05')).toBe(135.05);
+    expect(parseTimeInput('15.20.48')).toBe(920.48);
+    expect(parseTimeInput('1 02.40')).toBe(62.4);
+    expect(parseTimeInput("1'02.40")).toBe(62.4);
+    expect(parseTimeInput('1m02.40s')).toBe(62.4);
+  });
+
+  it('rechaza entradas inválidas o segundos >= 60 en formato mm:ss.cc o mm.ss.cc', () => {
     expect(parseTimeInput('')).toBeNull();
     expect(parseTimeInput('-25.00')).toBeNull();
     expect(parseTimeInput('1:65.00')).toBeNull();
+    expect(parseTimeInput('1.65.00')).toBeNull();
     expect(parseTimeInput('abc')).toBeNull();
   });
 

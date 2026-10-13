@@ -15,30 +15,90 @@ import { getEventById, SWIM_EVENTS } from './events';
 import { calculateFinaPoints } from './fina';
 
 /**
- * Parsea una cadena de tiempo flexible ("26.45", "26,45", "1:02.45", "0:26.8")
- * y devuelve el total en segundos redondeado a centésimas, o null si es inválido.
+ * Parsea una cadena de tiempo flexible:
+ * - Segundos directos: "26.45", "26,45", "62.40"
+ * - Con dos puntos: "1:02.45", "1:02,45", "0:26.8", "15:20.48"
+ * - Con doble punto/coma para teclados móviles (inputMode="decimal" sin tecla ":"):
+ *   "1.02.45", "1,02,45", "1.02,45", "1,02.45", "15.20.48"
+ * - Con espacios o unidades: "1 02.45", "1'02.45", "1m02.45"
+ * Devuelve el total en segundos redondeado a centésimas, o null si es inválido.
  */
 export function parseTimeInput(raw: string): number | null {
   if (!raw || typeof raw !== 'string') return null;
-  const cleaned = raw.trim().replace(',', '.');
+
+  // Normalizar unidades opcionales (1m02.40s, 1'02"40)
+  const cleaned = raw
+    .trim()
+    .replace(/(\d+)\s*[mM']\s*/g, '$1:')
+    .replace(/[sS"]$/g, '')
+    .trim();
+
   if (!cleaned) return null;
 
-  // Formato mm:ss.cc o hh:mm:ss.cc
-  if (cleaned.includes(':')) {
-    const parts = cleaned.split(':');
+  // Caso 1: Formato con doble separador en teclado decimal móvil (ej. "1.02.40", "1,02,40", "1 02.40")
+  // que equivale a mm.ss.cc (3 bloques) o hh.mm.ss.cc (4 bloques) sin usar ":"
+  if (!cleaned.includes(':')) {
+    const threePartsMatch = /^(\d+)[.,\s]+(\d{1,2})[.,\s]+(\d{1,3})$/.exec(cleaned);
+    if (threePartsMatch) {
+      const minutes = Number(threePartsMatch[1]);
+      const secWhole = Number(threePartsMatch[2]);
+      const frac = Number(`0.${threePartsMatch[3]}`);
+      if (
+        !Number.isFinite(minutes) ||
+        !Number.isFinite(secWhole) ||
+        minutes < 0 ||
+        secWhole < 0 ||
+        secWhole >= 60
+      ) {
+        return null;
+      }
+      const total = minutes * 60 + secWhole + frac;
+      return total > 0 ? Math.round(total * 100) / 100 : null;
+    }
+
+    const fourPartsMatch = /^(\d+)[.,\s]+(\d{1,2})[.,\s]+(\d{1,2})[.,\s]+(\d{1,3})$/.exec(cleaned);
+    if (fourPartsMatch) {
+      const hours = Number(fourPartsMatch[1]);
+      const minutes = Number(fourPartsMatch[2]);
+      const secWhole = Number(fourPartsMatch[3]);
+      const frac = Number(`0.${fourPartsMatch[4]}`);
+      if (
+        !Number.isFinite(hours) ||
+        !Number.isFinite(minutes) ||
+        !Number.isFinite(secWhole) ||
+        hours < 0 ||
+        minutes < 0 ||
+        minutes >= 60 ||
+        secWhole < 0 ||
+        secWhole >= 60
+      ) {
+        return null;
+      }
+      const total = hours * 3600 + minutes * 60 + secWhole + frac;
+      return total > 0 ? Math.round(total * 100) / 100 : null;
+    }
+  }
+
+  const normalizedDecimal = cleaned.replace(/,/g, '.');
+
+  // Caso 2: Formato mm:ss.cc o hh:mm:ss.cc
+  if (normalizedDecimal.includes(':')) {
+    const parts = normalizedDecimal.split(':');
     if (parts.length < 2 || parts.length > 3) return null;
+
+    // Si en la parte de segundos pusieron otro punto extra (ej. "1:02.40" es válido, pero "1:02.40.1" no)
+    const secPart = parts[parts.length - 1];
+    if (!/^\d+(\.\d{1,3})?$/.test(secPart)) return null;
 
     let hours = 0;
     let minutes = 0;
-    let seconds = 0;
+    const seconds = Number(secPart);
 
     if (parts.length === 3) {
       hours = Number(parts[0]);
       minutes = Number(parts[1]);
-      seconds = Number(parts[2]);
     } else {
       minutes = Number(parts[0]);
-      seconds = Number(parts[1]);
     }
 
     if (
@@ -47,6 +107,7 @@ export function parseTimeInput(raw: string): number | null {
       !Number.isFinite(seconds) ||
       hours < 0 ||
       minutes < 0 ||
+      (parts.length === 3 && minutes >= 60) ||
       seconds < 0 ||
       seconds >= 60 ||
       !Number.isInteger(hours) ||
@@ -59,11 +120,11 @@ export function parseTimeInput(raw: string): number | null {
     return total > 0 ? Math.round(total * 100) / 100 : null;
   }
 
-  // Formato directo en segundos ("26.80", "58.1")
-  if (!/^\d+(\.\d{1,3})?$/.test(cleaned)) {
+  // Caso 3: Formato directo en segundos ("26.80", "58.1", "62.40")
+  if (!/^\d+(\.\d{1,3})?$/.test(normalizedDecimal)) {
     return null;
   }
-  const sec = Number(cleaned);
+  const sec = Number(normalizedDecimal);
   if (!Number.isFinite(sec) || sec <= 0) return null;
   return Math.round(sec * 100) / 100;
 }
