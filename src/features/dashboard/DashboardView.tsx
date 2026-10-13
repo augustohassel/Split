@@ -29,9 +29,7 @@ import { PBBadge } from '../../components/common/PBBadge';
 import {
   Award,
   ChevronRight,
-  Flame,
   PlusCircle,
-  Sparkles,
   Star,
   Target,
   Trophy,
@@ -44,7 +42,6 @@ interface DashboardViewProps {
   marks: SwimMark[];
   goals: SwimGoal[];
   onNavigate: (tab: ActiveTab, preselectedEventId?: SwimEventId, poolLength?: PoolLength) => void;
-  onLoadDemo: () => Promise<void>;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -52,10 +49,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   marks,
   goals,
   onNavigate,
-  onLoadDemo,
 }) => {
   const [poolFilter, setPoolFilter] = useState<PoolLength | 'all'>('all');
-  const [loadingDemo, setLoadingDemo] = useState(false);
 
   const ranking = buildEventFinaRanking(marks, profile.gender, poolFilter);
   const bestRaceRanking = ranking.find((r) => r.racePB);
@@ -77,15 +72,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     profile.favoriteEventIds && profile.favoriteEventIds.length > 0
       ? profile.favoriteEventIds
       : ['50-fly'];
-
-  const handleDemoClick = async () => {
-    setLoadingDemo(true);
-    try {
-      await onLoadDemo();
-    } finally {
-      setLoadingDemo(false);
-    }
-  };
 
   return (
     <div className="space-y-6 pb-8">
@@ -164,46 +150,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Estado vacío con bienvenida rápida */}
-      {marks.length === 0 && (
-        <div className="glass-card rounded-2xl p-5 border border-cyan-500/30 bg-gradient-to-br from-slate-900/90 to-cyan-950/30 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-300">
-              <Flame className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white">
-                ¡Listo para registrar tus tiempos y parciales!
-              </h2>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                Tu prueba favorita predeterminada es <strong>50m Mariposa</strong>. Puedes cargar tu
-                primera marca con sus parciales de <code>15m</code>, <code>25m</code> y{' '}
-                <code>35m</code>, o explorar la app con datos de demostración.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
-            <button
-              type="button"
-              onClick={() => onNavigate('register', '50-fly', profile.defaultPoolLength)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Registrar 50m Mariposa
-            </button>
-            <button
-              type="button"
-              disabled={loadingDemo}
-              onClick={handleDemoClick}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              {loadingDemo ? 'Cargando demo...' : 'Cargar datos de demostración'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Pruebas Favoritas: Comparativa PB Carrera (Principal) vs PB Entrenamiento */}
       <section className="space-y-3">

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActiveTab,
   PoolLength,
   SplitEntry,
   SwimEventId,
@@ -27,6 +28,7 @@ import { FinaBadge } from '../../components/common/FinaBadge';
 import {
   AlertCircle,
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   Database,
   Download,
@@ -53,6 +55,7 @@ interface GoalsAndSettingsViewProps {
   onExportCsv: () => void;
   onLoadDemo: () => Promise<{ marksAdded: number; goalsAdded: number }>;
   onClearAllData: (resetProfile?: boolean) => Promise<void>;
+  onNavigate?: (tab: ActiveTab, preselectedEventId?: SwimEventId, poolLength?: PoolLength) => void;
 }
 
 interface GoalDraftState {
@@ -99,6 +102,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onExportCsv,
   onLoadDemo,
   onClearAllData,
+  onNavigate,
 }) => {
   const initialDraft = useMemo(() => readGoalDraft(), []);
 
@@ -107,6 +111,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   );
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [justSavedProfile, setJustSavedProfile] = useState<boolean>(false);
+  const [clearSuccessMsg, setClearSuccessMsg] = useState<string | null>(null);
   const [confirmClearMode, setConfirmClearMode] = useState<'none' | 'marks' | 'all'>('none');
 
   // Estado formulario de Objetivo (con borrador persistente)
@@ -140,7 +146,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const goalTimeInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Sincronizar campos de perfil cuando se hidrata desde la base de datos
+  // Sincronizar campos de perfil cuando cambia desde almacenamiento externo / reset
   useEffect(() => {
     setName(profile.name);
     setGender(profile.gender);
@@ -291,7 +297,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     setStatusBanner(null);
 
     await persistProfileImmediately({});
-    setStatusBanner('¡Perfil del nadador y pruebas favoritas guardados en tu dispositivo!');
+    setJustSavedProfile(true);
+    setStatusBanner(
+      `¡Perfil guardado! ${name.trim() || 'Nadador'} · ${
+        gender === 'male' ? 'Hombre' : 'Mujer'
+      } · Pileta ${defaultPoolLength}m · ${favoriteEventIds.length} pruebas favoritas.`
+    );
   };
 
   const toggleFavoriteEvent = (id: SwimEventId) => {
@@ -300,8 +311,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       : [...favoriteEventIds, id];
     const safeNext: SwimEventId[] = next.length > 0 ? next : ['50-fly'];
     setFavoriteEventIds(safeNext);
+    setJustSavedProfile(false);
     void persistProfileImmediately({ favoriteEventIds: safeNext });
-    setStatusBanner('Pruebas favoritas actualizadas y guardadas automáticamente.');
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -329,7 +340,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             Objetivos y Ajustes
           </h1>
           <p className="text-xs text-slate-400">
-            Metas por prueba y pileta, perfil FINA con autoguardado y respaldo offline
+            Metas por prueba y pileta, perfil FINA y gestión de datos locales
           </p>
         </div>
 
@@ -339,6 +350,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             onClick={() => {
               setSubTab('goals');
               setErrorMsg(null);
+              setStatusBanner(null);
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'goals'
@@ -354,6 +366,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             onClick={() => {
               setSubTab('profile');
               setErrorMsg(null);
+              setStatusBanner(null);
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'profile'
@@ -369,6 +382,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             onClick={() => {
               setSubTab('backup');
               setErrorMsg(null);
+              setStatusBanner(null);
+              setClearSuccessMsg(null);
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'backup'
@@ -381,26 +396,6 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
           </button>
         </div>
       </div>
-
-      {statusBanner && (
-        <div
-          role="status"
-          className="rounded-2xl p-3.5 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
-        >
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{statusBanner}</span>
-        </div>
-      )}
-
-      {errorMsg && (
-        <div
-          role="alert"
-          className="rounded-2xl p-3.5 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
-        >
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-          <span>{errorMsg}</span>
-        </div>
-      )}
 
       {/* SUBTAB 1: OBJETIVOS */}
       {subTab === 'goals' && (
@@ -476,6 +471,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     value={goalTimeStr}
                     onChange={(e) => {
                       setErrorMsg(null);
+                      setStatusBanner(null);
                       setGoalTimeStr(e.target.value);
                     }}
                     onBlur={() => {
@@ -581,6 +577,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               )}
             </div>
 
+            {errorMsg && (
+              <div
+                role="alert"
+                className="rounded-xl p-3 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
             <button
               type="submit"
               className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-500/15"
@@ -588,6 +594,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <Save className="w-4 h-4" />
               Guardar Objetivo
             </button>
+
+            {statusBanner && (
+              <div
+                role="status"
+                className="rounded-xl p-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{statusBanner}</span>
+              </div>
+            )}
           </form>
 
           {/* Lista de Objetivos Activos con Brecha contra PB Carrera, PB Entrenamiento y Última Marca */}
@@ -772,7 +788,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               </h2>
               <span className="text-[11px] px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-medium flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Autoguardado activo
+                Guardado en este dispositivo
               </span>
             </div>
 
@@ -784,8 +800,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onBlur={() => void persistProfileImmediately({ name })}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setJustSavedProfile(false);
+                  }}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                   required
                 />
@@ -800,8 +818,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     type="button"
                     onClick={() => {
                       setGender('male');
+                      setJustSavedProfile(false);
                       void persistProfileImmediately({ gender: 'male' });
-                      setStatusBanner('Género actualizado a Hombre (guardado automáticamente).');
                     }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'male'
@@ -815,8 +833,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     type="button"
                     onClick={() => {
                       setGender('female');
+                      setJustSavedProfile(false);
                       void persistProfileImmediately({ gender: 'female' });
-                      setStatusBanner('Género actualizado a Mujer (guardado automáticamente).');
                     }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'female'
@@ -837,8 +855,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   type="text"
                   placeholder="Ej: Juvenil, Primera, Master 30-34..."
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  onBlur={() => void persistProfileImmediately({ category })}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setJustSavedProfile(false);
+                  }}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                 />
               </div>
@@ -854,10 +874,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       type="button"
                       onClick={() => {
                         setDefaultPoolLength(len);
+                        setJustSavedProfile(false);
                         void persistProfileImmediately({ defaultPoolLength: len });
-                        setStatusBanner(
-                          `Pileta predeterminada cambiada a ${len}m (guardado automáticamente).`
-                        );
                       }}
                       className={`py-2 rounded-lg text-xs font-bold ${
                         defaultPoolLength === len
@@ -879,8 +897,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   type="text"
                   placeholder="Nombre de tu club o equipo..."
                   value={club}
-                  onChange={(e) => setClub(e.target.value)}
-                  onBlur={() => void persistProfileImmediately({ club })}
+                  onChange={(e) => {
+                    setClub(e.target.value);
+                    setJustSavedProfile(false);
+                  }}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
                 />
               </div>
@@ -930,11 +950,71 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-cyan-500/15"
+              className={`w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
+                justSavedProfile
+                  ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
+                  : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/15'
+              }`}
             >
-              <Save className="w-4 h-4" />
-              Guardar Perfil y Pruebas Favoritas
+              {justSavedProfile ? (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>¡Perfil y Pruebas Favoritas Guardados!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Guardar Perfil y Pruebas Favoritas</span>
+                </>
+              )}
             </button>
+
+            {justSavedProfile && (
+              <div
+                role="status"
+                className="rounded-2xl p-4 bg-emerald-500/15 border-2 border-emerald-500/50 text-emerald-100 space-y-3"
+              >
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="text-xs space-y-1">
+                    <div className="font-extrabold text-white text-sm">
+                      ¡Tus datos quedaron guardados en el dispositivo!
+                    </div>
+                    <div className="text-emerald-200">
+                      Nadador: <strong>{name.trim() || 'Nadador'}</strong> ·{' '}
+                      <strong>{gender === 'male' ? 'Hombre' : 'Mujer'}</strong> · Pileta{' '}
+                      <strong>{defaultPoolLength}m</strong> ·{' '}
+                      <strong>{favoriteEventIds.length}</strong> pruebas favoritas.
+                    </div>
+                  </div>
+                </div>
+                {onNavigate && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onNavigate(
+                          'register',
+                          favoriteEventIds[0] ?? '50-fly',
+                          defaultPoolLength
+                        )
+                      }
+                      className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5"
+                    >
+                      <span>Ir a Registrar Marca</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('dashboard')}
+                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs"
+                    >
+                      Ir al Panel Principal
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </form>
       )}
@@ -948,9 +1028,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               Respaldo y Portabilidad Offline (JSON / CSV)
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Todos tus datos se almacenan de forma 100% privada en tu dispositivo mediante
-              IndexedDB. Puedes descargar una copia completa en JSON para respaldo o exportar tu
-              planilla de marcas en CSV.
+              Todos tus datos se almacenan de forma 100% privada en tu dispositivo. Puedes
+              descargar una copia completa en JSON para respaldo o exportar tu planilla de marcas en
+              CSV.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
@@ -988,6 +1068,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 Exportar Marcas CSV
               </button>
             </div>
+
+            {errorMsg && (
+              <div
+                role="alert"
+                className="rounded-xl p-3 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
           </div>
 
           <div className="glass-card rounded-2xl p-4 space-y-3 border border-amber-500/25">
@@ -1003,6 +1093,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             <button
               type="button"
               onClick={async () => {
+                setClearSuccessMsg(null);
                 const res = await onLoadDemo();
                 setStatusBanner(
                   `Se cargaron ${res.marksAdded} marcas de demostración y ${res.goalsAdded} objetivos.`
@@ -1012,6 +1103,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             >
               Cargar Conjunto de Demostración
             </button>
+
+            {statusBanner && (
+              <div
+                role="status"
+                className="rounded-xl p-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{statusBanner}</span>
+              </div>
+            )}
           </div>
 
           <div className="glass-card rounded-2xl p-4 space-y-3 border border-rose-500/30 bg-rose-950/10">
@@ -1020,24 +1121,31 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               Zona de Peligro · Borrar todos los datos
             </h2>
             <p className="text-xs text-slate-400">
-              Elimina todas las marcas ({marks.length}) y objetivos ({goals.length}) guardados en
-              este dispositivo, o restablece también el perfil del nadador a los valores de fábrica.
+              Elimina todas las marcas (<strong>{marks.length}</strong>) y objetivos (
+              <strong>{goals.length}</strong>) guardados en este dispositivo, o restablece también
+              el perfil del nadador a los valores de fábrica.
             </p>
 
             {confirmClearMode === 'none' ? (
               <div className="flex flex-wrap gap-2.5">
                 <button
                   type="button"
-                  onClick={() => setConfirmClearMode('marks')}
+                  onClick={() => {
+                    setClearSuccessMsg(null);
+                    setConfirmClearMode('marks');
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 font-semibold text-xs transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Borrar marcas y objetivos
+                  Borrar marcas y objetivos ({marks.length + goals.length})
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setConfirmClearMode('all')}
+                  onClick={() => {
+                    setClearSuccessMsg(null);
+                    setConfirmClearMode('all');
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-rose-500/20 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/40 font-semibold text-xs transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -1057,11 +1165,23 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     onClick={async () => {
                       const resetProfile = confirmClearMode === 'all';
                       await onClearAllData(resetProfile);
+                      setGoalTimeStr('');
+                      setGoalLabel('');
+                      setGoalSplitInputs({});
+                      if (resetProfile) {
+                        setName('Nadador');
+                        setGender('male');
+                        setCategory('');
+                        setClub('');
+                        setDefaultPoolLength(25);
+                        setFavoriteEventIds(['50-fly']);
+                      }
                       setConfirmClearMode('none');
-                      setStatusBanner(
+                      setStatusBanner(null);
+                      setClearSuccessMsg(
                         resetProfile
-                          ? 'Se han borrado todos los datos y restablecido el perfil inicial.'
-                          : 'Se han borrado todas las marcas y objetivos correctamente.'
+                          ? '¡Listo! Se borraron todas las marcas, objetivos y se restableció el perfil a fábrica.'
+                          : '¡Listo! Se borraron todas las marcas y objetivos de este dispositivo (0 marcas, 0 objetivos).'
                       );
                     }}
                     className="px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs transition-colors"
@@ -1076,6 +1196,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     Cancelar
                   </button>
                 </div>
+              </div>
+            )}
+
+            {clearSuccessMsg && (
+              <div
+                role="status"
+                className="rounded-xl p-3 bg-emerald-500/15 border-2 border-emerald-500/50 text-emerald-200 text-xs font-semibold flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{clearSuccessMsg}</span>
               </div>
             )}
           </div>
