@@ -22,7 +22,6 @@ import {
   saveGoalToDb,
   saveMarkToDb,
   updateProfileInDb,
-  writeLocalMirror,
 } from './db';
 import { DEFAULT_SWIMMER_PROFILE } from './db/seeds';
 import { formatSwimTime } from './utils/calculator';
@@ -128,39 +127,20 @@ export const App: React.FC = () => {
   const liveGoals = useLiveQuery(() => db.goals.toArray(), []);
 
   const profile = useMemo<SwimmerProfile>(() => {
+    if (localMirror?.profile) {
+      return localMirror.profile;
+    }
     if (liveProfiles && liveProfiles.length > 0) {
       return liveProfiles[liveProfiles.length - 1];
     }
-    return (
-      localMirror?.profile ?? {
-        ...DEFAULT_SWIMMER_PROFILE,
-        id: 1,
-      }
-    );
-  }, [liveProfiles, localMirror?.profile]);
+    return {
+      ...DEFAULT_SWIMMER_PROFILE,
+      id: 1,
+    };
+  }, [localMirror?.profile, liveProfiles]);
 
-  const marks: SwimMark[] =
-    liveMarks !== undefined
-      ? liveMarks.length > 0 || !localMirror?.marks?.length
-        ? liveMarks
-        : localMirror.marks
-      : (localMirror?.marks ?? []);
-
-  const goals: SwimGoal[] =
-    liveGoals !== undefined
-      ? liveGoals.length > 0 || !localMirror?.goals?.length
-        ? liveGoals
-        : localMirror.goals
-      : (localMirror?.goals ?? []);
-
-  // Mantener espejo actualizado cuando cambian las colecciones reactivas
-  useEffect(() => {
-    if (liveProfiles !== undefined && liveMarks !== undefined && liveGoals !== undefined) {
-      if (liveMarks.length > 0 || liveGoals.length > 0 || liveProfiles.length > 0) {
-        writeLocalMirror(profile, liveMarks, liveGoals);
-      }
-    }
-  }, [profile, liveProfiles, liveMarks, liveGoals]);
+  const marks: SwimMark[] = localMirror ? localMirror.marks : (liveMarks ?? []);
+  const goals: SwimGoal[] = localMirror ? localMirror.goals : (liveGoals ?? []);
 
   const handleNavigate = (
     tab: ActiveTab,
@@ -224,6 +204,11 @@ export const App: React.FC = () => {
   const handleUpdateProfile = async (updated: SwimmerProfile) => {
     await updateProfileInDb(updated);
     setMirrorRevision((r) => r + 1);
+    setToast({
+      message: `¡Perfil FINA guardado! (${updated.name} · ${
+        updated.gender === 'male' ? 'Hombre' : 'Mujer'
+      } · Pileta ${updated.defaultPoolLength}m)`,
+    });
   };
 
   const handleSaveGoal = async (goalData: Omit<SwimGoal, 'id'>) => {
@@ -279,18 +264,23 @@ export const App: React.FC = () => {
   const handleClearAllData = async (resetProfile = false) => {
     await clearAllData(resetProfile);
     setMirrorRevision((r) => r + 1);
+    setToast({
+      message: resetProfile
+        ? 'Se borraron todas las marcas, objetivos y se restableció el perfil.'
+        : 'Se borraron todas las marcas y objetivos del dispositivo.',
+    });
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Header profile={profile} onSelectTab={(tab) => handleNavigate(tab)} />
 
-      {/* Toast flotante de confirmación inmediata visible en cualquier posición de scroll móvil */}
+      {/* Toast flotante de confirmación inmediata en la parte inferior de la pantalla (junto a los botones de acción) */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-950/90 flex items-center justify-between gap-3"
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-950/90 flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -327,9 +317,6 @@ export const App: React.FC = () => {
             marks={marks}
             goals={goals}
             onNavigate={handleNavigate}
-            onLoadDemo={async () => {
-              await handleLoadDemo();
-            }}
           />
         )}
 
@@ -377,6 +364,7 @@ export const App: React.FC = () => {
             onExportCsv={handleExportCsv}
             onLoadDemo={handleLoadDemo}
             onClearAllData={handleClearAllData}
+            onNavigate={handleNavigate}
           />
         )}
       </main>
