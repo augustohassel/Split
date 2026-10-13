@@ -62,8 +62,8 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 
 ### Récord Personal (PB / Personal Best)
 
-- **Definición**: Mejor marca histórica (menor tiempo) registrada por el nadador para una combinación específica de prueba y tamaño de pileta (con largada estática).
-- **Alcance / Propósito**: Sirve como hito de referencia principal para medir la evolución del nadador, calcular su máximo puntaje FINA por prueba y comparar la brecha frente a sus Objetivos.
+- **Definición**: Mejor marca histórica (menor tiempo) registrada por el nadador para una combinación específica de prueba y tamaño de pileta (`25m` o `50m`) con largada estática (`Individual` o `Posta - 1er Relevo`), separada según el contexto en **PB de Carrera** (marca principal y prioritaria de torneo) y **PB de Entrenamiento** (mejor marca lograda en práctica).
+- **Alcance / Propósito**: El **PB de Carrera** actúa como el hito principal de referencia para el ranking de Puntos FINA, récords oficiales del nadador y cálculo prioritario de brecha frente a sus Objetivos, mientras que el **PB de Entrenamiento** se monitorea de forma independiente para evaluar el rendimiento en sesiones de práctica sin mezclar condiciones de competencia.
 
 ### Objetivo (Meta)
 
