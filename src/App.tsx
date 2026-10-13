@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActiveTab,
   PoolLength,
@@ -10,20 +9,19 @@ import {
 } from './types';
 import {
   clearAllData,
-  db,
   deleteGoalFromDb,
   deleteMarkFromDb,
   ensureDefaultProfile,
   exportDatabaseAsJson,
   exportMarksAsCsv,
+  getStoreState,
   importDatabaseFromJson,
   loadDemoDataset,
-  readLocalMirror,
+  LocalDatabaseMirror,
   saveGoalToDb,
   saveMarkToDb,
   updateProfileInDb,
 } from './db';
-import { DEFAULT_SWIMMER_PROFILE } from './db/seeds';
 import { formatSwimTime } from './utils/calculator';
 import { getEventById } from './utils/events';
 import { Header } from './components/layout/Header';
@@ -87,18 +85,22 @@ export const App: React.FC = () => {
     initialNav?.selectedPoolLength
   );
   const [editingMark, setEditingMark] = useState<SwimMark | null>(null);
-  const [mirrorRevision, setMirrorRevision] = useState<number>(0);
+  const [dbState, setDbState] = useState<LocalDatabaseMirror>(() => getStoreState());
   const [toast, setToast] = useState<{
     message: string;
     actionLabel?: string;
     onAction?: () => void;
   } | null>(null);
 
+  const refreshStore = useCallback(() => {
+    setDbState(getStoreState());
+  }, []);
+
   useEffect(() => {
     void ensureDefaultProfile().then(() => {
-      setMirrorRevision((r) => r + 1);
+      refreshStore();
     });
-  }, []);
+  }, [refreshStore]);
 
   useEffect(() => {
     writeNavState({
@@ -116,31 +118,7 @@ export const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // Espejo sincrónico en localStorage para evitar parpadeos al refrescar o fallos de IndexedDB en móvil
-  const localMirror = useMemo(() => {
-    void mirrorRevision;
-    return readLocalMirror();
-  }, [mirrorRevision]);
-
-  const liveProfiles = useLiveQuery(() => db.profile.toArray(), []);
-  const liveMarks = useLiveQuery(() => db.marks.toArray(), []);
-  const liveGoals = useLiveQuery(() => db.goals.toArray(), []);
-
-  const profile = useMemo<SwimmerProfile>(() => {
-    if (localMirror?.profile) {
-      return localMirror.profile;
-    }
-    if (liveProfiles && liveProfiles.length > 0) {
-      return liveProfiles[liveProfiles.length - 1];
-    }
-    return {
-      ...DEFAULT_SWIMMER_PROFILE,
-      id: 1,
-    };
-  }, [localMirror?.profile, liveProfiles]);
-
-  const marks: SwimMark[] = localMirror ? localMirror.marks : (liveMarks ?? []);
-  const goals: SwimGoal[] = localMirror ? localMirror.goals : (liveGoals ?? []);
+  const { profile, marks, goals } = dbState;
 
   const handleNavigate = (
     tab: ActiveTab,
@@ -160,7 +138,7 @@ export const App: React.FC = () => {
     existingId?: number
   ): Promise<SwimMark> => {
     const saved = await saveMarkToDb(markData, existingId);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setSelectedEventId(markData.eventId);
     setSelectedPoolLength(markData.poolLength);
 
@@ -197,23 +175,23 @@ export const App: React.FC = () => {
 
   const handleDeleteMark = async (id: number) => {
     await deleteMarkFromDb(id);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setToast({ message: 'Marca eliminada del dispositivo.' });
   };
 
   const handleUpdateProfile = async (updated: SwimmerProfile) => {
-    await updateProfileInDb(updated);
-    setMirrorRevision((r) => r + 1);
+    const saved = await updateProfileInDb(updated);
+    refreshStore();
     setToast({
-      message: `¡Perfil FINA guardado! (${updated.name} · ${
-        updated.gender === 'male' ? 'Hombre' : 'Mujer'
-      } · Pileta ${updated.defaultPoolLength}m)`,
+      message: `¡Perfil FINA guardado! (${saved.name} · ${
+        saved.gender === 'male' ? 'Hombre' : 'Mujer'
+      } · Pileta ${saved.defaultPoolLength}m)`,
     });
   };
 
   const handleSaveGoal = async (goalData: Omit<SwimGoal, 'id'>) => {
     await saveGoalToDb(goalData);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     const ev = getEventById(goalData.eventId);
     setToast({
       message: `¡Objetivo guardado! ${ev.name} (${goalData.poolLength}m): ${formatSwimTime(
@@ -224,7 +202,7 @@ export const App: React.FC = () => {
 
   const handleDeleteGoal = async (id: number) => {
     await deleteGoalFromDb(id);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setToast({ message: 'Objetivo eliminado.' });
   };
 
@@ -238,7 +216,7 @@ export const App: React.FC = () => {
   const handleImportJson = async (file: File) => {
     const text = await file.text();
     const res = await importDatabaseFromJson(text);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setToast({
       message: `Backup restaurado: ${res.marksImported} marcas y ${res.goalsImported} objetivos.`,
     });
@@ -254,7 +232,7 @@ export const App: React.FC = () => {
 
   const handleLoadDemo = async () => {
     const res = await loadDemoDataset();
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setToast({
       message: `Datos de demostración cargados (${res.marksAdded} marcas y ${res.goalsAdded} objetivos).`,
     });
@@ -263,7 +241,7 @@ export const App: React.FC = () => {
 
   const handleClearAllData = async (resetProfile = false) => {
     await clearAllData(resetProfile);
-    setMirrorRevision((r) => r + 1);
+    refreshStore();
     setToast({
       message: resetProfile
         ? 'Se borraron todas las marcas, objetivos y se restableció el perfil.'
@@ -275,7 +253,7 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Header profile={profile} onSelectTab={(tab) => handleNavigate(tab)} />
 
-      {/* Toast flotante de confirmación inmediata en la parte inferior de la pantalla (junto a los botones de acción) */}
+      {/* Toast flotante de confirmación inmediata en la parte inferior de la pantalla */}
       {toast && (
         <div
           role="status"
@@ -379,4 +357,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

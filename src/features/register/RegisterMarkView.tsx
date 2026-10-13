@@ -419,14 +419,6 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
     totalTimeInputRef.current?.focus();
   };
 
-  const handleNormalizeTotalOnBlur = () => {
-    if (!totalTimeStr.trim()) return;
-    const sec = parseTimeInput(totalTimeStr);
-    if (sec !== null && sec > 0) {
-      setTotalTimeStr(formatSwimTime(sec));
-    }
-  };
-
   const handleSplitChange = (
     dist: number,
     field: keyof SplitInputRow,
@@ -455,18 +447,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
     }
   };
 
-  const handleNormalizeSplitOnBlur = (dist: number) => {
-    const raw = splitInputs[dist]?.cumulativeStr?.trim();
-    if (!raw) return;
-    const sec = parseTimeInput(raw);
-    if (sec !== null && sec > 0) {
-      handleSplitChange(dist, 'cumulativeStr', formatSwimTime(sec));
-    }
-  };
-
   const scrollFeedbackIntoView = () => {
     setTimeout(() => {
-      feedbackBoxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      feedbackBoxRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     }, 60);
   };
 
@@ -762,7 +745,6 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     setErrorMsg(null);
                     setTotalTimeStr(e.target.value);
                   }}
-                  onBlur={handleNormalizeTotalOnBlur}
                   className={`w-full rounded-xl bg-slate-950 border px-4 py-3 text-xl font-extrabold font-mono text-white placeholder:text-slate-600 focus:outline-none ${
                     hasInvalidTotalInput
                       ? 'border-rose-500 focus:border-rose-400'
@@ -1086,7 +1068,6 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       }
                       value={row?.cumulativeStr ?? ''}
                       onChange={(e) => handleSplitChange(dist, 'cumulativeStr', e.target.value)}
-                      onBlur={() => handleNormalizeSplitOnBlur(dist)}
                       className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
                     />
                     {dist >= 100 && (
