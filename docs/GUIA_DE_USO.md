@@ -9,23 +9,27 @@
 Cuando abrís **Split** por primera vez, la aplicación viene lista para usar con **50m Mariposa** seleccionada como prueba favorita inicial. Antes de cargar tus marcas, te recomendamos configurar tu perfil:
 
 1. Tocá tu nombre en la esquina superior derecha (o andá a la pestaña **Objetivos → Perfil FINA**).
-2. Completá:
+2. Completá (todos los cambios se **autoguardan instantáneamente** en tu dispositivo):
    - **Nombre o Apodo**.
    - **Género Deportivo (*Hombre* / *Mujer*)**: Es fundamental porque define qué tabla oficial de Tiempos Base de *World Aquatics* se usa para calcular tus **Puntos FINA**.
    - **Pileta Habitual Predeterminada (`25m` o `50m`)**: Preselecciona la longitud de pileta cada vez que vas a registrar una marca.
    - **Pruebas Favoritas**: Tocá las pruebas que nadás habitualmente (por ejemplo, *50m Mariposa*, *100m Mariposa*, *50m Libre*) para tenerlas como botones de acceso directo de 1 toque.
-3. Tocá **"Guardar Perfil y Pruebas Favoritas"**.
+3. Tus preferencias quedan guardadas automáticamente incluso si refrescás la pantalla.
 
 ---
 
 ## 2. Cómo Registrar una Marca y sus Parciales (*Splits*)
 
-1. En la barra inferior, tocá **Registrar** (o el botón `+` junto a cualquiera de tus pruebas favoritas en el *Dashboard*).
+1. En la barra inferior, tocá **Registrar** (o el botón `+` junto a cualquiera de tus pruebas favoritas en el *Inicio*). Mientras completás el formulario, **Split guarda un borrador automático** para que no pierdas ningún dato si refrescás o cambiás de pestaña.
 2. **Seleccioná la Pileta (`25m` o `50m`) y la Prueba**:
    - Podés tocar uno de los botones de *Acceso Rápido* de tus pruebas favoritas o elegir entre las **18 pruebas oficiales**.
-3. **Ingresá el Tiempo Total**:
-   - Podés escribirlo en segundos (`26.45` o `26,45` con coma) o con minutos (`1:02.40`).
-   - En ese mismo instante verás calcularse en vivo tus **Puntos FINA** y si ese tiempo representa un nuevo **PB de Carrera** o **PB de Entrenamiento**.
+3. **Ingresá el Tiempo Total (compatible con teclado numérico de celular)**:
+   - Para marcas menores a 1 minuto: escribí los segundos con punto o coma (`26.45` o `26,45`).
+   - **Para marcas mayores a 60 segundos en celular** (donde el teclado numérico solo muestra el punto `.` y no los dos puntos `:`):
+     - Podés usar **doble punto o doble coma**: por ejemplo `1.02.40` o `1,02,40` (la app lo interpreta y formatea automáticamente como `1:02.40`).
+     - O tocar el botón **` : `** integrado a la derecha del campo de texto para insertar los dos puntos sin cerrar el teclado numérico.
+     - O ingresarlo en segundos totales (`62.40`).
+   - En ese mismo instante verás la confirmación del tiempo interpretado (`✓ 1:02.40`), tus **Puntos FINA** en vivo y si ese tiempo representa un nuevo **PB de Carrera** o **PB de Entrenamiento**.
 4. **Indicá las Condiciones de la Marca**:
    - **Contexto**: *🏆 Carrera / Torneo* o *🏊 Entrenamiento*.
    - **Tipo de Cronometraje**: *Electrónico / Placa* o *Manual / Cronómetro*.

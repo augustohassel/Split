@@ -5,13 +5,18 @@ import { LayoutDashboard, LineChart, PlusCircle, Target } from 'lucide-react';
 interface BottomNavProps {
   activeTab: ActiveTab;
   onSelectTab: (tab: ActiveTab) => void;
+  marksCount?: number;
 }
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) => {
-  const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
+export const BottomNav: React.FC<BottomNavProps> = ({
+  activeTab,
+  onSelectTab,
+  marksCount = 0,
+}) => {
+  const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: number }[] = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: 'Inicio',
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
@@ -21,8 +26,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
     },
     {
       id: 'history',
-      label: 'Evolución',
+      label: 'Historial',
       icon: <LineChart className="w-5 h-5" />,
+      badge: marksCount > 0 ? marksCount : undefined,
     },
     {
       id: 'goals',
@@ -44,13 +50,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
               key={item.id}
               type="button"
               onClick={() => onSelectTab(item.id)}
-              className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              className={`relative flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
                 isActive
                   ? 'text-cyan-400 bg-cyan-500/10 font-semibold'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {item.icon}
+              <div className="relative">
+                {item.icon}
+                {item.badge !== undefined && (
+                  <span className="absolute -top-1.5 -right-3.5 min-w-[18px] h-[16px] px-1 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-extrabold font-mono flex items-center justify-center shadow">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] mt-1 leading-none">{item.label}</span>
             </button>
           );
