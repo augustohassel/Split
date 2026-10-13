@@ -196,7 +196,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     [currentGoalEvent.distance, goalPoolLength]
   );
 
-  const parsedGoalSec = useMemo(() => parseTimeInput(goalTimeStr), [goalTimeStr]);
+  const finalGoalSplitRawStr = goalSplitInputs[currentGoalEvent.distance]?.trim() || '';
+  const parsedGoalSec = useMemo(() => {
+    const direct = parseTimeInput(goalTimeStr);
+    if (direct !== null && direct > 0) return direct;
+    return parseTimeInput(finalGoalSplitRawStr);
+  }, [goalTimeStr, finalGoalSplitRawStr]);
   const hasInvalidGoalInput = Boolean(goalTimeStr.trim()) && parsedGoalSec === null;
 
   const liveGoalFina = useMemo(
@@ -474,10 +479,6 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setStatusBanner(null);
                       setGoalTimeStr(e.target.value);
                     }}
-                    onBlur={() => {
-                      const sec = parseTimeInput(goalTimeStr);
-                      if (sec && sec > 0) setGoalTimeStr(formatSwimTime(sec));
-                    }}
                     className={`w-full rounded-xl bg-slate-950 border px-3 py-2 text-base font-extrabold font-mono text-white ${
                       hasInvalidGoalInput
                         ? 'border-rose-500'
@@ -559,16 +560,6 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                         onChange={(e) =>
                           setGoalSplitInputs((prev) => ({ ...prev, [dist]: e.target.value }))
                         }
-                        onBlur={() => {
-                          const raw = goalSplitInputs[dist];
-                          const sec = raw ? parseTimeInput(raw) : null;
-                          if (sec && sec > 0) {
-                            setGoalSplitInputs((prev) => ({
-                              ...prev,
-                              [dist]: formatSwimTime(sec),
-                            }));
-                          }
-                        }}
                         className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2 py-1 text-xs font-mono text-white"
                       />
                     </div>
@@ -779,7 +770,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
       {/* SUBTAB 2: PERFIL DEL NADADOR Y PUNTOS FINA */}
       {subTab === 'profile' && (
-        <form onSubmit={handleProfileSubmit} className="space-y-4">
+        <form onSubmit={handleProfileSubmit} noValidate className="space-y-4">
           <div className="glass-card rounded-2xl p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
@@ -799,13 +790,13 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 </label>
                 <input
                   type="text"
+                  placeholder="Tu nombre o apodo..."
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
                     setJustSavedProfile(false);
                   }}
                   className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
-                  required
                 />
               </div>
 
