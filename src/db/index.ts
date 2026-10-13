@@ -58,6 +58,24 @@ export async function loadDemoDataset(): Promise<{ marksAdded: number; goalsAdde
   };
 }
 
+/**
+ * Elimina todas las marcas y objetivos registrados localmente, y opcionalmente
+ * restablece el perfil del nadador a los valores iniciales de fábrica.
+ */
+export async function clearAllData(resetProfile = false): Promise<void> {
+  await db.transaction('rw', db.profile, db.marks, db.goals, async () => {
+    await db.marks.clear();
+    await db.goals.clear();
+    if (resetProfile) {
+      await db.profile.clear();
+      await db.profile.add({
+        ...DEFAULT_SWIMMER_PROFILE,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  });
+}
+
 export interface SplitBackupPayload {
   app: 'Split';
   version: string;

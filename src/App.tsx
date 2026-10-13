@@ -9,6 +9,7 @@ import {
   SwimmerProfile,
 } from './types';
 import {
+  clearAllData,
   db,
   ensureDefaultProfile,
   exportDatabaseAsJson,
@@ -139,6 +140,10 @@ export const App: React.FC = () => {
     return loadDemoDataset();
   };
 
+  const handleClearAllData = async (resetProfile = false) => {
+    await clearAllData(resetProfile);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Header profile={profile} onSelectTab={(tab) => handleNavigate(tab)} />
@@ -196,6 +201,7 @@ export const App: React.FC = () => {
             onImportJson={handleImportJson}
             onExportCsv={handleExportCsv}
             onLoadDemo={handleLoadDemo}
+            onClearAllData={handleClearAllData}
           />
         )}
       </main>

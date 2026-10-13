@@ -25,6 +25,7 @@ import {
 import { calculateFinaPoints, FINA_TABLE_VERSION, getFinaBaseTime } from '../../utils/fina';
 import { FinaBadge } from '../../components/common/FinaBadge';
 import {
+  AlertTriangle,
   CheckCircle2,
   Database,
   Download,
@@ -50,6 +51,7 @@ interface GoalsAndSettingsViewProps {
   onImportJson: (file: File) => Promise<{ marksImported: number; goalsImported: number }>;
   onExportCsv: () => void;
   onLoadDemo: () => Promise<{ marksAdded: number; goalsAdded: number }>;
+  onClearAllData: (resetProfile?: boolean) => Promise<void>;
 }
 
 export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
@@ -63,10 +65,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onImportJson,
   onExportCsv,
   onLoadDemo,
+  onClearAllData,
 }) => {
   const [subTab, setSubTab] = useState<'goals' | 'profile' | 'backup'>('goals');
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [confirmClearMode, setConfirmClearMode] = useState<'none' | 'marks' | 'all'>('none');
 
   // Estado formulario de Objetivo
   const [goalPoolLength, setGoalPoolLength] = useState<PoolLength>(profile.defaultPoolLength);
@@ -822,6 +826,72 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             >
               Cargar Conjunto de Demostración
             </button>
+          </div>
+
+          <div className="glass-card rounded-2xl p-4 space-y-3 border border-rose-500/30 bg-rose-950/10">
+            <h2 className="text-sm font-bold text-rose-200 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-400" />
+              Zona de Peligro · Borrar todos los datos
+            </h2>
+            <p className="text-xs text-slate-400">
+              Elimina todas las marcas ({marks.length}) y objetivos ({goals.length}) guardados en
+              este dispositivo, o restablece también el perfil del nadador a los valores de fábrica.
+            </p>
+
+            {confirmClearMode === 'none' ? (
+              <div className="flex flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setConfirmClearMode('marks')}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 font-semibold text-xs transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Borrar marcas y objetivos
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setConfirmClearMode('all')}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-rose-500/20 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/40 font-semibold text-xs transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Restablecer app de fábrica (Todo)
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-xl bg-slate-950/90 border border-rose-500/40 p-3 space-y-2.5">
+                <p className="text-xs font-semibold text-rose-200">
+                  {confirmClearMode === 'all'
+                    ? '¿Confirmas eliminar TODAS las marcas, objetivos y restablecer tu perfil de nadador?'
+                    : `¿Confirmas eliminar las ${marks.length} marcas y ${goals.length} objetivos? (Tu perfil se mantendrá).`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const resetProfile = confirmClearMode === 'all';
+                      await onClearAllData(resetProfile);
+                      setConfirmClearMode('none');
+                      setStatusBanner(
+                        resetProfile
+                          ? 'Se han borrado todos los datos y restablecido el perfil inicial.'
+                          : 'Se han borrado todas las marcas y objetivos correctamente.'
+                      );
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs transition-colors"
+                  >
+                    Sí, borrar ahora
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClearMode('none')}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
