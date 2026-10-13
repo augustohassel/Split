@@ -1,12 +1,13 @@
 # Guía para Agentes de IA — Split
 
 ## 1. Propósito y Visión del Proyecto
-**Split** es una aplicación para nadadores diseñada para registrar, analizar y seguir la evolución de tiempos y parciales (*splits*), con foco inicial en la prueba de **50 metros mariposa**.
+**Split** es una aplicación *mobile-first* y *offline-first* (PWA) para nadadores diseñada para registrar, analizar y seguir la evolución de tiempos y parciales (*splits*) en **todas las pruebas oficiales de natación de pileta** (Mariposa, Espalda, Pecho, Libre y Combinado Individual).
 
 Funcionalidades principales:
-- **Registro de marcas**: Fecha, pileta/sede, tamaño de pileta (ej. 25m o 50m), contexto (*carrera* o *entrenamiento*) y modalidad (*individual* o *posta*).
-- **Parciales (*Splits*)**: Carga y análisis de tiempos intermedios en puntos clave de la prueba (15m, 25m, 35m, etc.).
-- **Objetivos y Evolución**: Definición de tiempos objetivo, visualización de la brecha actual (qué tan cerca/lejos se está de la meta) y gráficos/historial de evolución a lo largo del tiempo.
+- **Perfil del nadador y Puntos FINA**: Configuración de género (*Hombre* / *Mujer*) y datos base para calcular automáticamente los **Puntos FINA (World Aquatics)** de cada marca según prueba y tamaño de pileta (`25m` o `50m`).
+- **Registro de marcas**: Prueba (estilo y distancia), fecha, pileta/sede, tamaño de pileta (`25m` o `50m`), contexto (*carrera* o *entrenamiento*), modalidad (*individual* o *posta*), sensación en el agua y comentarios/notas libres.
+- **Parciales (*Splits*)**: Carga opcional y análisis de tiempos intermedios acumulados en puntos clave de la prueba (`15m`, `25m`, `35m` en pruebas de 50m; cada `25m`/`50m` en distancias mayores).
+- **Objetivos y Evolución**: Definición de tiempos objetivo por prueba y tamaño de pileta, visualización de la brecha actual y gráficos/historial de evolución temporal.
 
 *(Ver definiciones de dominio detalladas en [`docs/glosario.md`](docs/glosario.md))*.
 
