@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
   ActiveTab,
@@ -11,19 +11,57 @@ import {
 import {
   clearAllData,
   db,
+  deleteGoalFromDb,
+  deleteMarkFromDb,
   ensureDefaultProfile,
   exportDatabaseAsJson,
   exportMarksAsCsv,
   importDatabaseFromJson,
   loadDemoDataset,
+  readLocalMirror,
+  saveGoalToDb,
+  saveMarkToDb,
+  updateProfileInDb,
+  writeLocalMirror,
 } from './db';
 import { DEFAULT_SWIMMER_PROFILE } from './db/seeds';
+import { formatSwimTime } from './utils/calculator';
+import { getEventById } from './utils/events';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { DashboardView } from './features/dashboard/DashboardView';
 import { RegisterMarkView } from './features/register/RegisterMarkView';
 import { HistoryView } from './features/history/HistoryView';
 import { GoalsAndSettingsView } from './features/goals/GoalsAndSettingsView';
+import { ArrowRight, CheckCircle2, X } from 'lucide-react';
+
+const NAV_STATE_KEY = 'split_nav_state_v1';
+
+interface PersistedNavState {
+  activeTab: ActiveTab;
+  selectedEventId?: SwimEventId;
+  selectedPoolLength?: PoolLength;
+}
+
+function readNavState(): PersistedNavState | null {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    const raw = window.localStorage.getItem(NAV_STATE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedNavState;
+  } catch {
+    return null;
+  }
+}
+
+function writeNavState(state: PersistedNavState): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.setItem(NAV_STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Ignorar errores de almacenamiento
+  }
+}
 
 function triggerDownload(content: string, filename: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType });
@@ -38,23 +76,91 @@ function triggerDownload(content: string, filename: string, mimeType: string) {
 }
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  const [selectedEventId, setSelectedEventId] = useState<SwimEventId | undefined>(undefined);
-  const [selectedPoolLength, setSelectedPoolLength] = useState<PoolLength | undefined>(undefined);
+  const initialNav = useMemo(() => readNavState(), []);
+
+  const [activeTab, setActiveTab] = useState<ActiveTab>(
+    initialNav?.activeTab ?? 'dashboard'
+  );
+  const [selectedEventId, setSelectedEventId] = useState<SwimEventId | undefined>(
+    initialNav?.selectedEventId
+  );
+  const [selectedPoolLength, setSelectedPoolLength] = useState<PoolLength | undefined>(
+    initialNav?.selectedPoolLength
+  );
   const [editingMark, setEditingMark] = useState<SwimMark | null>(null);
+  const [mirrorRevision, setMirrorRevision] = useState<number>(0);
+  const [toast, setToast] = useState<{
+    message: string;
+    actionLabel?: string;
+    onAction?: () => void;
+  } | null>(null);
 
   useEffect(() => {
-    void ensureDefaultProfile();
+    void ensureDefaultProfile().then(() => {
+      setMirrorRevision((r) => r + 1);
+    });
   }, []);
 
-  const profiles = useLiveQuery(() => db.profile.toArray(), []);
-  const marks = useLiveQuery(() => db.marks.toArray(), []) ?? [];
-  const goals = useLiveQuery(() => db.goals.toArray(), []) ?? [];
+  useEffect(() => {
+    writeNavState({
+      activeTab,
+      selectedEventId,
+      selectedPoolLength,
+    });
+  }, [activeTab, selectedEventId, selectedPoolLength]);
 
-  const profile: SwimmerProfile = profiles?.[0] ?? {
-    ...DEFAULT_SWIMMER_PROFILE,
-    id: 1,
-  };
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // Espejo sincrónico en localStorage para evitar parpadeos al refrescar o fallos de IndexedDB en móvil
+  const localMirror = useMemo(() => {
+    void mirrorRevision;
+    return readLocalMirror();
+  }, [mirrorRevision]);
+
+  const liveProfiles = useLiveQuery(() => db.profile.toArray(), []);
+  const liveMarks = useLiveQuery(() => db.marks.toArray(), []);
+  const liveGoals = useLiveQuery(() => db.goals.toArray(), []);
+
+  const profile = useMemo<SwimmerProfile>(() => {
+    if (liveProfiles && liveProfiles.length > 0) {
+      return liveProfiles[liveProfiles.length - 1];
+    }
+    return (
+      localMirror?.profile ?? {
+        ...DEFAULT_SWIMMER_PROFILE,
+        id: 1,
+      }
+    );
+  }, [liveProfiles, localMirror?.profile]);
+
+  const marks: SwimMark[] =
+    liveMarks !== undefined
+      ? liveMarks.length > 0 || !localMirror?.marks?.length
+        ? liveMarks
+        : localMirror.marks
+      : (localMirror?.marks ?? []);
+
+  const goals: SwimGoal[] =
+    liveGoals !== undefined
+      ? liveGoals.length > 0 || !localMirror?.goals?.length
+        ? liveGoals
+        : localMirror.goals
+      : (localMirror?.goals ?? []);
+
+  // Mantener espejo actualizado cuando cambian las colecciones reactivas
+  useEffect(() => {
+    if (liveProfiles !== undefined && liveMarks !== undefined && liveGoals !== undefined) {
+      if (liveMarks.length > 0 || liveGoals.length > 0 || liveProfiles.length > 0) {
+        writeLocalMirror(profile, liveMarks, liveGoals);
+      }
+    }
+  }, [profile, liveProfiles, liveMarks, liveGoals]);
 
   const handleNavigate = (
     tab: ActiveTab,
@@ -72,14 +178,34 @@ export const App: React.FC = () => {
   const handleSaveMark = async (
     markData: Omit<SwimMark, 'id'>,
     existingId?: number
-  ) => {
+  ): Promise<SwimMark> => {
+    const saved = await saveMarkToDb(markData, existingId);
+    setMirrorRevision((r) => r + 1);
+    setSelectedEventId(markData.eventId);
+    setSelectedPoolLength(markData.poolLength);
+
+    const ev = getEventById(markData.eventId);
     if (existingId !== undefined) {
-      await db.marks.put({ ...markData, id: existingId });
       setEditingMark(null);
       setActiveTab('history');
+      setToast({
+        message: `Marca actualizada: ${ev.name} (${markData.poolLength}m) — ${formatSwimTime(
+          markData.timeSec
+        )}`,
+      });
     } else {
-      await db.marks.add(markData);
+      setToast({
+        message: `¡Marca guardada! ${ev.name} (${markData.poolLength}m) — ${formatSwimTime(
+          markData.timeSec
+        )}`,
+        actionLabel: 'Ver Historial',
+        onAction: () => {
+          handleNavigate('history', markData.eventId, markData.poolLength);
+          setToast(null);
+        },
+      });
     }
+    return saved;
   };
 
   const handleEditMark = (mark: SwimMark) => {
@@ -90,63 +216,109 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteMark = async (id: number) => {
-    await db.marks.delete(id);
+    await deleteMarkFromDb(id);
+    setMirrorRevision((r) => r + 1);
+    setToast({ message: 'Marca eliminada del dispositivo.' });
   };
 
   const handleUpdateProfile = async (updated: SwimmerProfile) => {
-    if (updated.id !== undefined) {
-      await db.profile.put(updated);
-    } else {
-      await db.profile.clear();
-      await db.profile.add(updated);
-    }
+    await updateProfileInDb(updated);
+    setMirrorRevision((r) => r + 1);
   };
 
   const handleSaveGoal = async (goalData: Omit<SwimGoal, 'id'>) => {
-    const existing = await db.goals
-      .where('[eventId+poolLength]')
-      .equals([goalData.eventId, goalData.poolLength])
-      .first();
-
-    if (existing && existing.id !== undefined) {
-      await db.goals.put({ ...goalData, id: existing.id });
-    } else {
-      await db.goals.add(goalData);
-    }
+    await saveGoalToDb(goalData);
+    setMirrorRevision((r) => r + 1);
+    const ev = getEventById(goalData.eventId);
+    setToast({
+      message: `¡Objetivo guardado! ${ev.name} (${goalData.poolLength}m): ${formatSwimTime(
+        goalData.targetTimeSec
+      )}`,
+    });
   };
 
   const handleDeleteGoal = async (id: number) => {
-    await db.goals.delete(id);
+    await deleteGoalFromDb(id);
+    setMirrorRevision((r) => r + 1);
+    setToast({ message: 'Objetivo eliminado.' });
   };
 
   const handleExportJson = async () => {
     const json = await exportDatabaseAsJson();
     const dateStr = new Date().toISOString().slice(0, 10);
     triggerDownload(json, `split-backup-${dateStr}.json`, 'application/json;charset=utf-8');
+    setToast({ message: 'Archivo de respaldo JSON descargado.' });
   };
 
   const handleImportJson = async (file: File) => {
     const text = await file.text();
-    return importDatabaseFromJson(text);
+    const res = await importDatabaseFromJson(text);
+    setMirrorRevision((r) => r + 1);
+    setToast({
+      message: `Backup restaurado: ${res.marksImported} marcas y ${res.goalsImported} objetivos.`,
+    });
+    return res;
   };
 
   const handleExportCsv = () => {
     const csv = exportMarksAsCsv(marks, profile.gender);
     const dateStr = new Date().toISOString().slice(0, 10);
     triggerDownload(csv, `split-marcas-${dateStr}.csv`, 'text/csv;charset=utf-8');
+    setToast({ message: 'Planilla CSV descargada.' });
   };
 
   const handleLoadDemo = async () => {
-    return loadDemoDataset();
+    const res = await loadDemoDataset();
+    setMirrorRevision((r) => r + 1);
+    setToast({
+      message: `Datos de demostración cargados (${res.marksAdded} marcas y ${res.goalsAdded} objetivos).`,
+    });
+    return res;
   };
 
   const handleClearAllData = async (resetProfile = false) => {
     await clearAllData(resetProfile);
+    setMirrorRevision((r) => r + 1);
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Header profile={profile} onSelectTab={(tab) => handleNavigate(tab)} />
+
+      {/* Toast flotante de confirmación inmediata visible en cualquier posición de scroll móvil */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-950/90 flex items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <span className="text-xs font-bold text-white leading-snug">{toast.message}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {toast.actionLabel && toast.onAction && (
+              <button
+                type="button"
+                onClick={toast.onAction}
+                className="px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-[11px] flex items-center gap-1"
+              >
+                <span>{toast.actionLabel}</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="p-1 text-slate-400 hover:text-white"
+              title="Cerrar notificación"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-24">
         {activeTab === 'dashboard' && (
@@ -174,6 +346,9 @@ export const App: React.FC = () => {
               setEditingMark(null);
               setActiveTab('history');
             }}
+            onNavigate={handleNavigate}
+            onEditMark={handleEditMark}
+            onDeleteMark={handleDeleteMark}
           />
         )}
 
@@ -206,7 +381,11 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      <BottomNav activeTab={activeTab} onSelectTab={(tab) => handleNavigate(tab)} />
+      <BottomNav
+        activeTab={activeTab}
+        onSelectTab={(tab) => handleNavigate(tab)}
+        marksCount={marks.length}
+      />
     </div>
   );
 };

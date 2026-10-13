@@ -22,23 +22,307 @@ export class SplitDatabase extends Dexie {
 
 export const db = new SplitDatabase();
 
+const LOCAL_MIRROR_KEY = 'split_db_mirror_v1';
+
+export interface LocalDatabaseMirror {
+  profile: SwimmerProfile;
+  marks: SwimMark[];
+  goals: SwimGoal[];
+  updatedAt: string;
+}
+
+function isCustomProfile(p?: SwimmerProfile | null): boolean {
+  if (!p) return false;
+  return (
+    p.name !== DEFAULT_SWIMMER_PROFILE.name ||
+    p.gender !== DEFAULT_SWIMMER_PROFILE.gender ||
+    Boolean(p.club) ||
+    p.defaultPoolLength !== DEFAULT_SWIMMER_PROFILE.defaultPoolLength ||
+    p.category !== DEFAULT_SWIMMER_PROFILE.category
+  );
+}
+
+export function readLocalMirror(): LocalDatabaseMirror | null {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    const raw = window.localStorage.getItem(LOCAL_MIRROR_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<LocalDatabaseMirror>;
+    if (!parsed || !Array.isArray(parsed.marks) || !Array.isArray(parsed.goals)) {
+      return null;
+    }
+    const profile: SwimmerProfile =
+      parsed.profile && parsed.profile.name
+        ? { ...DEFAULT_SWIMMER_PROFILE, ...parsed.profile, id: 1 }
+        : { ...DEFAULT_SWIMMER_PROFILE, id: 1 };
+    return {
+      profile,
+      marks: parsed.marks,
+      goals: parsed.goals,
+      updatedAt: parsed.updatedAt ?? new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function writeLocalMirror(
+  profile: SwimmerProfile,
+  marks: SwimMark[],
+  goals: SwimGoal[]
+): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const payload: LocalDatabaseMirror = {
+      profile: { ...profile, id: 1 },
+      marks,
+      goals,
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(LOCAL_MIRROR_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignorar si quota está llena
+  }
+}
+
+export async function syncDatabaseToMirror(): Promise<void> {
+  try {
+    const allProfiles = await db.profile.toArray();
+    const chosenProfile =
+      allProfiles.find((p) => isCustomProfile(p)) ??
+      allProfiles[allProfiles.length - 1] ?? {
+        ...DEFAULT_SWIMMER_PROFILE,
+        id: 1,
+      };
+    const marks = await db.marks.toArray();
+    const goals = await db.goals.toArray();
+    writeLocalMirror({ ...chosenProfile, id: 1 }, marks, goals);
+  } catch {
+    // Ignorar fallos de lectura de IDB
+  }
+}
+
+export async function requestPersistentStorage(): Promise<void> {
+  try {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.storage &&
+      typeof navigator.storage.persist === 'function'
+    ) {
+      await navigator.storage.persist();
+    }
+  } catch {
+    // Ignorar en navegadores sin soporte
+  }
+}
+
+let hydrationPromise: Promise<SwimmerProfile> | null = null;
+
 /**
- * Inicializa el perfil por defecto (con 50m Mariposa preseleccionada como favorita)
- * si la base de datos aún no tiene un perfil configurado.
+ * Inicializa y verifica la base de datos garantizando que:
+ * 1. Exista un único perfil canónico (id = 1) sin condiciones de carrera en StrictMode.
+ * 2. Si IndexedDB se abrió vacía tras un reinicio móvil pero existe respaldo en localStorage,
+ *    se restauren automáticamente las marcas, objetivos y perfil.
+ * 3. Se mantenga sincronizado el espejo local instantáneo.
  */
 export async function ensureDefaultProfile(): Promise<SwimmerProfile> {
-  const existing = await db.profile.toCollection().first();
-  if (existing) {
-    return existing;
+  if (hydrationPromise) {
+    return hydrationPromise;
   }
-  const id = await db.profile.add({
-    ...DEFAULT_SWIMMER_PROFILE,
+
+  hydrationPromise = (async () => {
+    await requestPersistentStorage();
+    const mirror = readLocalMirror();
+
+    try {
+      const allProfiles = await db.profile.toArray();
+      const idbMarksCount = await db.marks.count();
+      const idbGoalsCount = await db.goals.count();
+
+      // Recuperación automática si IndexedDB está vacía pero el espejo local tiene datos del usuario
+      if (
+        mirror &&
+        idbMarksCount === 0 &&
+        idbGoalsCount === 0 &&
+        (mirror.marks.length > 0 || mirror.goals.length > 0 || isCustomProfile(mirror.profile))
+      ) {
+        await db.transaction('rw', db.profile, db.marks, db.goals, async () => {
+          await db.profile.clear();
+          await db.profile.put({ ...mirror.profile, id: 1 });
+          if (mirror.marks.length > 0) {
+            await db.marks.bulkPut(mirror.marks);
+          }
+          if (mirror.goals.length > 0) {
+            await db.goals.bulkPut(mirror.goals);
+          }
+        });
+        return { ...mirror.profile, id: 1 };
+      }
+
+      if (allProfiles.length > 0) {
+        // Si hay más de un perfil por ejecuciones concurrentes previas, consolidar en id=1
+        const bestProfile =
+          allProfiles.find((p) => isCustomProfile(p)) ?? allProfiles[allProfiles.length - 1];
+        const canonical: SwimmerProfile = { ...bestProfile, id: 1 };
+        if (allProfiles.length > 1 || bestProfile.id !== 1) {
+          await db.transaction('rw', db.profile, async () => {
+            await db.profile.clear();
+            await db.profile.put(canonical);
+          });
+        }
+        await syncDatabaseToMirror();
+        return canonical;
+      }
+
+      const initialProfile: SwimmerProfile = mirror?.profile
+        ? { ...mirror.profile, id: 1 }
+        : {
+            ...DEFAULT_SWIMMER_PROFILE,
+            id: 1,
+            updatedAt: new Date().toISOString(),
+          };
+
+      await db.profile.put(initialProfile);
+      await syncDatabaseToMirror();
+      return initialProfile;
+    } catch {
+      return (
+        mirror?.profile ?? {
+          ...DEFAULT_SWIMMER_PROFILE,
+          id: 1,
+        }
+      );
+    } finally {
+      hydrationPromise = null;
+    }
+  })();
+
+  return hydrationPromise;
+}
+
+export async function saveMarkToDb(
+  markData: Omit<SwimMark, 'id'>,
+  existingId?: number
+): Promise<SwimMark> {
+  try {
+    if (existingId !== undefined) {
+      const saved: SwimMark = { ...markData, id: existingId };
+      await db.marks.put(saved);
+      await syncDatabaseToMirror();
+      return saved;
+    }
+    const id = await db.marks.add(markData);
+    const saved: SwimMark = { ...markData, id };
+    await syncDatabaseToMirror();
+    return saved;
+  } catch {
+    const mirror = readLocalMirror();
+    const currentMarks = mirror?.marks ?? [];
+    const fallbackId =
+      existingId ??
+      (currentMarks.reduce((max, m) => Math.max(max, m.id ?? 0), 0) + 1);
+    const saved: SwimMark = { ...markData, id: fallbackId };
+    const nextMarks =
+      existingId !== undefined
+        ? currentMarks.map((m) => (m.id === existingId ? saved : m))
+        : [...currentMarks, saved];
+    writeLocalMirror(
+      mirror?.profile ?? { ...DEFAULT_SWIMMER_PROFILE, id: 1 },
+      nextMarks,
+      mirror?.goals ?? []
+    );
+    return saved;
+  }
+}
+
+export async function deleteMarkFromDb(id: number): Promise<void> {
+  try {
+    await db.marks.delete(id);
+    await syncDatabaseToMirror();
+  } catch {
+    const mirror = readLocalMirror();
+    if (mirror) {
+      writeLocalMirror(
+        mirror.profile,
+        mirror.marks.filter((m) => m.id !== id),
+        mirror.goals
+      );
+    }
+  }
+}
+
+export async function updateProfileInDb(updated: SwimmerProfile): Promise<SwimmerProfile> {
+  const canonical: SwimmerProfile = {
+    ...updated,
+    id: 1,
     updatedAt: new Date().toISOString(),
-  });
-  return {
-    ...DEFAULT_SWIMMER_PROFILE,
-    id,
   };
+  try {
+    await db.transaction('rw', db.profile, async () => {
+      await db.profile.clear();
+      await db.profile.put(canonical);
+    });
+    await syncDatabaseToMirror();
+  } catch {
+    const mirror = readLocalMirror();
+    writeLocalMirror(canonical, mirror?.marks ?? [], mirror?.goals ?? []);
+  }
+  return canonical;
+}
+
+export async function saveGoalToDb(goalData: Omit<SwimGoal, 'id'>): Promise<SwimGoal> {
+  try {
+    const existing = await db.goals
+      .where('[eventId+poolLength]')
+      .equals([goalData.eventId, goalData.poolLength])
+      .first();
+
+    if (existing && existing.id !== undefined) {
+      const saved: SwimGoal = { ...goalData, id: existing.id };
+      await db.goals.put(saved);
+      await syncDatabaseToMirror();
+      return saved;
+    }
+    const id = await db.goals.add(goalData);
+    const saved: SwimGoal = { ...goalData, id };
+    await syncDatabaseToMirror();
+    return saved;
+  } catch {
+    const mirror = readLocalMirror();
+    const currentGoals = mirror?.goals ?? [];
+    const existing = currentGoals.find(
+      (g) => g.eventId === goalData.eventId && g.poolLength === goalData.poolLength
+    );
+    const fallbackId =
+      existing?.id ??
+      (currentGoals.reduce((max, g) => Math.max(max, g.id ?? 0), 0) + 1);
+    const saved: SwimGoal = { ...goalData, id: fallbackId };
+    const nextGoals = existing
+      ? currentGoals.map((g) => (g.id === existing.id ? saved : g))
+      : [...currentGoals, saved];
+    writeLocalMirror(
+      mirror?.profile ?? { ...DEFAULT_SWIMMER_PROFILE, id: 1 },
+      mirror?.marks ?? [],
+      nextGoals
+    );
+    return saved;
+  }
+}
+
+export async function deleteGoalFromDb(id: number): Promise<void> {
+  try {
+    await db.goals.delete(id);
+    await syncDatabaseToMirror();
+  } catch {
+    const mirror = readLocalMirror();
+    if (mirror) {
+      writeLocalMirror(
+        mirror.profile,
+        mirror.marks,
+        mirror.goals.filter((g) => g.id !== id)
+      );
+    }
+  }
 }
 
 /**
@@ -46,11 +330,13 @@ export async function ensureDefaultProfile(): Promise<SwimmerProfile> {
  */
 export async function loadDemoDataset(): Promise<{ marksAdded: number; goalsAdded: number }> {
   await ensureDefaultProfile();
-  await db.marks.clear();
-  await db.goals.clear();
-
-  await db.marks.bulkAdd(DEMO_MARKS.map((m) => ({ ...m })));
-  await db.goals.bulkAdd(DEMO_GOALS.map((g) => ({ ...g })));
+  await db.transaction('rw', db.marks, db.goals, async () => {
+    await db.marks.clear();
+    await db.goals.clear();
+    await db.marks.bulkAdd(DEMO_MARKS.map((m) => ({ ...m })));
+    await db.goals.bulkAdd(DEMO_GOALS.map((g) => ({ ...g })));
+  });
+  await syncDatabaseToMirror();
 
   return {
     marksAdded: DEMO_MARKS.length,
@@ -68,12 +354,14 @@ export async function clearAllData(resetProfile = false): Promise<void> {
     await db.goals.clear();
     if (resetProfile) {
       await db.profile.clear();
-      await db.profile.add({
+      await db.profile.put({
         ...DEFAULT_SWIMMER_PROFILE,
+        id: 1,
         updatedAt: new Date().toISOString(),
       });
     }
   });
+  await syncDatabaseToMirror();
 }
 
 export interface SplitBackupPayload {
@@ -86,7 +374,7 @@ export interface SplitBackupPayload {
 }
 
 export async function exportDatabaseAsJson(): Promise<string> {
-  const profile = await db.profile.toCollection().first();
+  const profile = (await db.profile.get(1)) ?? (await db.profile.toCollection().first());
   const marks = await db.marks.toArray();
   const goals = await db.goals.toArray();
 
@@ -116,12 +404,20 @@ export async function importDatabaseFromJson(
       await db.profile.clear();
       const { id: _unusedId, ...restProfile } = parsed.profile;
       void _unusedId;
-      await db.profile.add({
+      await db.profile.put({
         ...restProfile,
+        id: 1,
         updatedAt: new Date().toISOString(),
       });
     } else {
-      await ensureDefaultProfile();
+      const existing = await db.profile.get(1);
+      if (!existing) {
+        await db.profile.put({
+          ...DEFAULT_SWIMMER_PROFILE,
+          id: 1,
+          updatedAt: new Date().toISOString(),
+        });
+      }
     }
 
     await db.marks.clear();
@@ -149,6 +445,8 @@ export async function importDatabaseFromJson(
       await db.goals.bulkAdd(sanitizedGoals);
     }
   });
+
+  await syncDatabaseToMirror();
 
   return {
     marksImported: parsed.marks.length,
