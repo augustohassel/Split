@@ -69,3 +69,34 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 
 - **Definición**: Tiempo meta que el nadador se propone alcanzar en una prueba y tamaño de pileta específicos, tanto para el tiempo total como opcionalmente para sus parciales.
 - **Alcance / Propósito**: Funciona como línea de referencia para calcular la brecha actual (cuántas centésimas o segundos faltan para alcanzarlo) y medir el grado de avance a lo largo del tiempo.
+
+### Interfaz Conversacional (Chat)
+
+- **Definición**: Canal de interacción mediante texto en lenguaje natural y voz integrado en la aplicación para registrar marcas de natación o definir objetivos asistidos.
+- **Alcance / Propósito**: Reducir la fricción de entrada de datos ofreciendo un diálogo guiado y un parser offline rápido, complementando la interfaz tradicional de formularios.
+- **Lo que NO es**: No es un bot social generalista ni de soporte técnico externo; es un asistente especializado en el registro y análisis de natación del usuario.
+
+### Parser Local Offline (Comandos Rápidos)
+
+- **Definición**: Mecanismo de interpretación local basado en expresiones regulares y reglas determinísticas que extrae estilo, distancia, tiempo, pileta, contexto y notas a partir de frases cotidianas (ej. *«50 libre 26.40 en 25m»* o *«meta 100 mariposa sub 55»*).
+- **Alcance / Propósito**: Asentar marcas y objetivos de forma inmediata sin conexión a internet ni consumo de tokens de IA.
+- **Lo que NO es**: No requiere modelos de lenguaje en la nube para interpretar sintaxis directas de tiempo y prueba.
+
+### Tarjeta de Borrador (Draft Card)
+
+- **Definición**: Componente interactivo renderizado en el hilo de conversación (`DraftMarkCard` y `DraftGoalCard`) que presenta los datos extraídos (prueba, pileta, tiempo, Puntos FINA en vivo y comparativa con el PB) antes de guardarse en la base de datos local.
+- **Alcance / Propósito**: Otorgar control total al nadador para verificar o ajustar campos antes de confirmar el registro en IndexedDB.
+- **Lo que NO es**: No impacta en el historial de marcas ni en los récords hasta presionar el botón de confirmación.
+
+### Dictado por Voz Nativo (Web Speech API)
+
+- **Definición**: Funcionalidad de transcripción de voz a texto en tiempo real operada directamente en el navegador del dispositivo, sin envío de audio a servidores externos.
+- **Alcance / Propósito**: Permitir al nadador registrar marcas y sensaciones con las manos libres al salir del agua.
+- **Lo que NO es**: No requiere servicios de transcripción en la nube ni API Keys.
+
+### BYOK (Bring Your Own Key)
+
+- **Definición**: Modelo de configuración donde el usuario ingresa su propia clave de API de un proveedor de IA (ej. Google Gemini, OpenAI o endpoint local tipo Ollama) para procesar conversaciones guiadas.
+- **Alcance / Propósito**: Preservar la arquitectura Zero-Backend y la privacidad total, garantizando que los datos viajen directamente entre el dispositivo del usuario y el proveedor elegido sin servidores intermediarios.
+- **Lo que NO es**: No almacena credenciales en ningún servidor central ni comparte claves entre dispositivos.
+

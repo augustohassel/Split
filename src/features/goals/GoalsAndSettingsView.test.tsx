@@ -249,4 +249,34 @@ describe('GoalsAndSettingsView Component & Flujos de Ajustes', () => {
       expect(handleClearAll).toHaveBeenCalled();
     });
   });
+
+  it('permite navegar al subTab de Asistente IA y guardar ajustes', async () => {
+    render(
+      <GoalsAndSettingsView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onUpdateProfile={vi.fn()}
+        onSaveGoal={vi.fn()}
+        onDeleteGoal={vi.fn()}
+        onExportJson={vi.fn()}
+        onImportJson={vi.fn()}
+        onExportCsv={vi.fn()}
+        onLoadDemo={vi.fn()}
+        onClearAllData={vi.fn()}
+      />
+    );
+
+    const aiTabBtn = screen.getByRole('button', { name: /asistente ia/i });
+    fireEvent.click(aiTabBtn);
+
+    expect(screen.getByRole('heading', { name: /asistente conversacional \(ia \/ byok\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /google gemini/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /openai \/ ollama/i })).toBeInTheDocument();
+
+    const saveAiBtn = screen.getByRole('button', { name: /guardar ajustes de ia/i });
+    fireEvent.click(saveAiBtn);
+
+    expect(screen.getByText(/¡configuración de ia guardada en tu navegador!/i)).toBeInTheDocument();
+  });
 });
