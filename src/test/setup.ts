@@ -34,11 +34,15 @@ vi.mock('recharts', async () => {
   };
 });
 
-// Mock de window.scrollTo
+// Mock de window.scrollTo y Element.prototype.scrollIntoView
 Object.defineProperty(window, 'scrollTo', {
   writable: true,
   value: vi.fn(),
 });
+
+if (typeof window.HTMLElement.prototype.scrollIntoView !== 'function') {
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+}
 
 // Mock de window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

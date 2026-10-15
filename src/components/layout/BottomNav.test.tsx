@@ -3,10 +3,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { BottomNav } from './BottomNav';
 
 describe('BottomNav Component', () => {
-  it('renderiza los 4 accesos principales de navegación', () => {
+  it('renderiza los 5 accesos principales de navegación', () => {
     render(<BottomNav activeTab="dashboard" onSelectTab={vi.fn()} />);
     expect(screen.getByText('Inicio')).toBeInTheDocument();
     expect(screen.getByText('Registrar')).toBeInTheDocument();
+    expect(screen.getByText('Chat')).toBeInTheDocument();
     expect(screen.getByText('Historial')).toBeInTheDocument();
     expect(screen.getByText('Objetivos')).toBeInTheDocument();
   });

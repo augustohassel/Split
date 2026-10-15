@@ -38,4 +38,12 @@ describe('Header Component', () => {
     fireEvent.click(screen.getByText('Augusto'));
     expect(handleSelect).toHaveBeenCalledWith('goals');
   });
+
+  it('navega al chat al hacer clic en el botón de Asistente de Chat', () => {
+    const handleSelect = vi.fn();
+    render(<Header profile={mockProfile} onSelectTab={handleSelect} />);
+    const chatBtn = screen.getByTitle('Abrir Asistente de Chat');
+    fireEvent.click(chatBtn);
+    expect(handleSelect).toHaveBeenCalledWith('chat');
+  });
 });
