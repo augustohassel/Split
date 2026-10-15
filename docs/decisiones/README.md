@@ -5,6 +5,11 @@ Este directorio almacena las decisiones técnicas y arquitectónicas de **Split*
 2. **Sorprende sin contexto**: Un nuevo colaborador o agente no entendería el porqué sin conocer el trasfondo histórico.
 3. **Surge de elegir entre alternativas reales**: Existieron al menos dos caminos viables y se optó por uno fundamentado.
 
+## Índice de Decisiones
+- [0001: Arquitectura Base Offline-First y Stack Tecnológico (Basado en RatingsApp)](0001-arquitectura-base-offline-first.md)
+- [0002: Aislamiento de Origin y Subdominios Dedicados para PWA Offline](0002-aislamiento-origin-subdominios-pwa.md)
+- [0003: Infraestructura de Testing de Componentes UI y Cobertura Automatizada](0003-infraestructura-testing-componentes-y-cobertura.md)
+
 ## Plantilla de Decisión (ADR Ligero)
 
 ```markdown
