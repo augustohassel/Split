@@ -29,6 +29,10 @@ describe('App Integration & Flujo Completo de Usuario', () => {
     fireEvent.click(within(nav).getByRole('button', { name: /historial/i }));
     expect(screen.getByRole('heading', { name: /evolución e historial/i })).toBeInTheDocument();
 
+    // Ir a Chat
+    fireEvent.click(within(nav).getByRole('button', { name: /chat/i }));
+    expect(screen.getByRole('heading', { name: /asistente conversacional/i })).toBeInTheDocument();
+
     // Ir a Objetivos
     fireEvent.click(within(nav).getByRole('button', { name: /objetivos/i }));
     expect(screen.getByRole('heading', { name: /objetivos y ajustes/i })).toBeInTheDocument();

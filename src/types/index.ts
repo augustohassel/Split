@@ -134,5 +134,46 @@ export interface GoalGapAnalysis {
   progressPercent: number;
 }
 
-export type ActiveTab = 'dashboard' | 'register' | 'history' | 'goals';
+export type ActiveTab = 'dashboard' | 'register' | 'chat' | 'history' | 'goals';
+
+export interface DraftMarkData {
+  eventId: SwimEventId;
+  timeSec: number;
+  poolLength: PoolLength;
+  date: string;
+  venue?: string;
+  context: MarkContext;
+  modality: MarkModality;
+  timing: TimingMethod;
+  feel?: WaterFeel;
+  notes?: string;
+  splits?: SplitEntry[];
+  confirmed?: boolean;
+}
+
+export interface DraftGoalData {
+  eventId: SwimEventId;
+  poolLength: PoolLength;
+  targetTimeSec: number;
+  label?: string;
+  confirmed?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  draftMark?: DraftMarkData;
+  draftGoal?: DraftGoalData;
+}
+
+export type AiProvider = 'gemini' | 'openai';
+
+export interface AiSettings {
+  provider: AiProvider;
+  apiKey: string;
+  modelName: string;
+  baseUrl?: string;
+}
 

@@ -30,6 +30,7 @@ import { DashboardView } from './features/dashboard/DashboardView';
 import { RegisterMarkView } from './features/register/RegisterMarkView';
 import { HistoryView } from './features/history/HistoryView';
 import { GoalsAndSettingsView } from './features/goals/GoalsAndSettingsView';
+import { ChatView } from './features/chat/ChatView';
 import { ArrowRight, CheckCircle2, X } from 'lucide-react';
 
 const NAV_STATE_KEY = 'split_nav_state_v1';
@@ -314,6 +315,17 @@ export const App: React.FC = () => {
             onNavigate={handleNavigate}
             onEditMark={handleEditMark}
             onDeleteMark={handleDeleteMark}
+          />
+        )}
+
+        {activeTab === 'chat' && (
+          <ChatView
+            profile={profile}
+            marks={marks}
+            goals={goals}
+            onSaveMark={handleSaveMark}
+            onSaveGoal={handleSaveGoal}
+            onNavigate={handleNavigate}
           />
         )}
 

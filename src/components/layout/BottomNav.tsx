@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveTab } from '../../types';
-import { LayoutDashboard, LineChart, PlusCircle, Target } from 'lucide-react';
+import { Bot, LayoutDashboard, LineChart, PlusCircle, Target } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: ActiveTab;
@@ -25,6 +25,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       icon: <PlusCircle className="w-5 h-5" />,
     },
     {
+      id: 'chat',
+      label: 'Chat',
+      icon: <Bot className="w-5 h-5" />,
+    },
+    {
       id: 'history',
       label: 'Historial',
       icon: <LineChart className="w-5 h-5" />,
@@ -42,7 +47,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       aria-label="Navegación principal"
       className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800/90 pb-[env(safe-area-inset-bottom,0px)]"
     >
-      <div className="max-w-3xl mx-auto grid grid-cols-4 px-2 py-1.5">
+      <div className="max-w-3xl mx-auto grid grid-cols-5 px-1 py-1.5">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           return (

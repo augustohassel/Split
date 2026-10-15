@@ -9,6 +9,7 @@ Este directorio almacena las decisiones técnicas y arquitectónicas de **Split*
 - [0001: Arquitectura Base Offline-First y Stack Tecnológico (Basado en RatingsApp)](0001-arquitectura-base-offline-first.md)
 - [0002: Aislamiento de Origin y Subdominios Dedicados para PWA Offline](0002-aislamiento-origin-subdominios-pwa.md)
 - [0003: Infraestructura de Testing de Componentes UI y Cobertura Automatizada](0003-infraestructura-testing-componentes-y-cobertura.md)
+- [0004: Arquitectura Conversacional, Parser Offline, BYOK y Dictado por Voz](0004-arquitectura-conversacional-byok-y-dictado-por-voz.md)
 
 ## Plantilla de Decisión (ADR Ligero)
 

@@ -86,3 +86,41 @@ Donde $B$ es el Tiempo Base oficial mundial (para tu género y tamaño de pileta
    - **Tramos Parciales**: Gráfico de barras comparando tramo por tramo (ej. `0-15m`, `15-25m`, `25-35m`, `35-50m`) tu `PB de Carrera`, tu `PB de Entrenamiento` y tu `Meta`.
 4. Desde el listado inferior podés filtrar por contexto, modalidad o tipo de cronometraje, y **editar o eliminar** cualquier marca.
 
+---
+
+## 6. Interfaz Conversacional, Dictado por Voz y Asistente IA 💬🎙️
+
+Split incorpora un **Chat Inteligente** accesible desde la barra inferior o desde el botón de robot en la cabecera, pensado para reducir al mínimo la fricción al salir de la pileta.
+
+### A. Comandos Rápidos (100% Offline)
+No necesitas conexión a internet ni configurar ninguna clave de IA. Puedes escribir o dictar directamente expresiones cotidianas:
+- **Marcas de natación**:
+  - *«50 libre 26.40 en 25m»*
+  - *«100 mariposa 1:02.15 torneo CENARD»*
+  - *«entrenamiento 200 pecho 2:25.80 sensación 4»*
+  - *«200 espalda 2.15.30»*
+- **Objetivos y Metas**:
+  - *«objetivo 100 libre 54.50 en 50m»*
+  - *«meta 50 mariposa sub 25»*
+
+El parser determinístico local interpretará la prueba, el tiempo (en segundos o formato minutos:segundos), la pileta y el contexto, mostrando de inmediato una **Tarjeta de Borrador interactiva**.
+
+### B. Dictado por Voz Nativo (Manos Libres) 🎙️
+Al borde de la pileta o con los dedos húmedos, podés tocar el botón de **micrófono**:
+1. Tu voz se transcribe en tiempo real en la caja de texto.
+2. Cuenta con un motor optimizado que previene la duplicación y repetición de palabras intermedias.
+3. Al terminar de hablar, tocá el botón de enviar o confirmá en la tarjeta de borrador.
+
+### C. Tarjetas de Borrador Interactivas (`Draft Cards`)
+Antes de impactar en tu historial, el chat renderiza una tarjeta interactiva:
+- **Para Marcas (`DraftMarkCard`)**: Verás la prueba, pileta, tiempo y el cálculo en vivo de tus **Puntos FINA**. Podés alternar entre 25m/50m, Carrera/Entrenamiento o ajustar tu sensación física antes de tocar **«Confirmar y Guardar»**.
+- **Para Objetivos (`DraftGoalCard`)**: Muestra la prueba, pileta, tiempo meta, puntos FINA proyectados y la brecha en segundos respecto a tu récord personal actual.
+
+### D. Asistente Reflexivo con IA (BYOK)
+Si querés dialogar libremente con un asistente experto sobre tus sensaciones, series de entrenamiento o táctica de carrera:
+1. Tocá el ícono de engranaje en el chat o andá a **Objetivos → Asistente IA**.
+2. Ingresá tu propia API Key de **Google Gemini** (gratuita en [Google AI Studio](https://aistudio.google.com)) o configura tu endpoint compatible de **OpenAI / Ollama**.
+3. **Privacidad Zero-Backend**: Tu clave y tus mensajes residen y se procesan exclusivamente en tu navegador; ningún dato transita por servidores intermediarios propios.
+4. **Optimización de Tokens**: El sistema aplica una ventana deslizante de contexto y ofrece una acción para iniciar una *Nueva conversación limpia* cuando lo desees.
+
+
