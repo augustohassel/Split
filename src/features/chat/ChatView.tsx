@@ -389,8 +389,8 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               <div
                 className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed ${
                   isUser
-                    ? 'bg-cyan-600 text-white rounded-tr-sm shadow-md shadow-cyan-950/30'
-                    : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm shadow-md shadow-slate-950/40'
+                    ? 'bg-cyan-600 text-white rounded-tr-sm shadow-md shadow-cyan-950/15 dark:shadow-cyan-950/30'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-sm shadow-sm dark:shadow-md dark:shadow-slate-950/40'
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>

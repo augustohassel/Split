@@ -55,7 +55,7 @@ export const DraftGoalCard: React.FC<DraftGoalCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-sm rounded-2xl bg-slate-900 border border-emerald-500/30 p-3.5 shadow-lg shadow-emerald-950/20 text-slate-100 flex flex-col gap-3 my-1">
+    <div className="w-full max-w-sm rounded-2xl bg-slate-50 dark:bg-slate-900 border border-emerald-500/30 p-3.5 shadow-md dark:shadow-lg shadow-emerald-950/5 dark:shadow-emerald-950/20 text-slate-900 dark:text-slate-100 flex flex-col gap-3 my-1">
       {/* Cabecera de la tarjeta */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
         <div className="flex items-center gap-1.5 min-w-0">

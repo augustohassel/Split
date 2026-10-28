@@ -68,4 +68,28 @@ describe('App Integration & Flujo Completo de Usuario', () => {
     const matches = await screen.findAllByText('26.40');
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
+
+  it('permite alternar entre Modo Oscuro y Modo Claro de forma sincronizada entre Header y Ajustes', async () => {
+    render(<App />);
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+    // Alternar desde el botón rápido del Header
+    const headerToggle = screen.getByRole('button', { name: /cambiar a modo claro/i });
+    fireEvent.click(headerToggle);
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('split_theme_v1')).toBe('light');
+
+    // Verificar sincronización en Objetivos y Ajustes -> Perfil FINA
+    const nav = screen.getByRole('navigation', { name: /navegación principal/i });
+    fireEvent.click(within(nav).getByRole('button', { name: /objetivos/i }));
+    fireEvent.click(screen.getByRole('button', { name: /perfil fina/i }));
+
+    const darkOptionBtn = screen.getByRole('button', { name: /^modo oscuro$/i });
+    fireEvent.click(darkOptionBtn);
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('split_theme_v1')).toBe('dark');
+  });
 });
