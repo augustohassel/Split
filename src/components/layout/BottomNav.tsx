@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800/90 pb-[env(safe-area-inset-bottom,0px)]"
+      className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-200 dark:border-slate-800/90 pb-[env(safe-area-inset-bottom,0px)] transition-colors"
     >
       <div className="max-w-3xl mx-auto grid grid-cols-5 px-1 py-1.5">
         {navItems.map((item) => {
@@ -57,8 +57,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               onClick={() => onSelectTab(item.id)}
               className={`relative flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
                 isActive
-                  ? 'text-cyan-400 bg-cyan-500/10 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-cyan-700 dark:text-cyan-400 bg-cyan-500/15 dark:bg-cyan-500/10 font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               <div className="relative">

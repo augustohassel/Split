@@ -136,6 +136,8 @@ export interface GoalGapAnalysis {
 
 export type ActiveTab = 'dashboard' | 'register' | 'chat' | 'history' | 'goals';
 
+export type ThemeMode = 'dark' | 'light';
+
 export interface DraftMarkData {
   eventId: SwimEventId;
   timeSec: number;

@@ -8,6 +8,7 @@ import {
   SwimMark,
   SwimmerGender,
   SwimmerProfile,
+  ThemeMode,
 } from '../../types';
 import {
   analyzeGoalGap,
@@ -36,10 +37,12 @@ import {
   FileSpreadsheet,
   KeyRound,
   Loader2,
+  Moon,
   Plus,
   Save,
   Sparkles,
   Star,
+  Sun,
   Target,
   Trash2,
   Upload,
@@ -62,6 +65,8 @@ interface GoalsAndSettingsViewProps {
   onLoadDemo: () => Promise<{ marksAdded: number; goalsAdded: number }>;
   onClearAllData: (resetProfile?: boolean) => Promise<void>;
   onNavigate?: (tab: ActiveTab, preselectedEventId?: SwimEventId, poolLength?: PoolLength) => void;
+  theme?: ThemeMode;
+  onSelectTheme?: (theme: ThemeMode) => void;
 }
 
 interface GoalDraftState {
@@ -109,6 +114,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onLoadDemo,
   onClearAllData,
   onNavigate,
+  theme = 'dark',
+  onSelectTheme,
 }) => {
   const initialDraft = useMemo(() => readGoalDraft(), []);
 
@@ -799,6 +806,59 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       {/* SUBTAB 2: PERFIL DEL NADADOR Y PUNTOS FINA */}
       {subTab === 'profile' && (
         <form onSubmit={handleProfileSubmit} noValidate className="space-y-4">
+          {onSelectTheme && (
+            <div className="glass-card rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                    {theme === 'dark' ? (
+                      <Moon className="w-4 h-4 text-cyan-400" />
+                    ) : (
+                      <Sun className="w-4 h-4 text-amber-500" />
+                    )}
+                    Tema Visual de la Aplicación
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Alterna entre Modo Oscuro (descanso visual) y Modo Claro (alto contraste al aire libre)
+                  </p>
+                </div>
+              </div>
+
+              <div
+                role="group"
+                aria-label="Selector de tema visual"
+                className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800"
+              >
+                <button
+                  type="button"
+                  onClick={() => onSelectTheme('dark')}
+                  aria-pressed={theme === 'dark'}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                    theme === 'dark'
+                      ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5" />
+                  <span>Modo Oscuro</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectTheme('light')}
+                  aria-pressed={theme === 'light'}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                    theme === 'light'
+                      ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5" />
+                  <span>Modo Claro</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="glass-card rounded-2xl p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
