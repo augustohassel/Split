@@ -279,4 +279,32 @@ describe('GoalsAndSettingsView Component & Flujos de Ajustes', () => {
 
     expect(screen.getByText(/¡configuración de ia guardada en tu navegador!/i)).toBeInTheDocument();
   });
+
+  it('permite alternar entre Modo Oscuro y Modo Claro desde la subpestaña Perfil FINA', () => {
+    const handleSelectTheme = vi.fn();
+
+    render(
+      <GoalsAndSettingsView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onUpdateProfile={vi.fn()}
+        onSaveGoal={vi.fn()}
+        onDeleteGoal={vi.fn()}
+        onExportJson={vi.fn()}
+        onImportJson={vi.fn()}
+        onExportCsv={vi.fn()}
+        onLoadDemo={vi.fn()}
+        onClearAllData={vi.fn()}
+        theme="dark"
+        onSelectTheme={handleSelectTheme}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /perfil fina/i }));
+    const lightBtn = screen.getByRole('button', { name: /modo claro/i });
+    fireEvent.click(lightBtn);
+
+    expect(handleSelectTheme).toHaveBeenCalledWith('light');
+  });
 });

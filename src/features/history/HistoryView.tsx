@@ -20,6 +20,7 @@ import {
   SwimGoal,
   SwimMark,
   SwimmerProfile,
+  ThemeMode,
   TimingMethod,
 } from '../../types';
 import {
@@ -59,6 +60,7 @@ interface HistoryViewProps {
   initialPoolLength?: PoolLength;
   onEditMark: (mark: SwimMark) => void;
   onDeleteMark: (id: number) => Promise<void>;
+  theme?: ThemeMode;
 }
 
 export const HistoryView: React.FC<HistoryViewProps> = ({
@@ -69,7 +71,18 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   initialPoolLength,
   onEditMark,
   onDeleteMark,
+  theme = 'dark',
 }) => {
+  const isDark = theme === 'dark';
+  const gridStroke = isDark ? '#1e293b' : '#e2e8f0';
+  const axisStroke = isDark ? '#94a3b8' : '#64748b';
+  const tooltipContentStyle = {
+    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+    borderColor: isDark ? '#334155' : '#cbd5e1',
+    color: isDark ? '#f8fafc' : '#0f172a',
+    borderRadius: '12px',
+    fontSize: '12px',
+  };
   const [selectedEventId, setSelectedEventId] = useState<SwimEventId>(
     initialEventId ?? profile.favoriteEventIds?.[0] ?? '50-fly'
   );
@@ -489,21 +502,16 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   data={evolutionData}
                   margin={{ top: 10, right: 16, left: 0, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="date" stroke={axisStroke} fontSize={11} />
                   <YAxis
-                    stroke="#94a3b8"
+                    stroke={axisStroke}
                     fontSize={11}
                     domain={['auto', 'auto']}
                     tickFormatter={(val: number) => formatSwimTime(val)}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderColor: '#334155',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                    }}
+                    contentStyle={tooltipContentStyle}
                     formatter={(value: number, name: string) => [
                       `${formatSwimTime(value)}s`,
                       name === 'timeSec' ? 'Tiempo' : name,
@@ -557,21 +565,16 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   data={splitComparisonData}
                   margin={{ top: 10, right: 16, left: 0, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="segment" stroke="#94a3b8" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="segment" stroke={axisStroke} fontSize={11} />
                   <YAxis
-                    stroke="#94a3b8"
+                    stroke={axisStroke}
                     fontSize={11}
                     domain={['auto', 'auto']}
                     tickFormatter={(v: number) => `${v.toFixed(1)}s`}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderColor: '#334155',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                    }}
+                    contentStyle={tooltipContentStyle}
                     formatter={(value: number) => [`${formatSwimTime(value)}s`, 'Tramo']}
                   />
                   <Legend wrapperStyle={{ fontSize: '11px' }} />

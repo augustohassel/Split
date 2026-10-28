@@ -191,27 +191,27 @@ export const STROKE_META: Record<
 > = {
   butterfly: {
     label: 'Mariposa',
-    badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+    badgeClass: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
     accentColor: '#f59e0b',
   },
   backstroke: {
     label: 'Espalda',
-    badgeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+    badgeClass: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
     accentColor: '#38bdf8',
   },
   breaststroke: {
     label: 'Pecho',
-    badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+    badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
     accentColor: '#10b981',
   },
   freestyle: {
     label: 'Libre',
-    badgeClass: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+    badgeClass: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
     accentColor: '#06b6d4',
   },
   medley: {
     label: 'Combinado',
-    badgeClass: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+    badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
     accentColor: '#a855f7',
   },
 };
@@ -224,42 +224,42 @@ export const WATER_FEEL_LABELS: Record<
     label: '1 · Pesado / Fatigado',
     shortLabel: 'Pesado',
     emoji: '🥵',
-    colorClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+    colorClass: 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/40',
   },
   2: {
     label: '2 · Incómodo',
     shortLabel: 'Incómodo',
     emoji: '😕',
-    colorClass: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+    colorClass: 'bg-orange-500/20 text-orange-700 dark:text-orange-300 border-orange-500/40',
   },
   3: {
     label: '3 · Normal / Sólido',
     shortLabel: 'Normal',
     emoji: '🏊',
-    colorClass: 'bg-slate-500/20 text-slate-200 border-slate-500/40',
+    colorClass: 'bg-slate-500/20 text-slate-700 dark:text-slate-200 border-slate-500/40',
   },
   4: {
     label: '4 · Fluido / Fuerte',
     shortLabel: 'Fluido',
     emoji: '⚡',
-    colorClass: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+    colorClass: 'bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-500/40',
   },
   5: {
     label: '5 · Explosivo / Tope',
     shortLabel: 'Explosivo',
     emoji: '🚀',
-    colorClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    colorClass: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40',
   },
 };
 
 export const CONTEXT_LABELS: Record<MarkContext, { label: string; badgeClass: string }> = {
   race: {
     label: 'Carrera / Torneo',
-    badgeClass: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+    badgeClass: 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
   },
   training: {
     label: 'Entrenamiento',
-    badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
+    badgeClass: 'bg-teal-500/20 text-teal-700 dark:text-teal-300 border-teal-500/30',
   },
 };
 

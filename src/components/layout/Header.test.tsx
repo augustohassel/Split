@@ -46,4 +46,30 @@ describe('Header Component', () => {
     fireEvent.click(chatBtn);
     expect(handleSelect).toHaveBeenCalledWith('chat');
   });
+
+  it('renderiza el botón conmutador de tema y ejecuta onToggleTheme', () => {
+    const handleToggleTheme = vi.fn();
+    const { rerender } = render(
+      <Header
+        profile={mockProfile}
+        onSelectTab={vi.fn()}
+        theme="dark"
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+
+    const toggleToLightBtn = screen.getByRole('button', { name: /cambiar a modo claro/i });
+    fireEvent.click(toggleToLightBtn);
+    expect(handleToggleTheme).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Header
+        profile={mockProfile}
+        onSelectTab={vi.fn()}
+        theme="light"
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+    expect(screen.getByRole('button', { name: /cambiar a modo oscuro/i })).toBeInTheDocument();
+  });
 });

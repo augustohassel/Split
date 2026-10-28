@@ -31,6 +31,7 @@ import { RegisterMarkView } from './features/register/RegisterMarkView';
 import { HistoryView } from './features/history/HistoryView';
 import { GoalsAndSettingsView } from './features/goals/GoalsAndSettingsView';
 import { ChatView } from './features/chat/ChatView';
+import { useTheme } from './hooks/useTheme';
 import { ArrowRight, CheckCircle2, X } from 'lucide-react';
 
 const NAV_STATE_KEY = 'split_nav_state_v1';
@@ -74,6 +75,7 @@ function triggerDownload(content: string, filename: string, mimeType: string) {
 }
 
 export const App: React.FC = () => {
+  const { theme, setTheme, toggleTheme } = useTheme();
   const initialNav = useMemo(() => readNavState(), []);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(
@@ -251,19 +253,26 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <Header profile={profile} onSelectTab={(tab) => handleNavigate(tab)} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col transition-colors duration-200">
+      <Header
+        profile={profile}
+        onSelectTab={(tab) => handleNavigate(tab)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       {/* Toast flotante de confirmación inmediata en la parte inferior de la pantalla */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-950/90 flex items-center justify-between gap-3"
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-900/15 dark:shadow-slate-950/90 flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="text-xs font-bold text-white leading-snug">{toast.message}</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
+              {toast.message}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
@@ -280,7 +289,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setToast(null)}
-              className="p-1 text-slate-400 hover:text-white"
+              className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               title="Cerrar notificación"
             >
               <X className="w-4 h-4" />
@@ -338,6 +347,7 @@ export const App: React.FC = () => {
             initialPoolLength={selectedPoolLength}
             onEditMark={handleEditMark}
             onDeleteMark={handleDeleteMark}
+            theme={theme}
           />
         )}
 
@@ -355,6 +365,8 @@ export const App: React.FC = () => {
             onLoadDemo={handleLoadDemo}
             onClearAllData={handleClearAllData}
             onNavigate={handleNavigate}
+            theme={theme}
+            onSelectTheme={setTheme}
           />
         )}
       </main>
