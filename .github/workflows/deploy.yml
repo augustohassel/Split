@@ -81,23 +81,28 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -o pipefail
+          set -euo pipefail
           servidor="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
           pr=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0] // empty | "[#\(.number)](\(.html_url)) \(.title)"')
 
-          # SemVer obtenido de package.json
           version=$(node -p "require('./package.json').version")
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::La versión '$version' no cumple el formato major.minor.patch."
+            exit 1
+          fi
+
           base_tag="v$version"
 
-          # Verificar si el tag base ya existe en el repo remoto
-          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$base_tag" >/dev/null 2>&1; then
-            # Si ya existe, buscar sufijos incrementales .N para evitar colisiones
-            ultimo=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$base_tag." \
-              --jq '[.[].ref | capture("\\.(?<n>[0-9]+)$").n | tonumber] | max // 0')
-            tag="$base_tag.$((ultimo + 1))"
+          if git ls-remote --exit-code --tags origin "refs/tags/$base_tag" >/dev/null; then
+            echo "::error::El tag '$base_tag' ya existe. Incrementá la versión en package.json antes de publicar."
+            exit 1
           else
-            tag="$base_tag"
+            tag_status=$?
+            if [[ "$tag_status" -ne 2 ]]; then
+              exit "$tag_status"
+            fi
           fi
+          tag="$base_tag"
 
           # Armar notas del release
           {

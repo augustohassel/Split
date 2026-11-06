@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-200 dark:border-slate-800/90 pb-[env(safe-area-inset-bottom,0px)] transition-colors"
+      className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-outline/40 pb-[env(safe-area-inset-bottom,0px)] transition-colors"
     >
       <div className="max-w-3xl mx-auto grid grid-cols-5 px-1 py-1.5">
         {navItems.map((item) => {
@@ -57,14 +57,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               onClick={() => onSelectTab(item.id)}
               className={`relative flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
                 isActive
-                  ? 'text-cyan-700 dark:text-cyan-400 bg-cyan-500/15 dark:bg-cyan-500/10 font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'text-primary-md3 bg-primary-md3/15 font-semibold'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               <div className="relative">
                 {item.icon}
                 {item.badge !== undefined && (
-                  <span className="absolute -top-1.5 -right-3.5 min-w-[18px] h-[16px] px-1 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-extrabold font-mono flex items-center justify-center shadow">
+                  <span className="absolute -top-1.5 -right-3.5 min-w-[18px] h-[16px] px-1 rounded-full bg-primary-md3 text-on-primary text-[10px] font-extrabold font-mono flex items-center justify-center shadow">
                     {item.badge}
                   </span>
                 )}
@@ -77,4 +77,3 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     </nav>
   );
 };
-

@@ -18,19 +18,19 @@ describe('FinaBadge Component', () => {
   it('aplica la clase de color adecuada para nivel alto (>= 750)', () => {
     const { container } = render(<FinaBadge points={810} />);
     const badge = container.querySelector('span');
-    expect(badge?.className).toContain('text-amber-300');
+    expect(badge?.className).toContain('text-status-amber');
   });
 
   it('aplica la clase de color para nivel medio-alto (>= 550)', () => {
     const { container } = render(<FinaBadge points={590} />);
     const badge = container.querySelector('span');
-    expect(badge?.className).toContain('text-cyan-300');
+    expect(badge?.className).toContain('text-status-cyan');
   });
 
   it('aplica la clase de color para nivel medio (>= 350)', () => {
     const { container } = render(<FinaBadge points={400} />);
     const badge = container.querySelector('span');
-    expect(badge?.className).toContain('text-indigo-300');
+    expect(badge?.className).toContain('text-status-indigo');
   });
 
   it('no muestra puntos negativos si el valor es menor a 0', () => {

@@ -100,3 +100,15 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 - **Alcance / Propósito**: Preservar la arquitectura Zero-Backend y la privacidad total, garantizando que los datos viajen directamente entre el dispositivo del usuario y el proveedor elegido sin servidores intermediarios.
 - **Lo que NO es**: No almacena credenciales en ningún servidor central ni comparte claves entre dispositivos.
 
+### Tokens Semánticos
+
+- **Definición**: Nombres abstractos asignados a variables de color e interfaz (tales como `surface`, `surface-container`, `on-surface`, `outline`) que describen el rol o función del elemento en la interfaz en lugar de su valor cromático físico.
+- **Alcance / Propósito**: Permite desacoplar el diseño de la paleta física, garantizando soporte bimodal nativo (Modo Oscuro / Modo Claro) sin parches ni clases de color rígidas hardcodeadas en los componentes.
+- **Lo que NO es**: No son nombres de colores estáticos (como `slate-900` o `blue-500`) ni estilos efímeros atados a un único componente.
+
+### Acento Acuático Primario
+
+- **Definición**: Color insignia de identidad de la aplicación calibrado según Google Material 3 para evocar agua y natación, adaptado con contraste WCAG AA riguroso para cada modo (#006876 en Modo Claro y #4fd8ec en Modo Oscuro).
+- **Alcance / Propósito**: Señalizar acciones principales, focos interactivos, insignias primarias y navegación activa con máxima visibilidad en piletas cubiertas o al aire libre.
+- **Lo que NO es**: No es un color decorativo arbitrario sin contraste suficiente sobre fondos claros ni una única tonalidad fija para ambos modos.
+
