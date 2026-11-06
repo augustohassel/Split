@@ -6,13 +6,13 @@ describe('PBBadge Component', () => {
   it('renderiza la insignia de PB Carrera con estilo y texto correspondiente', () => {
     const { container } = render(<PBBadge type="race-pb" />);
     expect(screen.getByText('PB Carrera')).toBeInTheDocument();
-    expect(container.querySelector('span')?.className).toContain('text-amber-300');
+    expect(container.querySelector('span')?.className).toContain('text-status-amber');
   });
 
   it('renderiza la insignia de PB Entreno con estilo y texto correspondiente', () => {
     const { container } = render(<PBBadge type="training-pb" />);
     expect(screen.getByText('PB Entreno')).toBeInTheDocument();
-    expect(container.querySelector('span')?.className).toContain('text-teal-300');
+    expect(container.querySelector('span')?.className).toContain('text-status-emerald');
   });
 
   it('aplica clases para tamaño md', () => {

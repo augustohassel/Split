@@ -74,12 +74,16 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   theme = 'dark',
 }) => {
   const isDark = theme === 'dark';
-  const gridStroke = isDark ? '#1e293b' : '#e2e8f0';
+  const gridStroke = isDark ? '#334155' : '#e2e8f0';
   const axisStroke = isDark ? '#94a3b8' : '#64748b';
+  const primaryStroke = isDark ? '#4fd8ec' : '#006876';
+  const raceStroke = isDark ? '#fbbf24' : '#b45309';
+  const goalStroke = isDark ? '#34d399' : '#047857';
+  const trainingBarFill = isDark ? '#2dd4bf' : '#0f766e';
   const tooltipContentStyle = {
-    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+    backgroundColor: isDark ? '#131b2e' : '#ffffff',
     borderColor: isDark ? '#334155' : '#cbd5e1',
-    color: isDark ? '#f8fafc' : '#0f172a',
+    color: isDark ? '#f1f5f9' : '#0f172a',
     borderRadius: '12px',
     fontSize: '12px',
   };
@@ -101,108 +105,82 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     if (initialPoolLength) setPoolLength(initialPoolLength);
   }, [initialEventId, initialPoolLength]);
 
-  // Agrupar combinaciones de (eventId + poolLength) que tienen marcas cargadas
-  const populatedEventPools = useMemo(() => {
-    const map = new Map<
-      string,
-      { eventId: SwimEventId; poolLength: PoolLength; count: number; latestId: number }
-    >();
-    for (const m of marks) {
-      const key = `${m.eventId}:${m.poolLength}`;
-      const prev = map.get(key);
-      if (prev) {
-        prev.count += 1;
-        prev.latestId = Math.max(prev.latestId, m.id ?? 0);
-      } else {
-        map.set(key, {
-          eventId: m.eventId,
-          poolLength: m.poolLength,
-          count: 1,
-          latestId: m.id ?? 0,
-        });
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => b.latestId - a.latestId || b.count - a.count);
-  }, [marks]);
-
-  // Si la combinación actual no tiene marcas pero el usuario sí tiene marcas en otra prueba/pileta,
-  // posicionarse automáticamente en la última prueba cargada para no mostrar "0 marcas" por error.
-  useEffect(() => {
-    if (marks.length === 0) return;
-    const hasCurrent = marks.some(
-      (m) => m.eventId === selectedEventId && m.poolLength === poolLength
-    );
-    if (!hasCurrent && populatedEventPools.length > 0) {
-      setSelectedEventId(populatedEventPools[0].eventId);
-      setPoolLength(populatedEventPools[0].poolLength);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [marks.length]);
-
   const currentEvent = getEventById(selectedEventId);
 
-  const eventPBs = useMemo(
-    () => getPersonalBestsForEvent(marks, selectedEventId, poolLength),
-    [marks, selectedEventId, poolLength]
-  );
+  // Identificar pruebas que efectivamente tienen registros para ofrecer acceso rápido
+  const populatedEventPools = useMemo(() => {
+    const map = new Map<string, { eventId: SwimEventId; poolLength: PoolLength; count: number }>();
+    marks.forEach((m) => {
+      const key = `${m.eventId}-${m.poolLength}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(key, { eventId: m.eventId, poolLength: m.poolLength, count: 1 });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [marks]);
 
-  const activeGoal = useMemo(
-    () => goals.find((g) => g.eventId === selectedEventId && g.poolLength === poolLength),
-    [goals, selectedEventId, poolLength]
-  );
-
+  // Filtrado de marcas para la prueba y pileta activas
   const filteredMarks = useMemo(() => {
     return marks
-      .filter((m) => {
-        if (m.eventId !== selectedEventId) return false;
-        if (m.poolLength !== poolLength) return false;
-        if (contextFilter !== 'all' && m.context !== contextFilter) return false;
-        if (modalityFilter !== 'all' && m.modality !== modalityFilter) return false;
-        if (timingFilter !== 'all' && m.timing !== timingFilter) return false;
-        return true;
-      })
+      .filter((m) => m.eventId === selectedEventId && m.poolLength === poolLength)
+      .filter((m) => (contextFilter === 'all' ? true : m.context === contextFilter))
+      .filter((m) => (modalityFilter === 'all' ? true : m.modality === modalityFilter))
+      .filter((m) => (timingFilter === 'all' ? true : m.timing === timingFilter))
       .sort((a, b) => b.date.localeCompare(a.date) || (b.id ?? 0) - (a.id ?? 0));
   }, [marks, selectedEventId, poolLength, contextFilter, modalityFilter, timingFilter]);
 
+  // Récords personales separados para la prueba/pileta analizada
+  const eventPBs = useMemo(() => {
+    return getPersonalBestsForEvent(marks, selectedEventId, poolLength);
+  }, [marks, selectedEventId, poolLength]);
+
+  // Objetivo activo para la prueba/pileta analizada
+  const activeGoal = useMemo(() => {
+    return goals.find((g) => g.eventId === selectedEventId && g.poolLength === poolLength);
+  }, [goals, selectedEventId, poolLength]);
+
+  // Serie de datos para la Curva de Evolución Temporal (cronológica ascendente)
   const evolutionData = useMemo(() => {
-    const chronological = [...filteredMarks].reverse();
-    return chronological.map((m) => ({
-      id: m.id,
-      date: m.date.slice(5),
-      fullDate: m.date,
-      venue: m.venue,
-      timeSec: m.timeSec,
-      raceTimeSec: m.context === 'race' ? m.timeSec : null,
-      trainingTimeSec: m.context === 'training' ? m.timeSec : null,
-      finaPoints: calculateFinaPoints(m.timeSec, m.eventId, m.poolLength, profile.gender),
-      contextLabel: m.context === 'race' ? 'Carrera' : 'Entrenamiento',
-    }));
+    return [...filteredMarks]
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.id ?? 0) - (b.id ?? 0))
+      .map((m) => {
+        const fina = calculateFinaPoints(m.timeSec, m.eventId, m.poolLength, profile.gender);
+        return {
+          date: m.date.slice(5), // MM-DD para display compacto en eje X
+          fullDate: m.date,
+          timeSec: m.timeSec,
+          raceTimeSec: m.context === 'race' ? m.timeSec : undefined,
+          finaPoints: fina,
+          venue: m.venue || 'Sin sede',
+          contextLabel: CONTEXT_LABELS[m.context].label,
+        };
+      });
   }, [filteredMarks, profile.gender]);
 
-  // Datos para comparativa de parciales entre PB Carrera, PB Entrenamiento, Última Marca y Objetivo
+  // Serie de datos para la Comparativa de Parciales (PB Carrera vs PB Entreno vs Objetivo)
   const splitComparisonData = useMemo(() => {
-    const raceLaps = eventPBs.racePB
-      ? computeLapSplits(
-          eventPBs.racePB.splits || [],
-          eventPBs.racePB.timeSec,
-          currentEvent.distance
-        )
+    const raceLaps = eventPBs.racePB?.splits
+      ? computeLapSplits(eventPBs.racePB.splits, eventPBs.racePB.timeSec, currentEvent.distance)
       : [];
-    const trainingLaps = eventPBs.trainingPB
+
+    const trainingLaps = eventPBs.trainingPB?.splits
       ? computeLapSplits(
-          eventPBs.trainingPB.splits || [],
+          eventPBs.trainingPB.splits,
           eventPBs.trainingPB.timeSec,
           currentEvent.distance
         )
       : [];
-    const goalLaps =
-      activeGoal && activeGoal.targetSplits && activeGoal.targetSplits.length > 0
-        ? computeLapSplits(
-            activeGoal.targetSplits,
-            activeGoal.targetTimeSec,
-            currentEvent.distance
-          )
-        : [];
+
+    const goalLaps = activeGoal?.targetSplits
+      ? computeLapSplits(
+          activeGoal.targetSplits,
+          activeGoal.targetTimeSec,
+          currentEvent.distance
+        )
+      : [];
 
     const labels = Array.from(
       new Set([
@@ -230,10 +208,10 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   return (
     <div className="space-y-5 pb-10">
       <div>
-        <h1 className="text-xl font-extrabold text-white tracking-tight">
+        <h1 className="text-xl font-extrabold text-on-surface tracking-tight">
           Evolución e Historial
         </h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-on-surface-variant">
           Curvas temporales de marca y comparativa de parciales por prueba ({marks.length} marcas
           totales)
         </p>
@@ -242,7 +220,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {/* Acceso directo a las pruebas que tienen marcas cargadas */}
       {populatedEventPools.length > 0 && (
         <div className="space-y-1.5">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">
             Tus Pruebas con Marcas Cargadas:
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -260,14 +238,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-sm shadow-cyan-500/20'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700'
+                      ? 'bg-primary-md3 text-on-primary border-primary-md3 shadow-sm shadow-primary-md3/20'
+                      : 'bg-surface-container text-on-surface-variant border-outline/50 hover:border-outline'
                   }`}
                 >
                   <span>{ev.name}</span>
                   <span
                     className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                      isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-cyan-300'
+                      isSelected ? 'bg-black/20 text-white' : 'bg-surface-container-high text-primary-md3'
                     }`}
                   >
                     {item.poolLength}m · {item.count}
@@ -283,8 +261,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       <div className="glass-card rounded-2xl p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Pileta</label>
-            <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-1">Pileta</label>
+            <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
               {([25, 50] as const).map((len) => (
                 <button
                   key={len}
@@ -297,8 +275,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   }}
                   className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
                     poolLength === len
-                      ? 'bg-cyan-500 text-slate-950'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-primary-md3 text-on-primary'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   {len}m
@@ -310,7 +288,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <div className="sm:col-span-2">
             <label
               htmlFor="history-event-select"
-              className="block text-xs font-semibold text-slate-300 mb-1"
+              className="block text-xs font-semibold text-on-surface-variant mb-1"
             >
               Prueba Analizada
             </label>
@@ -318,7 +296,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               id="history-event-select"
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value as SwimEventId)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-cyan-400"
+              className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm font-semibold text-on-surface focus:outline-none focus:border-primary-md3"
             >
               {availableEvents.map((ev) => {
                 const count = marks.filter(
@@ -335,15 +313,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         </div>
 
         {/* Filtros secundarios: Contexto, Modalidad y Cronometraje */}
-        <div className="pt-2 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="pt-2 border-t border-outline/40 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div>
-            <label className="block text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+            <label className="block text-[11px] text-on-surface-variant mb-1 flex items-center gap-1">
               <Filter className="w-3 h-3" /> Contexto
             </label>
             <select
               value={contextFilter}
               onChange={(e) => setContextFilter(e.target.value as MarkContext | 'all')}
-              className="w-full rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-xs text-slate-200"
+              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
             >
               <option value="all">Todos (Carrera + Entreno)</option>
               <option value="race">Solo Carrera / Torneo</option>
@@ -352,11 +330,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] text-slate-400 mb-1">Modalidad</label>
+            <label className="block text-[11px] text-on-surface-variant mb-1">Modalidad</label>
             <select
               value={modalityFilter}
               onChange={(e) => setModalityFilter(e.target.value as MarkModality | 'all')}
-              className="w-full rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-xs text-slate-200"
+              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
             >
               <option value="all">Todas las modalidades</option>
               <option value="individual">Individual</option>
@@ -366,11 +344,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] text-slate-400 mb-1">Cronometraje</label>
+            <label className="block text-[11px] text-on-surface-variant mb-1">Cronometraje</label>
             <select
               value={timingFilter}
               onChange={(e) => setTimingFilter(e.target.value as TimingMethod | 'all')}
-              className="w-full rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-xs text-slate-200"
+              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
             >
               <option value="all">Electrónico + Manual</option>
               <option value="electronic">Solo Electrónico / Placa</option>
@@ -382,10 +360,10 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
       {/* Resumen de Récords Separados en la Prueba Seleccionada */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="glass-card rounded-2xl p-4 border-amber-500/30 bg-amber-500/5">
+        <div className="glass-card rounded-2xl p-4 border-status-amber/30 bg-status-amber/5">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 uppercase">
-              <Trophy className="w-4 h-4 text-amber-400" />
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-status-amber uppercase">
+              <Trophy className="w-4 h-4 text-status-amber" />
               PB Oficial de Carrera (Principal)
             </span>
             {eventPBs.racePB && (
@@ -402,24 +380,24 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
           {eventPBs.racePB ? (
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-extrabold font-mono text-white">
+              <span className="text-2xl font-extrabold font-mono text-on-surface">
                 {formatSwimTime(eventPBs.racePB.timeSec)}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-on-surface-variant">
                 {eventPBs.racePB.date} · {eventPBs.racePB.venue}
               </span>
             </div>
           ) : (
-            <p className="mt-2 text-xs text-slate-400 italic">
+            <p className="mt-2 text-xs text-on-surface-variant italic">
               Sin marcas de carrera con largada estática en {currentEvent.name} ({poolLength}m).
             </p>
           )}
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border-teal-500/30 bg-teal-500/5">
+        <div className="glass-card rounded-2xl p-4 border-status-emerald/30 bg-status-emerald/5">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-300 uppercase">
-              <Zap className="w-4 h-4 text-teal-400" />
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-status-emerald uppercase">
+              <Zap className="w-4 h-4 text-status-emerald" />
               PB de Entrenamiento
             </span>
             {eventPBs.trainingPB && (
@@ -436,15 +414,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
           {eventPBs.trainingPB ? (
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-extrabold font-mono text-slate-100">
+              <span className="text-2xl font-extrabold font-mono text-on-surface">
                 {formatSwimTime(eventPBs.trainingPB.timeSec)}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-on-surface-variant">
                 {eventPBs.trainingPB.date} · {eventPBs.trainingPB.venue}
               </span>
             </div>
           ) : (
-            <p className="mt-2 text-xs text-slate-400 italic">
+            <p className="mt-2 text-xs text-on-surface-variant italic">
               Sin marcas de entrenamiento en {currentEvent.name} ({poolLength}m).
             </p>
           )}
@@ -455,28 +433,28 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {evolutionData.length > 0 && (
         <div className="glass-card rounded-2xl p-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
+            <h2 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
               {chartMode === 'evolution' ? (
                 <>
-                  <LineChartIcon className="w-4 h-4 text-cyan-400" />
+                  <LineChartIcon className="w-4 h-4 text-primary-md3" />
                   <span>Curva de Evolución Temporal ({currentEvent.shortName})</span>
                 </>
               ) : (
                 <>
-                  <Split className="w-4 h-4 text-cyan-400" />
+                  <Split className="w-4 h-4 text-primary-md3" />
                   <span>Comparativa de Tramos Parciales (*Splits*)</span>
                 </>
               )}
             </h2>
 
-            <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 text-xs">
+            <div className="inline-flex rounded-xl bg-surface-container p-1 border border-outline/50 text-xs">
               <button
                 type="button"
                 onClick={() => setChartMode('evolution')}
                 className={`px-3 py-1 rounded-lg font-semibold ${
                   chartMode === 'evolution'
-                    ? 'bg-cyan-500 text-slate-950'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-primary-md3 text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 Tiempo Total
@@ -486,8 +464,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                 onClick={() => setChartMode('splits')}
                 className={`px-3 py-1 rounded-lg font-semibold ${
                   chartMode === 'splits'
-                    ? 'bg-cyan-500 text-slate-950'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-primary-md3 text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 Tramos Parciales
@@ -527,11 +505,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   {activeGoal && (
                     <ReferenceLine
                       y={activeGoal.targetTimeSec}
-                      stroke="#10b981"
+                      stroke={goalStroke}
                       strokeDasharray="4 4"
                       label={{
                         value: `Meta ${formatSwimTime(activeGoal.targetTimeSec)}`,
-                        fill: '#10b981',
+                        fill: goalStroke,
                         fontSize: 11,
                         position: 'insideTopRight',
                       }}
@@ -541,19 +519,19 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                     type="monotone"
                     dataKey="timeSec"
                     name="Evolución General"
-                    stroke="#38bdf8"
+                    stroke={primaryStroke}
                     strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#38bdf8' }}
+                    dot={{ r: 4, fill: primaryStroke }}
                     activeDot={{ r: 6 }}
                   />
                   <Line
                     type="monotone"
                     dataKey="raceTimeSec"
                     name="Marca en Carrera"
-                    stroke="#fbbf24"
+                    stroke={raceStroke}
                     strokeWidth={2}
                     connectNulls
-                    dot={{ r: 5, fill: '#fbbf24' }}
+                    dot={{ r: 5, fill: raceStroke }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -578,19 +556,19 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                     formatter={(value: number) => [`${formatSwimTime(value)}s`, 'Tramo']}
                   />
                   <Legend wrapperStyle={{ fontSize: '11px' }} />
-                  <Bar dataKey="PB_Carrera" name="PB Carrera" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="PB_Carrera" name="PB Carrera" fill={raceStroke} radius={[6, 6, 0, 0]} />
                   <Bar
                     dataKey="PB_Entreno"
                     name="PB Entrenamiento"
-                    fill="#14b8a6"
+                    fill={trainingBarFill}
                     radius={[6, 6, 0, 0]}
                   />
-                  <Bar dataKey="Objetivo" name="Meta Tramo" fill="#10b981" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="Objetivo" name="Meta Tramo" fill={goalStroke} radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-xs text-slate-400 py-8 text-center">
+            <p className="text-xs text-on-surface-variant py-8 text-center">
               Carga parciales en tus marcas de {currentEvent.name} para comparar tramos aquí.
             </p>
           )}
@@ -600,18 +578,18 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {/* Listado Detallado de Marcas con Parciales, Métricas y Edición/Borrado */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
             Historial de Marcas ({filteredMarks.length})
           </h2>
           {SWIM_EVENTS.length > 0 && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-on-surface-variant">
               {currentEvent.name} · {poolLength}m
             </span>
           )}
         </div>
 
         {filteredMarks.length === 0 ? (
-          <div className="glass-card rounded-2xl p-6 text-center text-xs text-slate-400">
+          <div className="glass-card rounded-2xl p-6 text-center text-xs text-on-surface-variant">
             No se encontraron marcas para {currentEvent.name} ({poolLength}m) con los filtros
             seleccionados.
           </div>
@@ -639,7 +617,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xl font-extrabold font-mono text-white">
+                        <span className="text-xl font-extrabold font-mono text-on-surface">
                           {formatSwimTime(mark.timeSec)}
                         </span>
                         <FinaBadge points={fina} size="sm" />
@@ -653,10 +631,10 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                         </span>
                       </div>
 
-                      <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <div className="text-xs text-on-surface-variant mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span>{mark.date}</span>
                         <span>·</span>
-                        <span className="text-slate-200 font-medium">{mark.venue}</span>
+                        <span className="text-on-surface font-medium">{mark.venue}</span>
                         <span>·</span>
                         <span>{MODALITY_LABELS[mark.modality].shortLabel}</span>
                         <span>·</span>
@@ -681,7 +659,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onEditMark(mark)}
-                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                        className="p-2 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant transition-colors"
                         title="Editar marca"
                       >
                         <Edit3 className="w-4 h-4" />
@@ -696,7 +674,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                                 await onDeleteMark(mark.id!);
                                 setConfirmDeleteId(null);
                               }}
-                              className="px-2.5 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-bold"
+                              className="px-2.5 py-1.5 rounded-xl bg-status-rose text-white text-xs font-bold"
                             >
                               Confirmar
                             </button>
@@ -704,7 +682,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(mark.id!)}
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 transition-colors"
+                              className="p-2 rounded-xl bg-surface-container-high hover:bg-status-rose/20 text-on-surface-variant hover:text-status-rose transition-colors"
                               title="Eliminar marca"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -717,8 +695,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
                   {/* Tabla de Parciales Acumulados y Tramos */}
                   {laps.length > 0 && (
-                    <div className="pt-2 border-t border-slate-800/80">
-                      <div className="text-[11px] font-semibold text-slate-400 mb-1.5">
+                    <div className="pt-2 border-t border-outline/40">
+                      <div className="text-[11px] font-semibold text-on-surface-variant mb-1.5">
                         Desglose de Parciales (*Splits*):
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -734,24 +712,24 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                           return (
                             <div
                               key={lap.label}
-                              className="rounded-xl bg-slate-900/90 border border-slate-800 p-2 text-xs"
+                              className="rounded-xl bg-surface-container border border-outline/50 p-2 text-xs"
                             >
-                              <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                              <div className="flex items-center justify-between text-[10px] text-on-surface-variant font-mono">
                                 <span>{lap.label}</span>
                                 <span>@{lap.toDistance}m</span>
                               </div>
                               <div className="mt-0.5 flex items-baseline justify-between font-mono">
-                                <span className="font-bold text-cyan-300">
+                                <span className="font-bold text-primary-md3">
                                   {formatSwimTime(lap.lapTimeSec)}s
                                 </span>
-                                <span className="text-[11px] text-slate-300">
+                                <span className="text-[11px] text-on-surface-variant">
                                   {formatSwimTime(lap.cumulativeTimeSec)}
                                 </span>
                               </div>
                               {(lap.strokeCount !== undefined ||
                                 lap.dolphinKicks !== undefined ||
                                 goalLap !== undefined) && (
-                                <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-slate-400">
+                                <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-on-surface-variant">
                                   {lap.strokeCount !== undefined && (
                                     <span>{lap.strokeCount} braz.</span>
                                   )}
@@ -762,8 +740,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                                     <span
                                       className={`font-mono ${
                                         lap.lapTimeSec <= goalLap.lapTimeSec
-                                          ? 'text-emerald-400'
-                                          : 'text-amber-300'
+                                          ? 'text-status-emerald'
+                                          : 'text-status-amber'
                                       }`}
                                     >
                                       {formatTimeDelta(lap.lapTimeSec - goalLap.lapTimeSec)}
@@ -779,7 +757,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   )}
 
                   {mark.notes && (
-                    <p className="text-xs text-slate-300 bg-slate-900/60 rounded-xl px-3 py-2 border border-slate-800/70 italic">
+                    <p className="text-xs text-on-surface-variant bg-surface-container/60 rounded-xl px-3 py-2 border border-outline/40 italic">
                       “{mark.notes}”
                     </p>
                   )}
@@ -792,4 +770,3 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     </div>
   );
 };
-

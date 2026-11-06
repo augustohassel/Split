@@ -78,16 +78,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Filtro superior de pileta y acceso rápido */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl font-extrabold text-on-surface tracking-tight">
             Panel del Nadador
           </h1>
-          <p className="text-xs text-slate-400">
-            Récords separados en <span className="text-amber-300 font-medium">PB Carrera</span>{' '}
-            (principal) y <span className="text-teal-300 font-medium">PB Entrenamiento</span>
+          <p className="text-xs text-on-surface-variant">
+            Récords separados en <span className="text-status-amber font-medium">PB Carrera</span>{' '}
+            (principal) y <span className="text-status-emerald font-medium">PB Entrenamiento</span>
           </p>
         </div>
 
-        <div className="inline-flex rounded-xl bg-slate-900/90 p-1 border border-slate-800 text-xs">
+        <div className="inline-flex rounded-xl bg-surface-container p-1 border border-outline/50 text-xs">
           {(['all', 25, 50] as const).map((option) => (
             <button
               key={String(option)}
@@ -95,8 +95,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => setPoolFilter(option)}
               className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                 poolFilter === option
-                  ? 'bg-cyan-500 text-slate-950 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-primary-md3 text-on-primary font-semibold'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               {option === 'all' ? '25m + 50m' : `${option}m`}
@@ -108,15 +108,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* KPIs principales */}
       <div className="grid grid-cols-3 gap-3">
         <div className="glass-card rounded-2xl p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center justify-between text-xs text-on-surface-variant">
             <span>Mejor FINA</span>
-            <Award className="w-4 h-4 text-amber-400" />
+            <Award className="w-4 h-4 text-status-amber" />
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-extrabold font-mono text-white">
+            <div className="text-2xl font-extrabold font-mono text-on-surface">
               {topRanking ? topRanking.sortFinaPoints : '—'}
             </div>
-            <div className="text-[11px] text-slate-400 truncate mt-0.5">
+            <div className="text-[11px] text-on-surface-variant truncate mt-0.5">
               {topRanking
                 ? `${getEventById(topRanking.eventId).shortName} (${topRanking.poolLength}m)`
                 : 'Sin marcas aún'}
@@ -125,28 +125,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="glass-card rounded-2xl p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center justify-between text-xs text-on-surface-variant">
             <span>Marcas</span>
-            <Waves className="w-4 h-4 text-cyan-400" />
+            <Waves className="w-4 h-4 text-primary-md3" />
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-extrabold font-mono text-white">{marks.length}</div>
-            <div className="text-[11px] text-slate-400 mt-0.5">
+            <div className="text-2xl font-extrabold font-mono text-on-surface">{marks.length}</div>
+            <div className="text-[11px] text-on-surface-variant mt-0.5">
               {raceMarksCount} carr. · {trainingMarksCount} entr.
             </div>
           </div>
         </div>
 
         <div className="glass-card rounded-2xl p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center justify-between text-xs text-on-surface-variant">
             <span>Objetivos</span>
-            <Target className="w-4 h-4 text-emerald-400" />
+            <Target className="w-4 h-4 text-status-emerald" />
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-extrabold font-mono text-white">
+            <div className="text-2xl font-extrabold font-mono text-on-surface">
               {goalAnalyses.filter((g) => g.achievedInRace).length}/{goalAnalyses.length}
             </div>
-            <div className="text-[11px] text-slate-400 mt-0.5">Cumplidos en carrera</div>
+            <div className="text-[11px] text-on-surface-variant mt-0.5">Cumplidos en carrera</div>
           </div>
         </div>
       </div>
@@ -155,15 +155,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-            <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+            <Star className="w-4 h-4 text-status-amber fill-status-amber" />
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
               Pruebas Favoritas · PB Carrera vs Entrenamiento
             </h2>
           </div>
           <button
             type="button"
             onClick={() => onNavigate('goals')}
-            className="text-xs text-cyan-400 hover:text-cyan-300 font-medium"
+            className="text-xs text-primary-md3 hover:text-primary-md3/80 font-medium"
           >
             Configurar
           </button>
@@ -175,11 +175,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             const activePool: PoolLength =
               poolFilter === 'all'
                 ? event.poolLengths.includes(profile.defaultPoolLength)
-                  ? profile.defaultPoolLength
-                  : event.poolLengths[0]
+                ? profile.defaultPoolLength
+                : event.poolLengths[0]
                 : event.poolLengths.includes(poolFilter)
-                  ? poolFilter
-                  : event.poolLengths[0];
+                ? poolFilter
+                : event.poolLengths[0];
 
             const pbs = getPersonalBestsForEvent(marks, eventId, activePool);
             const raceFina = pbs.racePB
@@ -192,13 +192,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             return (
               <div
                 key={`${eventId}-${activePool}`}
-                className="glass-card rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-slate-700 transition-colors"
+                className="glass-card rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-outline transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-sm">{event.name}</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className="font-bold text-on-surface text-sm">{event.name}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant border border-outline/50">
                         {activePool}m
                       </span>
                     </div>
@@ -214,7 +214,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('register', eventId, activePool)}
-                    className="p-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition-colors"
+                    className="p-2 rounded-xl bg-primary-md3/15 hover:bg-primary-md3/25 text-primary-md3 border border-primary-md3/30 transition-colors"
                     title={`Registrar marca en ${event.name}`}
                   >
                     <PlusCircle className="w-4 h-4" />
@@ -222,42 +222,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Separación explícita PB Carrera (Principal) y PB Entrenamiento */}
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
-                  <div className="rounded-xl bg-amber-500/10 border border-amber-500/25 p-2.5">
-                    <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-300 uppercase">
-                      <Trophy className="w-3 h-3 text-amber-400" />
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-outline/40">
+                  <div className="rounded-xl bg-status-amber/10 border border-status-amber/25 p-2.5">
+                    <div className="flex items-center gap-1 text-[10px] font-semibold text-status-amber uppercase">
+                      <Trophy className="w-3 h-3 text-status-amber" />
                       <span>PB Carrera</span>
                     </div>
                     {pbs.racePB ? (
                       <div className="mt-1">
-                        <div className="text-lg font-extrabold font-mono text-white leading-tight">
+                        <div className="text-lg font-extrabold font-mono text-on-surface leading-tight">
                           {formatSwimTime(pbs.racePB.timeSec)}
                         </div>
-                        <div className="text-[11px] font-mono text-amber-300/90 mt-0.5">
+                        <div className="text-[11px] font-mono text-status-amber mt-0.5">
                           {raceFina} pts FINA
                         </div>
                       </div>
                     ) : (
-                      <div className="mt-1 text-xs text-slate-500 italic">Sin marca</div>
+                      <div className="mt-1 text-xs text-on-surface-variant italic">Sin marca</div>
                     )}
                   </div>
 
-                  <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5">
-                    <div className="flex items-center gap-1 text-[10px] font-semibold text-teal-300 uppercase">
-                      <Zap className="w-3 h-3 text-teal-400" />
+                  <div className="rounded-xl bg-surface-container border border-outline/50 p-2.5">
+                    <div className="flex items-center gap-1 text-[10px] font-semibold text-status-emerald uppercase">
+                      <Zap className="w-3 h-3 text-status-emerald" />
                       <span>PB Entreno</span>
                     </div>
                     {pbs.trainingPB ? (
                       <div className="mt-1">
-                        <div className="text-lg font-bold font-mono text-slate-200 leading-tight">
+                        <div className="text-lg font-bold font-mono text-on-surface leading-tight">
                           {formatSwimTime(pbs.trainingPB.timeSec)}
                         </div>
-                        <div className="text-[11px] font-mono text-teal-300/80 mt-0.5">
+                        <div className="text-[11px] font-mono text-status-emerald mt-0.5">
                           {trainingFina} pts FINA
                         </div>
                       </div>
                     ) : (
-                      <div className="mt-1 text-xs text-slate-500 italic">Sin marca</div>
+                      <div className="mt-1 text-xs text-on-surface-variant italic">Sin marca</div>
                     )}
                   </div>
                 </div>
@@ -271,27 +271,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+            <Target className="w-4 h-4 text-status-emerald" />
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
               Objetivos y Brecha Actual
             </h2>
           </div>
           <button
             type="button"
             onClick={() => onNavigate('goals')}
-            className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-0.5"
+            className="text-xs text-primary-md3 hover:text-primary-md3/80 font-medium flex items-center gap-0.5"
           >
             Gestionar <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {goalAnalyses.length === 0 ? (
-          <div className="glass-card rounded-2xl p-4 text-xs text-slate-400 flex items-center justify-between">
+          <div className="glass-card rounded-2xl p-4 text-xs text-on-surface-variant flex items-center justify-between">
             <span>Aún no definiste tiempos objetivo por prueba y pileta.</span>
             <button
               type="button"
               onClick={() => onNavigate('goals')}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold"
+              className="px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-primary-md3 font-semibold"
             >
               Crear objetivo
             </button>
@@ -308,18 +308,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{item.event.name}</span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <span className="font-bold text-on-surface text-sm">{item.event.name}</span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                           {item.goal.poolLength}m
                         </span>
                         {item.goal.label && (
-                          <span className="text-[11px] text-slate-400">· {item.goal.label}</span>
+                          <span className="text-[11px] text-on-surface-variant">· {item.goal.label}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-400">Meta:</span>
-                      <span className="font-mono font-extrabold text-sm text-emerald-300">
+                      <span className="text-xs text-on-surface-variant">Meta:</span>
+                      <span className="font-mono font-extrabold text-sm text-status-emerald">
                         {formatSwimTime(item.goal.targetTimeSec)}
                       </span>
                       <FinaBadge points={item.targetFinaPoints} size="sm" />
@@ -327,12 +327,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
 
                   {/* Barra de progreso */}
-                  <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
                         item.achievedInRace
-                          ? 'bg-emerald-400'
-                          : 'bg-gradient-to-r from-cyan-500 to-indigo-500'
+                          ? 'bg-status-emerald'
+                          : 'bg-gradient-to-r from-primary-md3 to-status-indigo'
                       }`}
                       style={{ width: `${item.progressPercent}%` }}
                     />
@@ -341,27 +341,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-3">
                       <span>
-                        <strong className="text-amber-300">PB Carrera:</strong>{' '}
+                        <strong className="text-status-amber">PB Carrera:</strong>{' '}
                         {hasRacePB ? (
-                          <span className="font-mono text-white">
+                          <span className="font-mono text-on-surface">
                             {formatSwimTime(item.racePB!.timeSec)}{' '}
                             <span
                               className={
-                                item.gapVsRacePBSec! <= 0 ? 'text-emerald-400' : 'text-amber-300'
+                                item.gapVsRacePBSec! <= 0 ? 'text-status-emerald' : 'text-status-amber'
                               }
                             >
                               ({formatTimeDelta(item.gapVsRacePBSec!)})
                             </span>
                           </span>
                         ) : (
-                          <span className="text-slate-500">Sin PB carrera</span>
+                          <span className="text-on-surface-variant">Sin PB carrera</span>
                         )}
                       </span>
 
                       {item.trainingPB && (
-                        <span className="text-slate-400">
-                          <strong className="text-teal-300">PB Entreno:</strong>{' '}
-                          <span className="font-mono text-slate-200">
+                        <span className="text-on-surface-variant">
+                          <strong className="text-status-emerald">PB Entreno:</strong>{' '}
+                          <span className="font-mono text-on-surface">
                             {formatSwimTime(item.trainingPB.timeSec)} (
                             {formatTimeDelta(item.gapVsTrainingPBSec!)})
                           </span>
@@ -370,7 +370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     {item.achievedInRace && (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-full bg-status-emerald/15 text-status-emerald border border-status-emerald/40 text-[11px] font-semibold">
                         ¡Objetivo cumplido en Carrera!
                       </span>
                     )}
@@ -387,46 +387,46 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-cyan-400" />
-              <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+              <Award className="w-4 h-4 text-primary-md3" />
+              <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
                 Ranking Personal por Puntos FINA
               </h2>
             </div>
-            <span className="text-[11px] text-slate-400">Prioriza PB Carrera</span>
+            <span className="text-[11px] text-on-surface-variant">Prioriza PB Carrera</span>
           </div>
 
-          <div className="glass-card rounded-2xl overflow-hidden divide-y divide-slate-800/80">
+          <div className="glass-card rounded-2xl overflow-hidden divide-y divide-outline/40">
             {ranking.map((row, index) => (
               <button
                 key={`${row.eventId}-${row.poolLength}`}
                 type="button"
                 onClick={() => onNavigate('history', row.eventId, row.poolLength)}
-                className="w-full px-4 py-3 flex items-center justify-between gap-3 hover:bg-slate-800/40 transition-colors text-left"
+                className="w-full px-4 py-3 flex items-center justify-between gap-3 hover:bg-surface-container-high/40 transition-colors text-left"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span
                     className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono text-xs font-bold ${
                       index === 0
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'bg-slate-800 text-slate-400'
+                        ? 'bg-status-amber/15 text-status-amber border border-status-amber/40'
+                        : 'bg-surface-container-high text-on-surface-variant'
                     }`}
                   >
                     #{index + 1}
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-white truncate">
+                      <span className="font-semibold text-sm text-on-surface truncate">
                         {row.eventName}
                       </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                         {row.poolLength}m
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
+                    <div className="flex items-center gap-3 text-[11px] text-on-surface-variant mt-0.5">
                       {row.racePB && (
                         <span>
                           Carrera:{' '}
-                          <strong className="font-mono text-amber-300">
+                          <strong className="font-mono text-status-amber">
                             {formatSwimTime(row.racePB.timeSec)}
                           </strong>
                         </span>
@@ -434,7 +434,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {row.trainingPB && (
                         <span>
                           Entreno:{' '}
-                          <strong className="font-mono text-teal-300">
+                          <strong className="font-mono text-status-emerald">
                             {formatSwimTime(row.trainingPB.timeSec)}
                           </strong>
                         </span>
@@ -457,13 +457,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {recentMarks.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
               Últimas Marcas Cargadas
             </h2>
             <button
               type="button"
               onClick={() => onNavigate('history')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-0.5"
+              className="text-xs text-primary-md3 hover:text-primary-md3/80 font-medium flex items-center gap-0.5"
             >
               Ver historial <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -489,8 +489,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm text-white">{event.name}</span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <span className="font-bold text-sm text-on-surface">{event.name}</span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                           {mark.poolLength}m
                         </span>
                         <span
@@ -502,7 +502,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </span>
                         {pbStatus && <PBBadge type={pbStatus} />}
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
+                      <div className="text-[11px] text-on-surface-variant mt-0.5">
                         {mark.date} · {mark.venue || 'Sin sede'} ·{' '}
                         {MODALITY_LABELS[mark.modality].shortLabel}
                         {mark.feel && ` · ${WATER_FEEL_LABELS[mark.feel].emoji}`}
@@ -510,7 +510,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="text-right">
-                      <div className="text-lg font-extrabold font-mono text-white">
+                      <div className="text-lg font-extrabold font-mono text-on-surface">
                         {formatSwimTime(mark.timeSec)}
                       </div>
                       <FinaBadge points={fina} size="sm" />
@@ -518,17 +518,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
 
                   {laps.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-800/70">
+                    <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-outline/40">
                       {laps.map((lap) => (
                         <span
                           key={lap.label}
-                          className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-300 border border-slate-800"
+                          className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant border border-outline/50"
                         >
-                          <span className="text-slate-500">{lap.label}:</span>{' '}
-                          <strong className="text-cyan-300">
+                          <span className="text-on-surface-variant/80">{lap.label}:</span>{' '}
+                          <strong className="text-primary-md3">
                             {formatSwimTime(lap.cumulativeTimeSec)}
                           </strong>{' '}
-                          <span className="text-slate-400">({formatSwimTime(lap.lapTimeSec)})</span>
+                          <span className="text-on-surface-variant/80">({formatSwimTime(lap.lapTimeSec)})</span>
                         </span>
                       ))}
                     </div>
@@ -542,4 +542,3 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     </div>
   );
 };
-

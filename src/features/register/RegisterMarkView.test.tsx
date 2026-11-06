@@ -62,7 +62,7 @@ describe('RegisterMarkView Component & Guardado de Marcas', () => {
 
     const btn50 = screen.getByRole('button', { name: /50m \(olímpica\)/i });
     fireEvent.click(btn50);
-    expect(btn50.className).toContain('bg-cyan-500');
+    expect(btn50.className).toContain('bg-primary-md3');
   });
 
   it('muestra error de validación cuando el tiempo es vacío o inválido', async () => {

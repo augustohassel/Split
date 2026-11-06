@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ThemeMode } from '../types';
 
 export const THEME_STORAGE_KEY = 'split_theme_v1';
-export const DARK_THEME_COLOR = '#0f172a';
+export const DARK_THEME_COLOR = '#0b111e';
 export const LIGHT_THEME_COLOR = '#f8fafc';
 
 export function readStoredTheme(): ThemeMode {

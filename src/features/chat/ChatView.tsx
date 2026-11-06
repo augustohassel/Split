@@ -299,21 +299,21 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] max-w-3xl mx-auto text-slate-100">
+    <div className="flex flex-col h-[calc(100vh-12rem)] max-w-3xl mx-auto text-on-surface">
       {/* Barra de cabecera de la vista de Chat */}
-      <div className="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2 shrink-0 mb-3">
+      <div className="glass-panel rounded-2xl p-3 border border-outline/40 flex items-center justify-between gap-2 shrink-0 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-primary-md3/10 border border-primary-md3/30 flex items-center justify-center text-primary-md3 shrink-0">
             <Bot className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm font-extrabold text-white leading-tight flex items-center gap-1.5">
+            <h2 className="text-sm font-extrabold text-on-surface leading-tight flex items-center gap-1.5">
               <span>Asistente Conversacional</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 rounded-full bg-primary-md3/20 text-primary-md3 text-[10px] font-mono font-bold">
                 BYOK
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400 truncate">
+            <p className="text-[11px] text-on-surface-variant truncate">
               Voz · Parser Offline · Gemini & OpenAI
             </p>
           </div>
@@ -323,7 +323,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
           <button
             type="button"
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant hover:text-on-surface transition-colors"
             title="Configuración de IA (BYOK)"
           >
             <Settings className="w-4 h-4" />
@@ -331,7 +331,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
           <button
             type="button"
             onClick={handleClearChat}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant hover:text-on-surface transition-colors"
             title="Iniciar nueva conversación / Limpiar historial"
           >
             <RotateCcw className="w-4 h-4" />
@@ -341,7 +341,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
 
       {/* Sugerencia de reinicio tras guardar */}
       {showResetSuggestion && (
-        <div className="mb-2 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-center justify-between gap-2 shrink-0">
+        <div className="mb-2 p-2.5 rounded-xl bg-primary-md3/10 border border-primary-md3/30 text-primary-md3 text-xs flex items-center justify-between gap-2 shrink-0">
           <span>¡Registro exitoso! ¿Querés limpiar la sesión para optimizar tokens?</span>
           <button
             type="button"
@@ -349,7 +349,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               setMessages([createWelcomeMessage(profile)]);
               setShowResetSuggestion(false);
             }}
-            className="px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-bold text-[11px] hover:bg-cyan-400 shrink-0"
+            className="px-2.5 py-1 rounded-lg bg-primary-md3 text-on-primary font-bold text-[11px] hover:bg-primary-md3/90 shrink-0"
           >
             Nueva sesión
           </button>
@@ -358,13 +358,13 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
 
       {/* Banner de error si ocurrió */}
       {errorMessage && (
-        <div className="mb-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2 shrink-0">
+        <div className="mb-2 p-2.5 rounded-xl bg-status-rose/10 border border-status-rose/30 text-status-rose text-xs flex items-center gap-2 shrink-0">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span className="flex-1">{errorMessage}</span>
           <button
             type="button"
             onClick={() => setErrorMessage(null)}
-            className="text-slate-400 hover:text-white font-bold"
+            className="text-on-surface-variant hover:text-on-surface font-bold"
           >
             ✕
           </button>
@@ -381,7 +381,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
             >
               {!isUser && (
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-lg bg-primary-md3/20 border border-primary-md3/30 flex items-center justify-center text-primary-md3 shrink-0 mt-0.5">
                   <Bot className="w-4 h-4" />
                 </div>
               )}
@@ -389,8 +389,8 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               <div
                 className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed ${
                   isUser
-                    ? 'bg-cyan-600 text-white rounded-tr-sm shadow-md shadow-cyan-950/15 dark:shadow-cyan-950/30'
-                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-sm shadow-sm dark:shadow-md dark:shadow-slate-950/40'
+                    ? 'bg-primary-md3 text-on-primary rounded-tr-sm shadow-md'
+                    : 'bg-surface-container border border-outline/50 text-on-surface rounded-tl-sm shadow-sm'
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -419,7 +419,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               </div>
 
               {isUser && (
-                <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-lg bg-surface-container-high border border-outline/50 flex items-center justify-center text-on-surface-variant shrink-0 mt-0.5">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -429,11 +429,11 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
 
         {isGenerating && (
           <div className="flex gap-2.5 justify-start">
-            <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+            <div className="w-7 h-7 rounded-lg bg-primary-md3/20 border border-primary-md3/30 flex items-center justify-center text-primary-md3 shrink-0 mt-0.5">
               <Sparkles className="w-4 h-4 animate-spin" />
             </div>
-            <div className="rounded-2xl p-3 bg-slate-900 border border-slate-800 text-slate-400 text-xs flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <div className="rounded-2xl p-3 bg-surface-container border border-outline/50 text-on-surface-variant text-xs flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-primary-md3 animate-pulse" />
               <span>Analizando y redactando respuesta...</span>
             </div>
           </div>
@@ -445,7 +445,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
       {/* Barra de entrada de texto y micrófono */}
       <form
         onSubmit={handleSend}
-        className="glass-panel rounded-2xl p-2 border border-slate-800 flex items-center gap-2 shrink-0 mt-2"
+        className="glass-panel rounded-2xl p-2 border border-outline/40 flex items-center gap-2 shrink-0 mt-2"
       >
         {isSpeechSupported && (
           <button
@@ -453,8 +453,8 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
             onClick={handleToggleMic}
             className={`p-2.5 rounded-xl transition-all ${
               isListening
-                ? 'bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-500/40'
-                : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'
+                ? 'bg-status-rose text-white animate-pulse shadow-lg shadow-status-rose/40'
+                : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/80'
             }`}
             title={isListening ? 'Detener dictado por voz' : 'Iniciar dictado por voz'}
           >
@@ -472,13 +472,13 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               ? 'Escuchando tu voz...'
               : 'Escribí o dictá: "50 libre 26.40 en 25m"...'
           }
-          className="flex-1 bg-transparent border-0 text-slate-100 placeholder:text-slate-500 text-xs px-2 focus:outline-none"
+          className="flex-1 bg-transparent border-0 text-on-surface placeholder:text-on-surface-variant/50 text-xs px-2 focus:outline-none"
         />
 
         <button
           type="submit"
           disabled={!inputText.trim() || isGenerating}
-          className="p-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-all disabled:opacity-40 disabled:hover:bg-cyan-500 shadow-md shadow-cyan-500/20 active:scale-95"
+          className="p-2.5 rounded-xl bg-primary-md3 hover:bg-primary-md3/90 text-on-primary font-bold transition-all disabled:opacity-40 disabled:hover:bg-primary-md3 shadow-md shadow-primary-md3/20 active:scale-95"
           title="Enviar mensaje"
         >
           <Send className="w-4 h-4" />

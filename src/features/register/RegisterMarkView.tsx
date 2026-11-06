@@ -593,10 +593,10 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h1 className="text-xl font-extrabold text-white tracking-tight">
+            <h1 className="text-xl font-extrabold text-on-surface tracking-tight">
               {editingMark ? 'Editar Marca' : 'Registrar Marca'}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-on-surface-variant">
               Tus datos se autoguardan mientras escribes · Compatible con teclado numérico móvil
             </p>
           </div>
@@ -604,13 +604,13 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           <div className="flex items-center gap-2">
             {hasDraftData && !editingMark && (
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-medium">
+                <span className="text-[11px] px-2.5 py-1 rounded-xl bg-primary-md3/10 border border-primary-md3/30 text-primary-md3 font-medium">
                   Borrador autoguardado
                 </span>
                 <button
                   type="button"
                   onClick={handleClearDraft}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant text-[11px] font-medium"
                   title="Vaciar campos del formulario"
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -623,7 +623,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               <button
                 type="button"
                 onClick={onCancelEdit}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant text-xs font-medium"
               >
                 <X className="w-3.5 h-3.5" />
                 Cancelar
@@ -635,8 +635,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
         {/* Acceso rápido a Pruebas Favoritas */}
         {profile.favoriteEventIds?.length > 0 && (
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+            <label className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider flex items-center gap-1">
+              <Star className="w-3 h-3 text-status-amber fill-status-amber" />
               Acceso Rápido · Pruebas Favoritas
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -652,8 +652,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       onClick={() => handleSelectEvent(favId)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                         selected
-                          ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-sm shadow-cyan-500/20'
-                          : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700'
+                          ? 'bg-primary-md3 text-on-primary border-primary-md3 shadow-sm shadow-primary-md3/20'
+                          : 'bg-surface-container text-on-surface-variant border-outline/50 hover:border-outline'
                       }`}
                     >
                       {ev.name}
@@ -669,10 +669,10 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Tamaño de Pileta */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">
                 Tamaño de Pileta
               </label>
-              <div className="grid grid-cols-2 gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                 {([25, 50] as const).map((len) => (
                   <button
                     key={len}
@@ -680,8 +680,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     onClick={() => setPoolLength(len)}
                     className={`py-2 rounded-lg text-xs font-bold transition-all ${
                       poolLength === len
-                        ? 'bg-cyan-500 text-slate-950'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-primary-md3 text-on-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
                     {len}m ({len === 25 ? 'Corta' : 'Olímpica'})
@@ -694,7 +694,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             <div className="sm:col-span-2">
               <label
                 htmlFor="event-select"
-                className="block text-xs font-semibold text-slate-300 mb-1.5"
+                className="block text-xs font-semibold text-on-surface-variant mb-1.5"
               >
                 Prueba Oficial ({availableEvents.length} disponibles en {poolLength}m)
               </label>
@@ -702,7 +702,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                 id="event-select"
                 value={eventId}
                 onChange={(e) => handleSelectEvent(e.target.value as SwimEventId)}
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-cyan-400"
+                className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2.5 text-sm font-semibold text-on-surface focus:outline-none focus:border-primary-md3"
               >
                 {availableEvents.map((ev) => (
                   <option key={ev.id} value={ev.id}>
@@ -714,17 +714,17 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           </div>
 
           {/* Tiempo Total + Puntos FINA + Indicador PB en vivo */}
-          <div className="pt-2 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div className="pt-2 border-t border-outline/40 grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-2">
                 <label
                   htmlFor="total-time-input"
-                  className="text-xs font-semibold text-slate-300 flex items-center gap-1.5"
+                  className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5"
                 >
-                  <Timer className="w-3.5 h-3.5 text-cyan-400" />
+                  <Timer className="w-3.5 h-3.5 text-primary-md3" />
                   Tiempo Total
                 </label>
-                <span className="text-[11px] text-cyan-300/90 font-mono">
+                <span className="text-[11px] text-primary-md3/90 font-mono">
                   {currentEvent.distance >= 100
                     ? 'Ej: 1.02.40 o 1:02.40'
                     : 'Ej: 26.45'}
@@ -745,10 +745,10 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     setErrorMsg(null);
                     setTotalTimeStr(e.target.value);
                   }}
-                  className={`w-full rounded-xl bg-slate-950 border px-4 py-3 text-xl font-extrabold font-mono text-white placeholder:text-slate-600 focus:outline-none ${
+                  className={`w-full rounded-xl bg-surface border px-4 py-3 text-xl font-extrabold font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none ${
                     hasInvalidTotalInput
-                      ? 'border-rose-500 focus:border-rose-400'
-                      : 'border-cyan-500/40 focus:border-cyan-400'
+                      ? 'border-status-rose focus:border-status-rose'
+                      : 'border-primary-md3/40 focus:border-primary-md3'
                   }`}
                 />
 
@@ -756,7 +756,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleInsertColonInTotal}
-                  className="shrink-0 px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-cyan-500 active:text-slate-950 border border-slate-700 text-cyan-300 font-mono font-extrabold text-lg leading-none transition-colors"
+                  className="shrink-0 px-3.5 py-3 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 active:bg-primary-md3 active:text-on-primary border border-outline text-primary-md3 font-mono font-extrabold text-lg leading-none transition-colors"
                   title="Insertar dos puntos (:) para separar minutos y segundos"
                 >
                   :
@@ -765,22 +765,22 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
               <div className="text-[11px] leading-snug">
                 {parsedTotalSec ? (
-                  <span className="text-emerald-300 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="text-status-emerald font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-status-emerald shrink-0" />
                     Tiempo interpretado:{' '}
-                    <strong className="font-mono text-white">
+                    <strong className="font-mono text-on-surface">
                       {formatSwimTime(parsedTotalSec)}
                     </strong>{' '}
                     ({parsedTotalSec.toFixed(2)}s)
                   </span>
                 ) : hasInvalidTotalInput ? (
-                  <span className="text-rose-300 font-medium flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <span className="text-status-rose font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 text-status-rose shrink-0" />
                     Formato inválido (segundos de 00 a 59). Usa <strong>1.02.40</strong>,{' '}
                     <strong>1:02.40</strong> o <strong>62.40</strong>.
                   </span>
                 ) : (
-                  <span className="text-slate-400">
+                  <span className="text-on-surface-variant">
                     En celular puedes usar <strong>doble punto</strong> (<code>1.02.40</code>), el
                     botón <code>:</code> o segundos (<code>62.40</code>).
                   </span>
@@ -788,9 +788,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               </div>
             </div>
 
-            <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-3 space-y-2">
+            <div className="rounded-xl bg-surface-container border border-outline/50 p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400">Cálculo en vivo:</span>
+                <span className="text-xs text-on-surface-variant">Cálculo en vivo:</span>
                 <FinaBadge points={liveFinaPoints} size="lg" />
               </div>
 
@@ -800,7 +800,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     <div className="flex items-center gap-1.5">
                       <PBBadge type={context === 'race' ? 'race-pb' : 'training-pb'} />
                       {pbCheck.improvementSec !== undefined && (
-                        <span className="font-mono text-emerald-400 font-semibold">
+                        <span className="font-mono text-status-emerald font-semibold">
                           (-{formatSwimTime(pbCheck.improvementSec)}s)
                         </span>
                       )}
@@ -808,9 +808,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   )}
 
                   {!pbCheck.isNewPB && pbCheck.previousBestSec !== undefined && (
-                    <span className="text-slate-400">
+                    <span className="text-on-surface-variant">
                       PB {context === 'race' ? 'Carrera' : 'Entreno'} actual:{' '}
-                      <strong className="font-mono text-slate-200">
+                      <strong className="font-mono text-on-surface">
                         {formatSwimTime(pbCheck.previousBestSec)}
                       </strong>{' '}
                       ({formatTimeDelta(parsedTotalSec - pbCheck.previousBestSec)})
@@ -818,13 +818,13 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   )}
 
                   {activeGoal && (
-                    <span className="text-slate-400">
+                    <span className="text-on-surface-variant">
                       · Meta {formatSwimTime(activeGoal.targetTimeSec)}:{' '}
                       <strong
                         className={`font-mono ${
                           parsedTotalSec <= activeGoal.targetTimeSec
-                            ? 'text-emerald-400'
-                            : 'text-amber-300'
+                            ? 'text-status-emerald'
+                            : 'text-status-amber'
                         }`}
                       >
                         {formatTimeDelta(parsedTotalSec - activeGoal.targetTimeSec)}
@@ -842,17 +842,17 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Contexto: Carrera vs Entrenamiento */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">
                 Contexto de la Marca
               </label>
-              <div className="grid grid-cols-2 gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                 <button
                   type="button"
                   onClick={() => setContext('race')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     context === 'race'
-                      ? 'bg-indigo-500 text-white'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-status-indigo text-white'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   🏆 Carrera / Torneo
@@ -862,8 +862,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   onClick={() => setContext('training')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     context === 'training'
-                      ? 'bg-teal-500 text-slate-950'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-status-emerald text-white'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   🏊 Entrenamiento
@@ -873,10 +873,10 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
             {/* Cronometraje: Electrónico vs Manual */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">
                 Tipo de Cronometraje
               </label>
-              <div className="grid grid-cols-2 gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                 {(['electronic', 'manual'] as const).map((tm) => (
                   <button
                     key={tm}
@@ -884,8 +884,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     onClick={() => setTiming(tm)}
                     className={`py-2 rounded-lg text-xs font-bold transition-all ${
                       timing === tm
-                        ? 'bg-cyan-500 text-slate-950'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-primary-md3 text-on-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
                     {TIMING_LABELS[tm].shortLabel}
@@ -897,7 +897,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
           {/* Modalidad: Individual, Posta 1er Relevo, Posta Lanzada */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">
               Modalidad (Largada estática vs. Relevo lanzado)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
@@ -908,8 +908,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   onClick={() => setModality(mod)}
                   className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left transition-all ${
                     modality === mod
-                      ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400'
-                      : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:text-slate-200'
+                      ? 'bg-primary-md3/20 text-primary-md3 border-primary-md3'
+                      : 'bg-surface-container text-on-surface-variant border-outline/50 hover:text-on-surface'
                   }`}
                 >
                   <div>{MODALITY_LABELS[mod].shortLabel}</div>
@@ -928,9 +928,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             <div>
               <label
                 htmlFor="mark-date"
-                className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1"
+                className="block text-xs font-semibold text-on-surface-variant mb-1.5 flex items-center gap-1"
               >
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <Calendar className="w-3.5 h-3.5 text-on-surface-variant" />
                 Fecha
               </label>
               <input
@@ -938,7 +938,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
+                className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary-md3"
                 required
               />
             </div>
@@ -946,9 +946,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             <div>
               <label
                 htmlFor="mark-venue"
-                className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1"
+                className="block text-xs font-semibold text-on-surface-variant mb-1.5 flex items-center gap-1"
               >
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                <MapPin className="w-3.5 h-3.5 text-on-surface-variant" />
                 Pileta / Sede / Torneo
               </label>
               <input
@@ -958,7 +958,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                 placeholder="Ej: CENARD, Parque Olímpico, Club..."
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
               />
               <datalist id="known-venues-list">
                 {knownVenues.map((v) => (
@@ -973,12 +973,12 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
         <div className="glass-card rounded-2xl p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Split className="w-4 h-4 text-cyan-400" />
+              <Split className="w-4 h-4 text-primary-md3" />
               <div>
-                <h2 className="text-sm font-bold text-white">
+                <h2 className="text-sm font-bold text-on-surface">
                   Parciales Acumulados (*Splits*) — Opcional
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-on-surface-variant">
                   Acepta formato con doble punto (ej. 1.02.40) o dos puntos (1:02.40)
                 </p>
               </div>
@@ -986,7 +986,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
             <div className="flex items-center gap-2">
               {availableGranularities.length > 1 && (
-                <div className="inline-flex rounded-lg bg-slate-900 p-0.5 border border-slate-800 text-[11px]">
+                <div className="inline-flex rounded-lg bg-surface-container p-0.5 border border-outline/50 text-[11px]">
                   {availableGranularities.map((g) => (
                     <button
                       key={g}
@@ -994,8 +994,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       onClick={() => setGranularity(g)}
                       className={`px-2 py-1 rounded-md font-semibold ${
                         granularity === g
-                          ? 'bg-cyan-500 text-slate-950'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-primary-md3 text-on-primary'
+                          : 'text-on-surface-variant hover:text-on-surface'
                       }`}
                     >
                       Cada {g}
@@ -1005,12 +1005,12 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               )}
 
               {(currentEvent.distance === 100 || currentEvent.distance === 200) && (
-                <label className="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                <label className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant cursor-pointer bg-surface-container px-2.5 py-1 rounded-lg border border-outline/50">
                   <input
                     type="checkbox"
                     checked={include15mSplit}
                     onChange={(e) => setInclude15mSplit(e.target.checked)}
-                    className="rounded accent-cyan-500"
+                    className="rounded accent-primary-md3"
                   />
                   <span>+15m</span>
                 </label>
@@ -1021,8 +1021,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                 onClick={() => setShowTechnicalMetrics((v) => !v)}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors ${
                   showTechnicalMetrics
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                    ? 'bg-primary-md3/20 text-primary-md3 border-primary-md3/40'
+                    : 'bg-surface-container text-on-surface-variant border-outline/50 hover:text-on-surface'
                 }`}
               >
                 + Brazadas / Ondas
@@ -1040,13 +1040,13 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               return (
                 <div
                   key={dist}
-                  className="grid grid-cols-12 gap-2 items-center rounded-xl bg-slate-900/75 border border-slate-800/90 px-3 py-2"
+                  className="grid grid-cols-12 gap-2 items-center rounded-xl bg-surface-container border border-outline/40 px-3 py-2"
                 >
                   <div className="col-span-3 sm:col-span-3">
-                    <div className="text-xs font-extrabold font-mono text-white">
-                      {dist}m {isFinal && <span className="text-[10px] text-cyan-400">(Final)</span>}
+                    <div className="text-xs font-extrabold font-mono text-on-surface">
+                      {dist}m {isFinal && <span className="text-[10px] text-primary-md3">(Final)</span>}
                     </div>
-                    <div className="text-[10px] text-slate-400 font-mono">
+                    <div className="text-[10px] text-on-surface-variant font-mono">
                       Tramo {prevDist}-{dist}m
                     </div>
                   </div>
@@ -1068,7 +1068,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       }
                       value={row?.cumulativeStr ?? ''}
                       onChange={(e) => handleSplitChange(dist, 'cumulativeStr', e.target.value)}
-                      className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400"
+                      className="w-full rounded-lg bg-surface border border-outline px-2.5 py-1.5 text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                     />
                     {dist >= 100 && (
                       <button
@@ -1080,7 +1080,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                             handleSplitChange(dist, 'cumulativeStr', `${cur}:`);
                           }
                         }}
-                        className="shrink-0 px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono font-bold text-xs border border-slate-700"
+                        className="shrink-0 px-2 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-high/80 text-primary-md3 font-mono font-bold text-xs border border-outline"
                         title="Insertar :"
                       >
                         :
@@ -1098,7 +1098,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                         title="Conteo de brazadas/ciclos en el tramo"
                         value={row?.strokeCountStr ?? ''}
                         onChange={(e) => handleSplitChange(dist, 'strokeCountStr', e.target.value)}
-                        className="w-full rounded-lg bg-slate-950 border border-slate-800 px-1.5 py-1.5 text-[11px] font-mono text-slate-200 placeholder:text-slate-600"
+                        className="w-full rounded-lg bg-surface border border-outline/50 px-1.5 py-1.5 text-[11px] font-mono text-on-surface placeholder:text-on-surface-variant/50"
                       />
                       <input
                         type="number"
@@ -1108,7 +1108,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                         title="Ondas subacuáticas en el tramo"
                         value={row?.dolphinKicksStr ?? ''}
                         onChange={(e) => handleSplitChange(dist, 'dolphinKicksStr', e.target.value)}
-                        className="w-full rounded-lg bg-slate-950 border border-slate-800 px-1.5 py-1.5 text-[11px] font-mono text-slate-200 placeholder:text-slate-600"
+                        className="w-full rounded-lg bg-surface border border-outline/50 px-1.5 py-1.5 text-[11px] font-mono text-on-surface placeholder:text-on-surface-variant/50"
                       />
                     </div>
                   )}
@@ -1120,13 +1120,13 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   >
                     {lapObj ? (
                       <div>
-                        <span className="text-xs font-bold text-cyan-300">
+                        <span className="text-xs font-bold text-primary-md3">
                           +{formatSwimTime(lapObj.lapTimeSec)}
                         </span>
-                        <div className="text-[10px] text-slate-500">tramo</div>
+                        <div className="text-[10px] text-on-surface-variant">tramo</div>
                       </div>
                     ) : (
-                      <span className="text-[11px] text-slate-600">—</span>
+                      <span className="text-[11px] text-on-surface-variant/60">—</span>
                     )}
                   </div>
                 </div>
@@ -1138,7 +1138,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
         {/* Sensación en el Agua (1-5) y Comentarios */}
         <div className="glass-card rounded-2xl p-4 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">
+            <label className="block text-xs font-semibold text-on-surface-variant mb-2">
               Sensación en el Agua (1 a 5)
             </label>
             <div className="grid grid-cols-5 gap-1.5">
@@ -1153,7 +1153,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     className={`py-2 px-1 rounded-xl border text-center transition-all ${
                       isSelected
                         ? info.colorClass
-                        : 'bg-slate-900/70 text-slate-400 border-slate-800 hover:text-slate-200'
+                        : 'bg-surface-container text-on-surface-variant border-outline/50 hover:text-on-surface'
                     }`}
                   >
                     <div className="text-base">{info.emoji}</div>
@@ -1167,7 +1167,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           <div>
             <label
               htmlFor="mark-notes"
-              className="block text-xs font-semibold text-slate-300 mb-1.5"
+              className="block text-xs font-semibold text-on-surface-variant mb-1.5"
             >
               Comentarios / Observaciones Técnicas
             </label>
@@ -1177,7 +1177,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               placeholder="Ej: Subacuático hasta los 15m con 7 ondas, ajuste en viraje o respiración en cierre..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+              className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
             />
           </div>
         </div>
@@ -1187,11 +1187,11 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           {errorMsg && (
             <div
               role="alert"
-              className="rounded-2xl p-4 bg-rose-500/20 border-2 border-rose-500/60 text-rose-100 text-xs flex items-start gap-2.5 shadow-lg"
+              className="rounded-2xl p-4 bg-status-rose/15 border-2 border-status-rose/50 text-status-rose text-xs flex items-start gap-2.5 shadow-lg"
             >
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-status-rose shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <div className="font-bold text-rose-200">No se pudo guardar la marca:</div>
+                <div className="font-bold text-on-surface">No se pudo guardar la marca:</div>
                 <div>{errorMsg}</div>
               </div>
             </div>
@@ -1199,7 +1199,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
           <button
             type="submit"
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-extrabold text-sm shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
           >
             <Save className="w-4 h-4" />
             <span>{editingMark ? 'Guardar Cambios en la Marca' : 'Registrar Marca'}</span>
@@ -1210,16 +1210,16 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           {savedBanner && lastSavedSummary && (
             <div
               role="status"
-              className="rounded-2xl p-4 bg-emerald-500/15 border-2 border-emerald-500/50 text-emerald-100 space-y-3 shadow-lg shadow-emerald-950/40"
+              className="rounded-2xl p-4 bg-status-emerald/15 border-2 border-status-emerald/50 text-on-surface space-y-3 shadow-lg"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-status-emerald shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-sm font-extrabold text-white">
+                    <div className="text-sm font-extrabold text-on-surface">
                       ¡Marca guardada en tu dispositivo!
                     </div>
-                    <p className="text-xs text-emerald-200/90 mt-0.5">{savedBanner}</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">{savedBanner}</p>
                   </div>
                 </div>
                 <button
@@ -1228,20 +1228,20 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                     setSavedBanner(null);
                     setLastSavedSummary(null);
                   }}
-                  className="text-emerald-300/70 hover:text-white p-1"
+                  className="text-on-surface-variant hover:text-on-surface p-1"
                   title="Cerrar aviso"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="rounded-xl bg-slate-950/80 border border-emerald-500/30 p-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="rounded-xl bg-surface-container border border-status-emerald/30 p-3 flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-white">
+                    <span className="font-bold text-sm text-on-surface">
                       {lastSavedSummary.eventName}
                     </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                       {lastSavedSummary.poolLength}m
                     </span>
                     {lastSavedSummary.isNewPB && (
@@ -1250,13 +1250,13 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       />
                     )}
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
+                  <div className="text-[11px] text-on-surface-variant mt-0.5">
                     {lastSavedSummary.date} · {lastSavedSummary.venue}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-extrabold font-mono text-emerald-300">
+                  <span className="text-xl font-extrabold font-mono text-status-emerald">
                     {formatSwimTime(lastSavedSummary.timeSec)}
                   </span>
                   <FinaBadge points={lastSavedSummary.finaPoints} size="sm" />
@@ -1274,7 +1274,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                         lastSavedSummary.poolLength
                       )
                     }
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-status-emerald hover:bg-status-emerald/90 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>Ver en Historial y Gráficos</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -1282,7 +1282,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('dashboard')}
-                    className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs transition-colors"
+                    className="py-2.5 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline font-semibold text-xs transition-colors"
                   >
                     Ir al Inicio
                   </button>
@@ -1295,11 +1295,11 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
 
       {/* Resumen de marcas guardadas en el dispositivo para confirmación visual permanente */}
       {!editingMark && recentSavedMarks.length > 0 && (
-        <section className="space-y-3 pt-2 border-t border-slate-800/80">
+        <section className="space-y-3 pt-2 border-t border-outline/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+              <CheckCircle2 className="w-4 h-4 text-status-emerald" />
+              <h2 className="text-xs font-bold text-on-surface uppercase tracking-wider">
                 Marcas Guardadas en tu Dispositivo ({marks.length})
               </h2>
             </div>
@@ -1307,7 +1307,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('history', eventId, poolLength)}
-                className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+                className="text-xs text-primary-md3 hover:text-primary-md3/80 font-semibold flex items-center gap-1"
               >
                 <span>Ver todas</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1333,8 +1333,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-xs text-white">{ev.name}</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                      <span className="font-bold text-xs text-on-surface">{ev.name}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                         {mark.poolLength}m
                       </span>
                       <span
@@ -1346,14 +1346,14 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       </span>
                       {pbStatus && <PBBadge type={pbStatus} />}
                     </div>
-                    <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                    <div className="text-[11px] text-on-surface-variant truncate mt-0.5">
                       {mark.date} · {mark.venue}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="text-right">
-                      <div className="text-sm font-extrabold font-mono text-white">
+                      <div className="text-sm font-extrabold font-mono text-on-surface">
                         {formatSwimTime(mark.timeSec)}
                       </div>
                       <FinaBadge points={fina} size="sm" />
@@ -1363,7 +1363,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onEditMark(mark)}
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface-variant"
                         title="Editar marca"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -1374,7 +1374,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onDeleteMark(mark.id!)}
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300"
+                        className="p-1.5 rounded-lg bg-surface-container-high hover:bg-status-rose/20 text-on-surface-variant hover:text-status-rose"
                         title="Eliminar marca"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

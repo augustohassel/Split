@@ -253,7 +253,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col transition-colors duration-200">
       <Header
         profile={profile}
         onSelectTab={(tab) => handleNavigate(tab)}
@@ -266,11 +266,11 @@ export const App: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-2 border-emerald-500/60 px-4 py-3 shadow-2xl shadow-slate-900/15 dark:shadow-slate-950/90 flex items-center justify-between gap-3"
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-surface-container/95 backdrop-blur-md border-2 border-status-emerald/60 px-4 py-3 shadow-2xl shadow-black/15 flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
+            <CheckCircle2 className="w-5 h-5 text-status-emerald shrink-0" />
+            <span className="text-xs font-bold text-on-surface leading-snug">
               {toast.message}
             </span>
           </div>
@@ -280,7 +280,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={toast.onAction}
-                className="px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-[11px] flex items-center gap-1"
+                className="px-2.5 py-1.5 rounded-xl bg-status-emerald hover:bg-status-emerald/80 text-white font-extrabold text-[11px] flex items-center gap-1"
               >
                 <span>{toast.actionLabel}</span>
                 <ArrowRight className="w-3 h-3" />
@@ -289,7 +289,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setToast(null)}
-              className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              className="p-1 text-on-surface-variant hover:text-on-surface"
               title="Cerrar notificación"
             >
               <X className="w-4 h-4" />

@@ -8,7 +8,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#0b111e" />
     <script>
       (function () {
         try {
@@ -22,7 +22,7 @@
           }
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) {
-            meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#f8fafc');
+            meta.setAttribute('content', theme === 'dark' ? '#0b111e' : '#f8fafc');
           }
         } catch (e) {
           document.documentElement.classList.add('dark');
@@ -44,10 +44,9 @@
     />
   </head>
   <body
-    class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500/30 selection:text-cyan-900 dark:selection:text-cyan-200 transition-colors duration-200"
+    class="bg-surface text-on-surface min-h-screen font-sans antialiased selection:bg-primary-md3/30 selection:text-primary-md3 transition-colors duration-200"
   >
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
