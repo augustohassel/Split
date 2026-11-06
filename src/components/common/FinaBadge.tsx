@@ -15,14 +15,14 @@ export const FinaBadge: React.FC<FinaBadgeProps> = ({
   const safePoints = Math.max(0, Math.round(points));
 
   let colorClass =
-    'bg-slate-200/80 text-slate-700 border-slate-300 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700';
+    'bg-surface-container-high/80 text-on-surface-variant border-outline/50';
   if (safePoints >= 750) {
     colorClass =
-      'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40 shadow-sm shadow-amber-500/10';
+      'bg-status-amber/15 text-status-amber border-status-amber/40 shadow-sm shadow-status-amber/10';
   } else if (safePoints >= 550) {
-    colorClass = 'bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-500/40';
+    colorClass = 'bg-status-cyan/15 text-status-cyan border-status-cyan/40';
   } else if (safePoints >= 350) {
-    colorClass = 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border-indigo-500/40';
+    colorClass = 'bg-status-indigo/15 text-status-indigo border-status-indigo/40';
   }
 
   const sizeClass =
@@ -43,4 +43,3 @@ export const FinaBadge: React.FC<FinaBadgeProps> = ({
     </span>
   );
 };
-

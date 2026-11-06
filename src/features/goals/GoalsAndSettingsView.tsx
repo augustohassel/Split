@@ -360,15 +360,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
     <div className="space-y-5 pb-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl font-extrabold text-on-surface tracking-tight">
             Objetivos y Ajustes
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-on-surface-variant">
             Metas por prueba y pileta, perfil FINA y gestión de datos locales
           </p>
         </div>
 
-        <div className="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 text-xs">
+        <div className="inline-flex rounded-xl bg-surface-container p-1 border border-outline/50 text-xs">
           <button
             type="button"
             onClick={() => {
@@ -378,8 +378,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'goals'
-                ? 'bg-cyan-500 text-slate-950'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-primary-md3 text-on-primary'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <Target className="w-3.5 h-3.5" />
@@ -394,8 +394,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'profile'
-                ? 'bg-cyan-500 text-slate-950'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-primary-md3 text-on-primary'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -410,8 +410,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'ai'
-                ? 'bg-cyan-500 text-slate-950'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-primary-md3 text-on-primary'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <Bot className="w-3.5 h-3.5" />
@@ -427,8 +427,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ${
               subTab === 'backup'
-                ? 'bg-cyan-500 text-slate-950'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-primary-md3 text-on-primary'
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <Database className="w-3.5 h-3.5" />
@@ -442,8 +442,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
         <div className="space-y-5">
           <form onSubmit={handleGoalSubmit} noValidate className="glass-card rounded-2xl p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <Plus className="w-4 h-4 text-cyan-400" />
+              <h2 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-primary-md3" />
                 Definir o Actualizar Objetivo
               </h2>
               {parsedGoalSec && <FinaBadge points={liveGoalFina} size="sm" />}
@@ -451,10 +451,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Pileta
                 </label>
-                <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                   {([25, 50] as const).map((len) => (
                     <button
                       key={len}
@@ -467,8 +467,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       }}
                       className={`py-1.5 rounded-lg text-xs font-bold ${
                         goalPoolLength === len
-                          ? 'bg-cyan-500 text-slate-950'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-primary-md3 text-on-primary'
+                          : 'text-on-surface-variant hover:text-on-surface'
                       }`}
                     >
                       {len}m
@@ -478,13 +478,13 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Prueba Oficial
                 </label>
                 <select
                   value={goalEventId}
                   onChange={(e) => setGoalEventId(e.target.value as SwimEventId)}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white"
+                  className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm font-semibold text-on-surface focus:outline-none focus:border-primary-md3"
                 >
                   {getEventsForPool(goalPoolLength).map((ev) => (
                     <option key={ev.id} value={ev.id}>
@@ -497,7 +497,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-300">
+                <label className="block text-xs font-semibold text-on-surface-variant">
                   Tiempo Meta (ej. 26.20, 1:02.40 o 1.02.40)
                 </label>
                 <div className="flex items-center gap-1.5">
@@ -514,10 +514,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setStatusBanner(null);
                       setGoalTimeStr(e.target.value);
                     }}
-                    className={`w-full rounded-xl bg-slate-950 border px-3 py-2 text-base font-extrabold font-mono text-white ${
+                    className={`w-full rounded-xl bg-surface border px-3 py-2 text-base font-extrabold font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none ${
                       hasInvalidGoalInput
-                        ? 'border-rose-500'
-                        : 'border-emerald-500/40'
+                        ? 'border-status-rose'
+                        : 'border-status-emerald/40 focus:border-status-emerald'
                     }`}
                   />
                   <button
@@ -529,29 +529,29 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       }
                       goalTimeInputRef.current?.focus();
                     }}
-                    className="shrink-0 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-mono font-extrabold text-base"
+                    className="shrink-0 px-3 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 border border-outline text-primary-md3 font-mono font-extrabold text-base"
                     title="Insertar dos puntos (:)"
                   >
                     :
                   </button>
                 </div>
                 {parsedGoalSec ? (
-                  <div className="text-[11px] text-emerald-300 font-medium">
+                  <div className="text-[11px] text-status-emerald font-medium">
                     ✓ Interpretado: <strong className="font-mono">{formatSwimTime(parsedGoalSec)}</strong> ({liveGoalFina} pts FINA)
                   </div>
                 ) : hasInvalidGoalInput ? (
-                  <div className="text-[11px] text-rose-300">
+                  <div className="text-[11px] text-status-rose">
                     Formato inválido. Usa ej: <strong>1.02.40</strong> o <strong>1:02.40</strong>.
                   </div>
                 ) : (
-                  <div className="text-[10px] text-slate-400">
+                  <div className="text-[10px] text-on-surface-variant">
                     En celular puedes usar doble punto (<code>1.02.40</code>) o el botón <code>:</code>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Etiqueta / Motivo (Opcional)
                 </label>
                 <input
@@ -559,7 +559,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   placeholder="Ej: Marca mínima Nacional, Sub-26..."
                   value={goalLabel}
                   onChange={(e) => setGoalLabel(e.target.value)}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
+                  className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                 />
               </div>
             </div>
@@ -568,7 +568,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowGoalSplits((v) => !v)}
-                className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+                className="text-xs text-primary-md3 hover:text-primary-md3/80 font-semibold"
               >
                 {showGoalSplits
                   ? '− Ocultar parciales objetivo'
@@ -580,9 +580,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   {goalCheckpoints.map((dist) => (
                     <div
                       key={dist}
-                      className="rounded-xl bg-slate-900 border border-slate-800 p-2"
+                      className="rounded-xl bg-surface-container border border-outline/50 p-2"
                     >
-                      <label className="block text-[10px] font-mono text-slate-400 mb-1">
+                      <label className="block text-[10px] font-mono text-on-surface-variant mb-1">
                         Paso {dist}m
                       </label>
                       <input
@@ -595,7 +595,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                         onChange={(e) =>
                           setGoalSplitInputs((prev) => ({ ...prev, [dist]: e.target.value }))
                         }
-                        className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2 py-1 text-xs font-mono text-white"
+                        className="w-full rounded-lg bg-surface border border-outline px-2 py-1 text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                       />
                     </div>
                   ))}
@@ -606,16 +606,16 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {errorMsg && (
               <div
                 role="alert"
-                className="rounded-xl p-3 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
+                className="rounded-xl p-3 bg-status-rose/15 border border-status-rose/40 text-status-rose text-xs flex items-center gap-2"
               >
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-status-rose shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-500/15"
+              className="w-full py-3 rounded-xl bg-status-emerald hover:bg-status-emerald/90 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg"
             >
               <Save className="w-4 h-4" />
               Guardar Objetivo
@@ -624,9 +624,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {statusBanner && (
               <div
                 role="status"
-                className="rounded-xl p-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
+                className="rounded-xl p-3 bg-status-emerald/15 border border-status-emerald/40 text-status-emerald text-xs flex items-center gap-2"
               >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-status-emerald shrink-0" />
                 <span>{statusBanner}</span>
               </div>
             )}
@@ -634,12 +634,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
           {/* Lista de Objetivos Activos con Brecha contra PB Carrera, PB Entrenamiento y Última Marca */}
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
               Objetivos Configurados ({goalAnalyses.length})
             </h2>
 
             {goalAnalyses.length === 0 ? (
-              <div className="glass-card rounded-2xl p-6 text-center text-xs text-slate-400">
+              <div className="glass-card rounded-2xl p-6 text-center text-xs text-on-surface-variant">
                 No tienes objetivos activos todavía. Usa el formulario superior para definir tu
                 primera meta.
               </div>
@@ -663,19 +663,19 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-base text-white">
+                            <span className="font-bold text-base text-on-surface">
                               {item.event.name}
                             </span>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
                               {item.goal.poolLength}m
                             </span>
                             {item.goal.label && (
-                              <span className="text-xs text-slate-400">· {item.goal.label}</span>
+                              <span className="text-xs text-on-surface-variant">· {item.goal.label}</span>
                             )}
                           </div>
                           <div className="mt-1 flex items-center gap-2">
-                            <span className="text-xs text-slate-400">Tiempo Meta:</span>
-                            <span className="text-lg font-extrabold font-mono text-emerald-300">
+                            <span className="text-xs text-on-surface-variant">Tiempo Meta:</span>
+                            <span className="text-lg font-extrabold font-mono text-status-emerald">
                               {formatSwimTime(item.goal.targetTimeSec)}
                             </span>
                             <FinaBadge points={item.targetFinaPoints} size="sm" />
@@ -686,7 +686,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleLoadExistingGoalIntoForm(item.goal)}
-                            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-cyan-300 font-medium"
+                            className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-high/80 text-xs text-primary-md3 font-medium"
                           >
                             Editar
                           </button>
@@ -694,7 +694,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                             <button
                               type="button"
                               onClick={() => onDeleteGoal(item.goal.id!)}
-                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300"
+                              className="p-1.5 rounded-lg bg-surface-container-high hover:bg-status-rose/20 text-on-surface-variant hover:text-status-rose"
                               title="Eliminar objetivo"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -704,76 +704,76 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       </div>
 
                       {/* Comparativa de Brechas: PB Carrera (Prioritario), PB Entrenamiento y Última Marca */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-xs">
-                        <div className="rounded-xl bg-amber-500/10 border border-amber-500/25 p-2.5">
-                          <div className="text-[10px] font-bold text-amber-300 uppercase">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-outline/40 text-xs">
+                        <div className="rounded-xl bg-status-amber/10 border border-status-amber/25 p-2.5">
+                          <div className="text-[10px] font-bold text-status-amber uppercase">
                             Vs. PB Carrera (Principal)
                           </div>
                           {item.racePB ? (
                             <div className="mt-1 flex items-baseline justify-between font-mono">
-                              <span className="text-white font-bold">
+                              <span className="text-on-surface font-bold">
                                 {formatSwimTime(item.racePB.timeSec)}
                               </span>
                               <span
                                 className={
                                   item.gapVsRacePBSec! <= 0
-                                    ? 'text-emerald-400 font-bold'
-                                    : 'text-amber-300 font-semibold'
+                                    ? 'text-status-emerald font-bold'
+                                    : 'text-status-amber font-semibold'
                                 }
                               >
                                 {formatTimeDelta(item.gapVsRacePBSec!)}
                               </span>
                             </div>
                           ) : (
-                            <div className="mt-1 text-slate-500 italic">Sin PB Carrera</div>
+                            <div className="mt-1 text-on-surface-variant italic">Sin PB Carrera</div>
                           )}
                         </div>
 
-                        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5">
-                          <div className="text-[10px] font-bold text-teal-300 uppercase">
+                        <div className="rounded-xl bg-surface-container border border-outline/50 p-2.5">
+                          <div className="text-[10px] font-bold text-status-emerald uppercase">
                             Vs. PB Entrenamiento
                           </div>
                           {item.trainingPB ? (
                             <div className="mt-1 flex items-baseline justify-between font-mono">
-                              <span className="text-slate-200 font-bold">
+                              <span className="text-on-surface font-bold">
                                 {formatSwimTime(item.trainingPB.timeSec)}
                               </span>
                               <span
                                 className={
                                   item.gapVsTrainingPBSec! <= 0
-                                    ? 'text-emerald-400 font-bold'
-                                    : 'text-teal-300'
+                                    ? 'text-status-emerald font-bold'
+                                    : 'text-status-emerald'
                                 }
                               >
                                 {formatTimeDelta(item.gapVsTrainingPBSec!)}
                               </span>
                             </div>
                           ) : (
-                            <div className="mt-1 text-slate-500 italic">Sin PB Entreno</div>
+                            <div className="mt-1 text-on-surface-variant italic">Sin PB Entreno</div>
                           )}
                         </div>
 
-                        <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase">
+                        <div className="rounded-xl bg-surface-container border border-outline/50 p-2.5">
+                          <div className="text-[10px] font-bold text-on-surface-variant uppercase">
                             Vs. Última Marca
                           </div>
                           {item.latestMark ? (
                             <div className="mt-1 flex items-baseline justify-between font-mono">
-                              <span className="text-slate-200 font-bold">
+                              <span className="text-on-surface font-bold">
                                 {formatSwimTime(item.latestMark.timeSec)}
                               </span>
                               <span
                                 className={
                                   item.gapVsLatestSec! <= 0
-                                    ? 'text-emerald-400 font-bold'
-                                    : 'text-slate-300'
+                                    ? 'text-status-emerald font-bold'
+                                    : 'text-on-surface-variant'
                                 }
                               >
                                 {formatTimeDelta(item.gapVsLatestSec!)}
                               </span>
                             </div>
                           ) : (
-                            <div className="mt-1 text-slate-500 italic">Sin registros</div>
+                            <div className="mt-1 text-on-surface-variant italic">Sin registros</div>
                           )}
                         </div>
                       </div>
@@ -783,10 +783,10 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                           {goalLaps.map((lap) => (
                             <span
                               key={lap.label}
-                              className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800"
+                              className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline/50"
                             >
                               Meta {lap.label}:{' '}
-                              <strong className="text-emerald-300">
+                              <strong className="text-status-emerald">
                                 {formatSwimTime(lap.cumulativeTimeSec)}
                               </strong>{' '}
                               ({formatSwimTime(lap.lapTimeSec)})
@@ -810,15 +810,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             <div className="glass-card rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
                     {theme === 'dark' ? (
-                      <Moon className="w-4 h-4 text-cyan-400" />
+                      <Moon className="w-4 h-4 text-primary-md3" />
                     ) : (
-                      <Sun className="w-4 h-4 text-amber-500" />
+                      <Sun className="w-4 h-4 text-status-amber" />
                     )}
                     Tema Visual de la Aplicación
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-on-surface-variant">
                     Alterna entre Modo Oscuro (descanso visual) y Modo Claro (alto contraste al aire libre)
                   </p>
                 </div>
@@ -827,7 +827,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <div
                 role="group"
                 aria-label="Selector de tema visual"
-                className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800"
+                className="grid grid-cols-2 gap-2 bg-surface-container p-1 rounded-xl border border-outline/50"
               >
                 <button
                   type="button"
@@ -835,8 +835,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   aria-pressed={theme === 'dark'}
                   className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                     theme === 'dark'
-                      ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-primary-md3 text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   <Moon className="w-3.5 h-3.5" />
@@ -848,8 +848,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   aria-pressed={theme === 'light'}
                   className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                     theme === 'light'
-                      ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-primary-md3 text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   <Sun className="w-3.5 h-3.5" />
@@ -861,11 +861,11 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
           <div className="glass-card rounded-2xl p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <User className="w-4 h-4 text-cyan-400" />
+              <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
+                <User className="w-4 h-4 text-primary-md3" />
                 Perfil del Nadador &amp; Parámetros FINA
               </h2>
-              <span className="text-[11px] px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-medium flex items-center gap-1">
+              <span className="text-[11px] px-2.5 py-1 rounded-xl bg-status-emerald/10 border border-status-emerald/30 text-status-emerald font-medium flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Guardado en este dispositivo
               </span>
@@ -873,7 +873,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Nombre o Apodo
                 </label>
                 <input
@@ -884,15 +884,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     setName(e.target.value);
                     setJustSavedProfile(false);
                   }}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
+                  className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Género Deportivo (Tablas World Aquatics)
                 </label>
-                <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                   <button
                     type="button"
                     onClick={() => {
@@ -902,8 +902,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'male'
-                        ? 'bg-cyan-500 text-slate-950'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-primary-md3 text-on-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
                     Hombre
@@ -917,8 +917,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     }}
                     className={`py-2 rounded-lg text-xs font-bold ${
                       gender === 'female'
-                        ? 'bg-cyan-500 text-slate-950'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-primary-md3 text-on-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
                     Mujer
@@ -927,7 +927,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Categoría (Opcional)
                 </label>
                 <input
@@ -938,15 +938,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     setCategory(e.target.value);
                     setJustSavedProfile(false);
                   }}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
+                  className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Pileta Habitual Predeterminada
                 </label>
-                <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
                   {([25, 50] as const).map((len) => (
                     <button
                       key={len}
@@ -958,8 +958,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       }}
                       className={`py-2 rounded-lg text-xs font-bold ${
                         defaultPoolLength === len
-                          ? 'bg-cyan-500 text-slate-950'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-primary-md3 text-on-primary'
+                          : 'text-on-surface-variant hover:text-on-surface'
                       }`}
                     >
                       {len}m
@@ -969,7 +969,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                   Club / Equipo (Opcional)
                 </label>
                 <input
@@ -980,19 +980,19 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     setClub(e.target.value);
                     setJustSavedProfile(false);
                   }}
-                  className="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white"
+                  className="w-full rounded-xl bg-surface-container border border-outline px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3"
                 />
               </div>
             </div>
 
             {/* Selección de Pruebas Favoritas */}
-            <div className="pt-2 border-t border-slate-800/80 space-y-2">
+            <div className="pt-2 border-t border-outline/40 space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-status-amber fill-status-amber" />
                   Pruebas Favoritas ({favoriteEventIds.length} seleccionadas)
                 </label>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-on-surface-variant">
                   Tiempos base: {FINA_TABLE_VERSION}
                 </span>
               </div>
@@ -1008,13 +1008,13 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       onClick={() => toggleFavoriteEvent(ev.id)}
                       className={`p-2 rounded-xl border text-left transition-all ${
                         isFav
-                          ? 'bg-cyan-500/20 border-cyan-400 text-white'
-                          : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:text-slate-200'
+                          ? 'bg-primary-md3/20 border-primary-md3 text-on-surface'
+                          : 'bg-surface-container border-outline/50 text-on-surface-variant hover:text-on-surface'
                       }`}
                     >
                       <div className="text-xs font-semibold flex items-center justify-between">
                         <span>{ev.shortName}</span>
-                        {isFav && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
+                        {isFav && <Star className="w-3.5 h-3.5 text-status-amber fill-status-amber" />}
                       </div>
                       {baseSec && (
                         <div className="text-[10px] font-mono opacity-75">
@@ -1031,8 +1031,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               type="submit"
               className={`w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
                 justSavedProfile
-                  ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
-                  : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/15'
+                  ? 'bg-status-emerald hover:bg-status-emerald/90 text-white shadow-status-emerald/20'
+                  : 'bg-primary-md3 hover:bg-primary-md3/90 text-on-primary shadow-primary-md3/15'
               }`}
             >
               {justSavedProfile ? (
@@ -1051,15 +1051,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {justSavedProfile && (
               <div
                 role="status"
-                className="rounded-2xl p-4 bg-emerald-500/15 border-2 border-emerald-500/50 text-emerald-100 space-y-3"
+                className="rounded-2xl p-4 bg-status-emerald/15 border-2 border-status-emerald/50 text-on-surface space-y-3"
               >
                 <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-status-emerald shrink-0 mt-0.5" />
                   <div className="text-xs space-y-1">
-                    <div className="font-extrabold text-white text-sm">
+                    <div className="font-extrabold text-on-surface text-sm">
                       ¡Tus datos quedaron guardados en el dispositivo!
                     </div>
-                    <div className="text-emerald-200">
+                    <div className="text-on-surface-variant">
                       Nadador: <strong>{name.trim() || 'Nadador'}</strong> ·{' '}
                       <strong>{gender === 'male' ? 'Hombre' : 'Mujer'}</strong> · Pileta{' '}
                       <strong>{defaultPoolLength}m</strong> ·{' '}
@@ -1078,7 +1078,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                           defaultPoolLength
                         )
                       }
-                      className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-status-emerald hover:bg-status-emerald/90 text-white font-extrabold text-xs flex items-center gap-1.5"
                     >
                       <span>Ir a Registrar Marca</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1086,7 +1086,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onNavigate('dashboard')}
-                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs"
+                      className="px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline font-semibold text-xs"
                     >
                       Ir al Panel Principal
                     </button>
@@ -1101,21 +1101,21 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       {/* SUBTAB 3: ASISTENTE CONVERSACIONAL (IA / BYOK) */}
       {subTab === 'ai' && (
         <div className="glass-card rounded-2xl p-4 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center justify-between border-b border-outline/40 pb-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <div className="w-8 h-8 rounded-xl bg-primary-md3/10 border border-primary-md3/30 flex items-center justify-center text-primary-md3">
                 <Bot className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white">Asistente Conversacional (IA / BYOK)</h2>
-                <p className="text-xs text-slate-400">Configuración Bring Your Own Key · Privacidad Zero-Backend</p>
+                <h2 className="text-sm font-bold text-on-surface">Asistente Conversacional (IA / BYOK)</h2>
+                <p className="text-xs text-on-surface-variant">Configuración Bring Your Own Key · Privacidad Zero-Backend</p>
               </div>
             </div>
             {onNavigate && (
               <button
                 type="button"
                 onClick={() => onNavigate('chat')}
-                className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold text-xs flex items-center gap-1.5 border border-cyan-500/30"
+                className="px-3 py-1.5 rounded-xl bg-primary-md3/15 hover:bg-primary-md3/25 text-primary-md3 font-bold text-xs flex items-center gap-1.5 border border-primary-md3/30"
               >
                 <span>Ir al Chat</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1123,12 +1123,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             )}
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed">
+          <p className="text-xs text-on-surface-variant leading-relaxed">
             Configura tu propia clave de API para activar el diálogo reflexivo guiado con IA sobre tus entrenamientos y marcas. Tus claves se almacenan exclusivamente en el almacenamiento local de tu navegador y las peticiones viajan directamente al proveedor elegido sin servidores intermediarios.
           </p>
 
           {/* Selector de proveedor */}
-          <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-2 gap-2 bg-surface-container p-1 rounded-xl border border-outline/50">
             <button
               type="button"
               onClick={() => {
@@ -1143,8 +1143,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               }}
               className={`py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                 aiSettings.provider === 'gemini'
-                  ? 'bg-cyan-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-primary-md3 text-on-primary shadow-md'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               Google Gemini
@@ -1163,8 +1163,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               }}
               className={`py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                 aiSettings.provider === 'openai'
-                  ? 'bg-cyan-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-primary-md3 text-on-primary shadow-md'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               OpenAI / Ollama
@@ -1176,7 +1176,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {aiSettings.provider === 'gemini' ? (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     API Key de Google Gemini
                   </label>
                   <div className="relative">
@@ -1188,17 +1188,17 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                         setAiSavedBanner(null);
                       }}
                       placeholder="AIzaSy..."
-                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs pr-8"
+                      className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3 font-mono text-xs pr-8"
                     />
-                    <KeyRound className="w-4 h-4 text-slate-500 absolute right-2.5 top-2.5" />
+                    <KeyRound className="w-4 h-4 text-on-surface-variant absolute right-2.5 top-2.5" />
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-on-surface-variant mt-1">
                     Obtén tu API Key gratuita en{' '}
                     <a
                       href="https://aistudio.google.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-cyan-400 underline hover:text-cyan-300"
+                      className="text-primary-md3 underline hover:text-primary-md3/80"
                     >
                       Google AI Studio
                     </a>.
@@ -1206,7 +1206,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     Modelo de Gemini
                   </label>
                   <input
@@ -1217,14 +1217,14 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setAiSavedBanner(null);
                     }}
                     placeholder="gemini-1.5-flash"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3 font-mono text-xs"
                   />
                 </div>
               </>
             ) : (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     Base URL del Endpoint
                   </label>
                   <input
@@ -1235,15 +1235,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setAiSavedBanner(null);
                     }}
                     placeholder="https://api.openai.com/v1 o http://localhost:11434/v1"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3 font-mono text-xs"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-on-surface-variant mt-1">
                     Para modelos locales con Ollama en tu máquina, usa `http://localhost:11434/v1`.
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     API Key (Opcional en Ollama local)
                   </label>
                   <input
@@ -1254,12 +1254,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setAiSavedBanner(null);
                     }}
                     placeholder="sk-..."
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3 font-mono text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
                     Nombre del Modelo
                   </label>
                   <input
@@ -1270,7 +1270,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                       setAiSavedBanner(null);
                     }}
                     placeholder="gpt-4o-mini o llama3"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-md3 font-mono text-xs"
                   />
                 </div>
               </>
@@ -1281,8 +1281,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <div
                 className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
                   aiTestResult.success
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                    : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                    ? 'bg-status-emerald/10 border-status-emerald/30 text-status-emerald'
+                    : 'bg-status-rose/10 border-status-rose/30 text-status-rose'
                 }`}
               >
                 <span>{aiTestResult.message}</span>
@@ -1290,15 +1290,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             )}
 
             {aiSavedBanner && (
-              <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 text-xs font-bold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="p-3 rounded-xl border border-status-emerald/40 bg-status-emerald/15 text-status-emerald text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-status-emerald shrink-0" />
                 <span>{aiSavedBanner}</span>
               </div>
             )}
           </div>
 
           {/* Botones de acción */}
-          <div className="flex items-center gap-2.5 pt-2 border-t border-slate-800">
+          <div className="flex items-center gap-2.5 pt-2 border-t border-outline/40">
             <button
               type="button"
               disabled={testingAi}
@@ -1312,12 +1312,12 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   setTestingAi(false);
                 }
               }}
-              className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline font-bold text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
             >
               {testingAi ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <Sparkles className="w-3.5 h-3.5 text-primary-md3" />
               )}
               <span>Probar Conexión</span>
             </button>
@@ -1328,7 +1328,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 saveAiSettings(aiSettings);
                 setAiSavedBanner('¡Configuración de IA guardada en tu navegador!');
               }}
-              className="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20 active:scale-95 transition-all"
+              className="flex-1 py-2.5 rounded-xl bg-primary-md3 hover:bg-primary-md3/90 text-on-primary font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-primary-md3/20 active:scale-95 transition-all"
             >
               <Save className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Guardar Ajustes de IA</span>
@@ -1341,11 +1341,11 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       {subTab === 'backup' && (
         <div className="space-y-4">
           <div className="glass-card rounded-2xl p-4 space-y-3">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Database className="w-4 h-4 text-cyan-400" />
+            <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
+              <Database className="w-4 h-4 text-primary-md3" />
               Respaldo y Portabilidad Offline (JSON / CSV)
             </h2>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-on-surface-variant leading-relaxed">
               Todos tus datos se almacenan de forma 100% privada en tu dispositivo. Puedes
               descargar una copia completa en JSON para respaldo o exportar tu planilla de marcas en
               CSV.
@@ -1355,7 +1355,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={onExportJson}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 font-semibold text-xs transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary-md3/15 hover:bg-primary-md3/25 text-primary-md3 border border-primary-md3/30 font-semibold text-xs transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Exportar Backup JSON
@@ -1364,7 +1364,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface border border-outline font-semibold text-xs transition-colors"
               >
                 <Upload className="w-4 h-4" />
                 Importar Backup JSON
@@ -1380,7 +1380,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={onExportCsv}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 font-semibold text-xs transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-status-emerald/15 hover:bg-status-emerald/25 text-status-emerald border border-status-emerald/30 font-semibold text-xs transition-colors"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 Exportar Marcas CSV
@@ -1390,20 +1390,20 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {errorMsg && (
               <div
                 role="alert"
-                className="rounded-xl p-3 bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2"
+                className="rounded-xl p-3 bg-status-rose/15 border border-status-rose/40 text-status-rose text-xs flex items-center gap-2"
               >
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-status-rose shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
           </div>
 
-          <div className="glass-card rounded-2xl p-4 space-y-3 border border-amber-500/25">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+          <div className="glass-card rounded-2xl p-4 space-y-3 border border-status-amber/25">
+            <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-status-amber" />
               Datos de Demostración
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-on-surface-variant">
               Carga un conjunto de marcas y objetivos de ejemplo (50m y 100m Mariposa/Libre en
               Carrera y Entrenamiento con parciales de 15m, 25m y 35m) para explorar gráficos y
               rankings.
@@ -1417,7 +1417,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                   `Se cargaron ${res.marksAdded} marcas de demostración y ${res.goalsAdded} objetivos.`
                 );
               }}
-              className="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-semibold text-xs transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-status-amber/15 hover:bg-status-amber/25 text-status-amber border border-status-amber/30 font-semibold text-xs transition-colors"
             >
               Cargar Conjunto de Demostración
             </button>
@@ -1425,20 +1425,20 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {statusBanner && (
               <div
                 role="status"
-                className="rounded-xl p-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2"
+                className="rounded-xl p-3 bg-status-emerald/15 border border-status-emerald/40 text-status-emerald text-xs flex items-center gap-2"
               >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-status-emerald shrink-0" />
                 <span>{statusBanner}</span>
               </div>
             )}
           </div>
 
-          <div className="glass-card rounded-2xl p-4 space-y-3 border border-rose-500/30 bg-rose-950/10">
-            <h2 className="text-sm font-bold text-rose-200 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+          <div className="glass-card rounded-2xl p-4 space-y-3 border border-status-rose/30 bg-status-rose/5">
+            <h2 className="text-sm font-bold text-status-rose flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-status-rose" />
               Zona de Peligro · Borrar todos los datos
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-on-surface-variant">
               Elimina todas las marcas (<strong>{marks.length}</strong>) y objetivos (
               <strong>{goals.length}</strong>) guardados en este dispositivo, o restablece también
               el perfil del nadador a los valores de fábrica.
@@ -1452,7 +1452,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     setClearSuccessMsg(null);
                     setConfirmClearMode('marks');
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 font-semibold text-xs transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-status-rose/15 hover:bg-status-rose/25 text-status-rose border border-status-rose/30 font-semibold text-xs transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                   Borrar marcas y objetivos ({marks.length + goals.length})
@@ -1464,15 +1464,15 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                     setClearSuccessMsg(null);
                     setConfirmClearMode('all');
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-rose-500/20 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/40 font-semibold text-xs transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-container hover:bg-status-rose/20 text-on-surface-variant hover:text-status-rose border border-outline hover:border-status-rose/40 font-semibold text-xs transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                   Restablecer app de fábrica (Todo)
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl bg-slate-950/90 border border-rose-500/40 p-3 space-y-2.5">
-                <p className="text-xs font-semibold text-rose-200">
+              <div className="rounded-xl bg-surface border border-status-rose/40 p-3 space-y-2.5">
+                <p className="text-xs font-semibold text-status-rose">
                   {confirmClearMode === 'all'
                     ? '¿Confirmas eliminar TODAS las marcas, objetivos y restablecer tu perfil de nadador?'
                     : `¿Confirmas eliminar las ${marks.length} marcas y ${goals.length} objetivos? (Tu perfil se mantendrá).`}
@@ -1502,14 +1502,14 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                           : '¡Listo! Se borraron todas las marcas y objetivos de este dispositivo (0 marcas, 0 objetivos).'
                       );
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-status-rose hover:bg-status-rose/90 text-white font-bold text-xs transition-colors"
                   >
                     Sí, borrar ahora
                   </button>
                   <button
                     type="button"
                     onClick={() => setConfirmClearMode('none')}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-high/80 text-on-surface font-semibold text-xs transition-colors"
                   >
                     Cancelar
                   </button>
@@ -1520,9 +1520,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             {clearSuccessMsg && (
               <div
                 role="status"
-                className="rounded-xl p-3 bg-emerald-500/15 border-2 border-emerald-500/50 text-emerald-200 text-xs font-semibold flex items-center gap-2"
+                className="rounded-xl p-3 bg-status-emerald/15 border-2 border-status-emerald/50 text-status-emerald text-xs font-semibold flex items-center gap-2"
               >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-status-emerald shrink-0" />
                 <span>{clearSuccessMsg}</span>
               </div>
             )}

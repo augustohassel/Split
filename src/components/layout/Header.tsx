@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <header className="sticky top-0 z-30 glass-panel border-b border-slate-200 dark:border-slate-800/80 px-4 py-3 transition-colors">
+    <header className="sticky top-0 z-30 glass-panel border-b border-outline/40 px-4 py-3 transition-colors">
       <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
         <button
           type="button"
@@ -30,14 +30,14 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span className="text-lg font-extrabold tracking-tight text-on-surface">
                 Split
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary-md3/15 text-primary-md3 border border-primary-md3/30">
                 v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.1.0'}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-none">
+            <p className="text-[11px] text-on-surface-variant leading-none">
               Marcas, Parciales &amp; Puntos FINA
             </p>
           </div>
@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onToggleTheme}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-200 dark:border-slate-800 text-amber-600 dark:text-amber-300 transition-colors"
+              className="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline/50 text-status-amber transition-colors"
               title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             >
@@ -59,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => onSelectTab('chat')}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-200 dark:border-slate-800 text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 transition-colors"
+            className="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline/50 text-primary-md3 hover:text-primary-md3/80 transition-colors"
             title="Abrir Asistente de Chat"
             aria-label="Abrir Asistente de Chat"
           >
@@ -70,15 +70,15 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onSelectTab('goals')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-200 dark:border-slate-800 text-xs transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline/50 text-xs transition-colors"
               title="Editar Perfil y Objetivos"
             >
-              <User className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+              <User className="w-3.5 h-3.5 text-primary-md3" />
               <div className="text-right">
-                <div className="font-semibold text-slate-800 dark:text-slate-200 leading-tight max-w-[120px] truncate">
+                <div className="font-semibold text-on-surface leading-tight max-w-[120px] truncate">
                   {profile.name}
                 </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                <div className="text-[10px] text-on-surface-variant leading-tight">
                   {profile.gender === 'male' ? 'Hombre' : 'Mujer'} · {profile.defaultPoolLength}m
                 </div>
               </div>
@@ -89,4 +89,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

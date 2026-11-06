@@ -50,12 +50,12 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-sm rounded-2xl bg-slate-50 dark:bg-slate-900 border border-cyan-500/30 p-3.5 shadow-md dark:shadow-lg shadow-cyan-950/5 dark:shadow-cyan-950/20 text-slate-900 dark:text-slate-100 flex flex-col gap-3 my-1">
+    <div className="w-full max-w-sm rounded-2xl bg-surface-container border border-primary-md3/30 p-3.5 shadow-md text-on-surface flex flex-col gap-3 my-1">
       {/* Cabecera de la tarjeta */}
-      <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+      <div className="flex items-center justify-between gap-2 border-b border-outline/40 pb-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span className="text-xs font-bold text-cyan-300 truncate">
+          <Sparkles className="w-4 h-4 text-primary-md3 shrink-0" />
+          <span className="text-xs font-bold text-primary-md3 truncate">
             Propuesta de Marca
           </span>
         </div>
@@ -65,15 +65,15 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
       {/* Detalle principal: Prueba y Tiempo */}
       <div className="flex items-baseline justify-between gap-2">
         <div>
-          <h4 className="text-sm font-extrabold text-white leading-tight">
+          <h4 className="text-sm font-extrabold text-on-surface leading-tight">
             {event.name}
           </h4>
-          <p className="text-[11px] text-slate-400 font-mono">
+          <p className="text-[11px] text-on-surface-variant font-mono">
             {data.date} · {data.venue || 'Pileta'}
           </p>
         </div>
         <div className="text-right">
-          <span className="text-xl font-black font-mono text-cyan-400">
+          <span className="text-xl font-black font-mono text-primary-md3">
             {formatSwimTime(data.timeSec)}
           </span>
         </div>
@@ -83,14 +83,14 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
       {!isSaved ? (
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           {/* Pileta */}
-          <div className="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/60">
+          <div className="flex items-center gap-1 bg-surface-container-high p-0.5 rounded-lg border border-outline/50">
             <button
               type="button"
               onClick={() => handleTogglePool(25)}
               className={`px-2 py-0.5 rounded-md font-semibold text-[11px] transition-colors ${
                 data.poolLength === 25
-                  ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-primary-md3 text-on-primary shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               25m
@@ -101,8 +101,8 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
               onClick={() => handleTogglePool(50)}
               className={`px-2 py-0.5 rounded-md font-semibold text-[11px] transition-colors ${
                 data.poolLength === 50
-                  ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed'
+                  ? 'bg-primary-md3 text-on-primary shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface disabled:opacity-30 disabled:cursor-not-allowed'
               }`}
             >
               50m
@@ -110,14 +110,14 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
           </div>
 
           {/* Contexto */}
-          <div className="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/60">
+          <div className="flex items-center gap-1 bg-surface-container-high p-0.5 rounded-lg border border-outline/50">
             <button
               type="button"
               onClick={() => handleToggleContext('race')}
               className={`px-2 py-0.5 rounded-md font-semibold text-[11px] transition-colors ${
                 data.context === 'race'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-status-indigo text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               Carrera
@@ -127,8 +127,8 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
               onClick={() => handleToggleContext('training')}
               className={`px-2 py-0.5 rounded-md font-semibold text-[11px] transition-colors ${
                 data.context === 'training'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-status-emerald text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               Entrenamiento
@@ -136,11 +136,11 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-2 text-[11px] text-slate-300">
-          <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono">
+        <div className="flex items-center gap-2 text-[11px] text-on-surface-variant">
+          <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline/50 font-mono">
             Pileta {data.poolLength}m
           </span>
-          <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+          <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline/50">
             {data.context === 'race' ? 'Carrera' : 'Entrenamiento'}
           </span>
         </div>
@@ -148,7 +148,7 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
 
       {/* Sensación en el agua (1 a 5) */}
       {!isSaved && (
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
+        <div className="flex items-center justify-between text-[11px] text-on-surface-variant">
           <span>Sensación (1-5):</span>
           <div className="flex items-center gap-1">
             {([1, 2, 3, 4, 5] as WaterFeel[]).map((val) => (
@@ -158,8 +158,8 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
                 onClick={() => handleSetFeel(val)}
                 className={`w-5 h-5 rounded flex items-center justify-center font-bold text-[10px] transition-colors ${
                   data.feel === val
-                    ? 'bg-cyan-400 text-slate-950'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-primary-md3 text-on-primary'
+                    : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 {val}
@@ -172,7 +172,7 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
       {/* Botón de confirmación */}
       <div className="pt-1">
         {isSaved ? (
-          <div className="w-full py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center justify-center gap-1.5">
+          <div className="w-full py-1.5 rounded-xl bg-status-emerald/15 border border-status-emerald/30 text-status-emerald font-bold text-xs flex items-center justify-center gap-1.5">
             <CheckCircle2 className="w-4 h-4" />
             <span>Guardada en Historial</span>
           </div>
@@ -180,7 +180,7 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
           <button
             type="button"
             onClick={handleSave}
-            className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all"
+            className="w-full py-2 rounded-xl bg-primary-md3 hover:bg-primary-md3/90 text-on-primary font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-primary-md3/20 active:scale-[0.98] transition-all"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Confirmar y Guardar</span>
@@ -190,4 +190,3 @@ export const DraftMarkCard: React.FC<DraftMarkCardProps> = ({
     </div>
   );
 };
-

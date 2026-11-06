@@ -27,6 +27,6 @@ describe('BottomNav Component', () => {
   it('destaca visualmente la pestaña activa', () => {
     render(<BottomNav activeTab="history" onSelectTab={vi.fn()} />);
     const historyBtn = screen.getByRole('button', { name: /historial/i });
-    expect(historyBtn.className).toContain('text-cyan-400');
+    expect(historyBtn.className).toContain('text-primary-md3');
   });
 });

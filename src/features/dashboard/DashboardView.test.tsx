@@ -81,7 +81,7 @@ describe('DashboardView Component & Métricas del Nadador', () => {
 
     const btn50m = screen.getByRole('button', { name: /^50m$/i });
     fireEvent.click(btn50m);
-    expect(btn50m.className).toContain('bg-cyan-500');
+    expect(btn50m.className).toContain('bg-primary-md3');
   });
 
   it('permite navegar a configuración de objetivos desde el acceso directo', () => {

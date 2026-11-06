@@ -7,16 +7,98 @@
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     color-scheme: light;
+
+    /* Tokens Semánticos Google Material 3 — Modo Claro */
+    /* Superficies Tonales */
+    --color-surface: 248 250 252; /* slate-50 #f8fafc */
+    --color-surface-container: 255 255 255; /* white #ffffff */
+    --color-surface-container-high: 241 245 249; /* slate-100 #f1f5f9 */
+
+    /* Contrastes Tipográficos */
+    --color-on-surface: 15 23 42; /* slate-900 #0f172a */
+    --color-on-surface-variant: 71 85 105; /* slate-600 #475569 */
+
+    /* Bordes y Separadores */
+    --color-outline: 203 213 225; /* slate-300 #cbd5e1 */
+    --color-outline-variant: 226 232 240; /* slate-200 #e2e8f0 */
+
+    /* Acento Primario Acuático MD3 (WCAG AA > 4.5:1 en Modo Claro) */
+    --color-primary: 0 104 118; /* #006876 */
+    --color-on-primary: 255 255 255; /* #ffffff */
+    --color-primary-container: 162 239 255; /* #a2efff */
+    --color-on-primary-container: 0 31 36; /* #001f24 */
+
+    /* Acentos de Estado Funcionales */
+    --color-status-emerald: 4 120 87; /* emerald-700 #047857 */
+    --color-status-amber: 180 83 9; /* amber-700 #b45309 */
+    --color-status-rose: 190 18 60; /* rose-700 #be123c */
+    --color-status-cyan: 14 116 144; /* cyan-700 #0e7490 */
+    --color-status-indigo: 67 56 202; /* indigo-700 #4338ca */
+
+    /* Hex exactos para contextos SVG/Canvas */
+    --color-surface-hex: #f8fafc;
+    --color-surface-container-hex: #ffffff;
+    --color-on-surface-hex: #0f172a;
+    --color-on-surface-variant-hex: #475569;
+    --color-outline-hex: #cbd5e1;
+    --color-primary-hex: #006876;
+    --color-status-emerald-hex: #047857;
+    --color-status-amber-hex: #b45309;
+    --color-status-rose-hex: #be123c;
+    --color-status-cyan-hex: #0e7490;
+    --color-status-indigo-hex: #4338ca;
   }
 
   html.dark {
     color-scheme: dark;
+
+    /* Tokens Semánticos Google Material 3 — Modo Oscuro */
+    /* Superficies Tonales */
+    --color-surface: 11 17 30; /* #0b111e Base natatoria profunda */
+    --color-surface-container: 19 27 46; /* #131b2e Contenedores y tarjetas */
+    --color-surface-container-high: 30 41 59; /* slate-800 #1e293b Elementos elevados */
+
+    /* Contrastes Tipográficos */
+    --color-on-surface: 241 245 249; /* slate-100 #f1f5f9 */
+    --color-on-surface-variant: 148 163 184; /* slate-400 #94a3b8 */
+
+    /* Bordes y Separadores */
+    --color-outline: 51 65 85; /* slate-700 #334155 */
+    --color-outline-variant: 30 41 59; /* slate-800 #1e293b */
+
+    /* Acento Primario Acuático MD3 (Vibrante y luminoso en Modo Oscuro) */
+    --color-primary: 79 216 236; /* #4fd8ec */
+    --color-on-primary: 0 54 62; /* #00363e */
+    --color-primary-container: 0 78 89; /* #004e59 */
+    --color-on-primary-container: 162 239 255; /* #a2efff */
+
+    /* Acentos de Estado Funcionales */
+    --color-status-emerald: 52 211 153; /* emerald-400 #34d399 */
+    --color-status-amber: 251 191 36; /* amber-400 #fbbf24 */
+    --color-status-rose: 251 113 133; /* rose-400 #fb7185 */
+    --color-status-cyan: 103 232 249; /* cyan-300 #67e8f9 */
+    --color-status-indigo: 165 180 252; /* indigo-300 #a5b4fc */
+
+    /* Hex exactos para contextos SVG/Canvas */
+    --color-surface-hex: #0b111e;
+    --color-surface-container-hex: #131b2e;
+    --color-on-surface-hex: #f1f5f9;
+    --color-on-surface-variant-hex: #94a3b8;
+    --color-outline-hex: #334155;
+    --color-primary-hex: #4fd8ec;
+    --color-status-emerald-hex: #34d399;
+    --color-status-amber-hex: #fbbf24;
+    --color-status-rose-hex: #fb7185;
+    --color-status-cyan-hex: #67e8f9;
+    --color-status-indigo-hex: #a5b4fc;
   }
 
   body {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     overscroll-behavior-y: none;
+    background-color: rgb(var(--color-surface));
+    color: rgb(var(--color-on-surface));
   }
 
   input,
@@ -24,169 +106,40 @@
   select {
     user-select: text;
   }
+
+  /* Garantía bimodal de legibilidad para controles nativos select */
+  select option {
+    background-color: rgb(var(--color-surface-container));
+    color: rgb(var(--color-on-surface));
+  }
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(var(--color-surface-container), 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(var(--color-outline), 0.5);
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.05);
 }
 
 html.dark .glass-panel {
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(var(--color-surface), 0.85);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: none;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(var(--color-surface-container), 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(var(--color-outline), 0.4);
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.05);
 }
 
 html.dark .glass-card {
-  background: rgba(30, 41, 59, 0.65);
+  background: rgba(var(--color-surface-container), 0.75);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
-}
-
-/* Adaptación automática de superficies, textos y bordes en Modo Claro (`html:not(.dark)`) */
-html:not(.dark) .text-white {
-  color: #0f172a;
-}
-
-html:not(.dark) .bg-cyan-600.text-white,
-html:not(.dark) .bg-rose-500.text-white,
-html:not(.dark) .bg-indigo-500.text-white {
-  color: #ffffff;
-}
-
-html:not(.dark) .text-slate-100 {
-  color: #0f172a;
-}
-
-html:not(.dark) .text-slate-200 {
-  color: #1e293b;
-}
-
-html:not(.dark) .text-slate-300 {
-  color: #334155;
-}
-
-html:not(.dark) .text-slate-400 {
-  color: #475569;
-}
-
-html:not(.dark) .text-slate-500 {
-  color: #64748b;
-}
-
-html:not(.dark) .text-cyan-300,
-html:not(.dark) .text-cyan-300\/90,
-html:not(.dark) .text-cyan-200 {
-  color: #0e7490;
-}
-
-html:not(.dark) .text-cyan-400 {
-  color: #0891b2;
-}
-
-html:not(.dark) .text-amber-300,
-html:not(.dark) .text-amber-300\/90,
-html:not(.dark) .text-amber-200 {
-  color: #b45309;
-}
-
-html:not(.dark) .text-amber-400 {
-  color: #d97706;
-}
-
-html:not(.dark) .text-teal-300,
-html:not(.dark) .text-teal-300\/80 {
-  color: #0f766e;
-}
-
-html:not(.dark) .text-teal-400 {
-  color: #0d9488;
-}
-
-html:not(.dark) .text-emerald-300,
-html:not(.dark) .text-emerald-200,
-html:not(.dark) .text-emerald-200\/90,
-html:not(.dark) .text-emerald-100 {
-  color: #047857;
-}
-
-html:not(.dark) .text-emerald-400 {
-  color: #059669;
-}
-
-html:not(.dark) .text-rose-300,
-html:not(.dark) .text-rose-200,
-html:not(.dark) .text-rose-100 {
-  color: #be123c;
-}
-
-html:not(.dark) .text-rose-400 {
-  color: #e11d48;
-}
-
-html:not(.dark) .text-indigo-300 {
-  color: #4338ca;
-}
-
-html:not(.dark) .text-sky-300 {
-  color: #0369a1;
-}
-
-html:not(.dark) .text-purple-300 {
-  color: #7e22ce;
-}
-
-html:not(.dark) .text-orange-300 {
-  color: #c2410c;
-}
-
-html:not(.dark) .bg-slate-950,
-html:not(.dark) .bg-slate-950\/90,
-html:not(.dark) .bg-slate-950\/80,
-html:not(.dark) .bg-slate-950\/60 {
-  background-color: #f8fafc;
-}
-
-html:not(.dark) .bg-slate-900,
-html:not(.dark) .bg-slate-900\/95,
-html:not(.dark) .bg-slate-900\/90,
-html:not(.dark) .bg-slate-900\/80,
-html:not(.dark) .bg-slate-900\/75,
-html:not(.dark) .bg-slate-900\/70,
-html:not(.dark) .bg-slate-900\/60 {
-  background-color: #f1f5f9;
-}
-
-html:not(.dark) .bg-slate-800,
-html:not(.dark) .bg-slate-800\/80 {
-  background-color: #e2e8f0;
-}
-
-html:not(.dark) .border-slate-800,
-html:not(.dark) .border-slate-800\/90,
-html:not(.dark) .border-slate-800\/80,
-html:not(.dark) .border-slate-800\/70 {
-  border-color: #e2e8f0;
-}
-
-html:not(.dark) .border-slate-700,
-html:not(.dark) .border-slate-700\/60 {
-  border-color: #cbd5e1;
-}
-
-html:not(.dark) .divide-slate-800\/80 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #e2e8f0;
 }
 
 ::-webkit-scrollbar {
