@@ -256,6 +256,8 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-surface text-on-surface flex flex-col transition-colors duration-200">
       <Header
         profile={profile}
+        activeTab={activeTab}
+        marksCount={marks.length}
         onSelectTab={(tab) => handleNavigate(tab)}
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -266,7 +268,7 @@ export const App: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-surface-container/95 backdrop-blur-md border-2 border-status-emerald/60 px-4 py-3 shadow-2xl shadow-black/15 flex items-center justify-between gap-3"
+          className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md rounded-2xl bg-surface-container/95 backdrop-blur-md border-2 border-status-emerald/60 px-4 py-3 shadow-2xl shadow-black/15 flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="w-5 h-5 text-status-emerald shrink-0" />
@@ -298,7 +300,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-24">
+      <main className="flex-1 w-full max-w-3xl md:max-w-6xl lg:max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4 pb-24 md:pb-8 transition-all">
         {activeTab === 'dashboard' && (
           <DashboardView
             profile={profile}
