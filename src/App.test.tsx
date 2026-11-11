@@ -92,4 +92,31 @@ describe('App Integration & Flujo Completo de Usuario', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(localStorage.getItem('split_theme_v1')).toBe('dark');
   });
+
+  it('expande el contenedor principal para escritorio y permite navegar desde la barra superior sin perder estado al redimensionar', async () => {
+    render(<App />);
+
+    const mainEl = screen.getByRole('main');
+    expect(mainEl.className).toContain('md:max-w-6xl');
+    expect(mainEl.className).toContain('lg:max-w-7xl');
+    expect(mainEl.className).toContain('md:pb-8');
+
+    const topNav = screen.getByRole('navigation', { name: /navegación superior/i });
+    fireEvent.click(within(topNav).getByRole('button', { name: /registrar/i }));
+    expect(screen.getByRole('heading', { name: /^registrar marca$/i })).toBeInTheDocument();
+
+    const timeInput = screen.getByLabelText(/tiempo total/i) as HTMLInputElement;
+    fireEvent.change(timeInput, { target: { value: '27.15' } });
+    expect(timeInput.value).toBe('27.15');
+
+    // Simular redimensionamiento en vivo de escritorio a móvil y viceversa
+    window.innerWidth = 375;
+    fireEvent(window, new Event('resize'));
+    window.innerWidth = 1280;
+    fireEvent(window, new Event('resize'));
+
+    // Ni la pestaña activa ni el tiempo ingresado deben reiniciarse
+    expect(screen.getByRole('heading', { name: /^registrar marca$/i })).toBeInTheDocument();
+    expect((screen.getByLabelText(/tiempo total/i) as HTMLInputElement).value).toBe('27.15');
+  });
 });
