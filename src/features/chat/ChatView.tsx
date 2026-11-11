@@ -299,7 +299,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] max-w-3xl mx-auto text-on-surface">
+    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-8rem)] max-w-3xl md:max-w-4xl mx-auto text-on-surface">
       {/* Barra de cabecera de la vista de Chat */}
       <div className="glass-panel rounded-2xl p-3 border border-outline/40 flex items-center justify-between gap-2 shrink-0 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -387,7 +387,7 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
               )}
 
               <div
-                className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed ${
+                className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-3 text-xs leading-relaxed ${
                   isUser
                     ? 'bg-primary-md3 text-on-primary rounded-tr-sm shadow-md'
                     : 'bg-surface-container border border-outline/50 text-on-surface rounded-tl-sm shadow-sm'
