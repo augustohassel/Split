@@ -112,3 +112,10 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 - **Alcance / Propósito**: Señalizar acciones principales, focos interactivos, insignias primarias y navegación activa con máxima visibilidad en piletas cubiertas o al aire libre.
 - **Lo que NO es**: No es un color decorativo arbitrario sin contraste suficiente sobre fondos claros ni una única tonalidad fija para ambos modos.
 
+### Layout Adaptativo Desktop
+
+- **Definición**: Comportamiento responsivo de la interfaz que adapta la disposición visual a partir del punto de quiebre `md` (`>= 768px`), conmutando la barra inferior móvil (`BottomNav`) por una barra de navegación superior integrada en la cabecera, ampliando el contenedor principal (`max-w-6xl`/`max-w-7xl`) y reorganizando tarjetas, formularios y gráficos Recharts en grillas multi-columna panorámicas.
+- **Alcance / Propósito**: Aprovechar ergonómicamente el espacio horizontal en navegadores de escritorio y laptops sin alterar ni degradar la experiencia táctil compacta en dispositivos móviles.
+- **Lo que NO es**: No es una versión separada ni un rediseño móvil; comparte el mismo árbol de componentes, estado de sesión y tokens semánticos MD3.
+
+

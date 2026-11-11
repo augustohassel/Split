@@ -158,4 +158,22 @@ describe('HistoryView Component & Visualización de Historial', () => {
       screen.getByText(/no se encontraron marcas para 50m mariposa/i)
     ).toBeInTheDocument();
   });
+
+  it('distribuye las tarjetas en grilla multi-columna y resguarda los gráficos Recharts con min-w-0 y altura panorámica', () => {
+    const { container } = render(
+      <HistoryView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onEditMark={vi.fn()}
+        onDeleteMark={vi.fn()}
+      />
+    );
+
+    const marksGrid = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
+    expect(marksGrid).toBeInTheDocument();
+
+    const chartWrapper = container.querySelector('.md\\:h-80.w-full.min-w-0');
+    expect(chartWrapper).toBeInTheDocument();
+  });
 });

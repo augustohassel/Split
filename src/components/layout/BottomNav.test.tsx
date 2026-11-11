@@ -29,4 +29,10 @@ describe('BottomNav Component', () => {
     const historyBtn = screen.getByRole('button', { name: /historial/i });
     expect(historyBtn.className).toContain('text-primary-md3');
   });
+
+  it('incluye clase md:hidden para ocultarse en pantallas de escritorio', () => {
+    render(<BottomNav activeTab="dashboard" onSelectTab={vi.fn()} />);
+    const nav = screen.getByRole('navigation', { name: /navegación principal/i });
+    expect(nav.className).toContain('md:hidden');
+  });
 });

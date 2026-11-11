@@ -114,7 +114,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onLoadDemo,
   onClearAllData,
   onNavigate,
-  theme = 'dark',
+  theme = 'light',
   onSelectTheme,
 }) => {
   const initialDraft = useMemo(() => readGoalDraft(), []);
@@ -439,8 +439,8 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
       {/* SUBTAB 1: OBJETIVOS */}
       {subTab === 'goals' && (
-        <div className="space-y-5">
-          <form onSubmit={handleGoalSubmit} noValidate className="glass-card rounded-2xl p-4 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <form onSubmit={handleGoalSubmit} noValidate className="lg:col-span-5 glass-card rounded-2xl p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
                 <Plus className="w-4 h-4 text-primary-md3" />
@@ -633,7 +633,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
           </form>
 
           {/* Lista de Objetivos Activos con Brecha contra PB Carrera, PB Entrenamiento y Última Marca */}
-          <div className="space-y-3">
+          <div className="lg:col-span-7 space-y-3">
             <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">
               Objetivos Configurados ({goalAnalyses.length})
             </h2>
@@ -805,9 +805,9 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
       {/* SUBTAB 2: PERFIL DEL NADADOR Y PUNTOS FINA */}
       {subTab === 'profile' && (
-        <form onSubmit={handleProfileSubmit} noValidate className="space-y-4">
+        <form onSubmit={handleProfileSubmit} noValidate className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {onSelectTheme && (
-            <div className="glass-card rounded-2xl p-4 space-y-3">
+            <div className="lg:col-span-4 glass-card rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
@@ -859,7 +859,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             </div>
           )}
 
-          <div className="glass-card rounded-2xl p-4 space-y-4">
+          <div className={`${onSelectTheme ? 'lg:col-span-8' : 'lg:col-span-12'} glass-card rounded-2xl p-4 space-y-4`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
                 <User className="w-4 h-4 text-primary-md3" />
@@ -997,7 +997,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {SWIM_EVENTS.map((ev) => {
                   const isFav = favoriteEventIds.includes(ev.id);
                   const baseSec = getFinaBaseTime(ev.id, defaultPoolLength, gender);
@@ -1100,7 +1100,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
 
       {/* SUBTAB 3: ASISTENTE CONVERSACIONAL (IA / BYOK) */}
       {subTab === 'ai' && (
-        <div className="glass-card rounded-2xl p-4 space-y-4">
+        <div className="max-w-3xl mx-auto glass-card rounded-2xl p-4 space-y-4">
           <div className="flex items-center justify-between border-b border-outline/40 pb-3">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-primary-md3/10 border border-primary-md3/30 flex items-center justify-center text-primary-md3">
@@ -1398,6 +1398,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
             )}
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           <div className="glass-card rounded-2xl p-4 space-y-3 border border-status-amber/25">
             <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-status-amber" />
@@ -1526,6 +1527,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
                 <span>{clearSuccessMsg}</span>
               </div>
             )}
+          </div>
           </div>
         </div>
       )}
