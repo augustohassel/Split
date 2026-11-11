@@ -69,28 +69,28 @@ describe('App Integration & Flujo Completo de Usuario', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('permite alternar entre Modo Oscuro y Modo Claro de forma sincronizada entre Header y Ajustes', async () => {
+  it('permite alternar entre Modo Claro (por defecto) y Modo Oscuro de forma sincronizada entre Header y Ajustes', async () => {
     render(<App />);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
 
-    // Alternar desde el botón rápido del Header
-    const headerToggle = screen.getByRole('button', { name: /cambiar a modo claro/i });
+    // Alternar desde el botón rápido del Header hacia Modo Oscuro
+    const headerToggle = screen.getByRole('button', { name: /cambiar a modo oscuro/i });
     fireEvent.click(headerToggle);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-    expect(localStorage.getItem('split_theme_v1')).toBe('light');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('split_theme_v1')).toBe('dark');
 
     // Verificar sincronización en Objetivos y Ajustes -> Perfil FINA
     const nav = screen.getByRole('navigation', { name: /navegación principal/i });
     fireEvent.click(within(nav).getByRole('button', { name: /objetivos/i }));
     fireEvent.click(screen.getByRole('button', { name: /perfil fina/i }));
 
-    const darkOptionBtn = screen.getByRole('button', { name: /^modo oscuro$/i });
-    fireEvent.click(darkOptionBtn);
+    const lightOptionBtn = screen.getByRole('button', { name: /^modo claro$/i });
+    fireEvent.click(lightOptionBtn);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('split_theme_v1')).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('split_theme_v1')).toBe('light');
   });
 
   it('expande el contenedor principal para escritorio y permite navegar desde la barra superior sin perder estado al redimensionar', async () => {

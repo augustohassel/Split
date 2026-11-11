@@ -71,7 +71,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   initialPoolLength,
   onEditMark,
   onDeleteMark,
-  theme = 'dark',
+  theme = 'light',
 }) => {
   const isDark = theme === 'dark';
   const gridStroke = isDark ? '#334155' : '#e2e8f0';

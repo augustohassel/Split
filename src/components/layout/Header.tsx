@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   marksCount = 0,
   onSelectTab,
-  theme = 'dark',
+  theme = 'light',
   onToggleTheme,
 }) => {
   const isDark = theme === 'dark';

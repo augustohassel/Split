@@ -114,7 +114,7 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onLoadDemo,
   onClearAllData,
   onNavigate,
-  theme = 'dark',
+  theme = 'light',
   onSelectTheme,
 }) => {
   const initialDraft = useMemo(() => readGoalDraft(), []);
