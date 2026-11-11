@@ -71,7 +71,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   initialPoolLength,
   onEditMark,
   onDeleteMark,
-  theme = 'dark',
+  theme = 'light',
 }) => {
   const isDark = theme === 'dark';
   const gridStroke = isDark ? '#334155' : '#e2e8f0';
@@ -257,9 +257,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         </div>
       )}
 
-      {/* Filtros Principales: Pileta y Prueba */}
-      <div className="glass-card rounded-2xl p-4 space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Filtros Principales y Secundarios: Barra horizontal compacta en desktop */}
+      <div className="glass-card rounded-2xl p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
           <div>
             <label className="block text-xs font-semibold text-on-surface-variant mb-1">Pileta</label>
             <div className="grid grid-cols-2 gap-1.5 bg-surface-container p-1 rounded-xl border border-outline/50">
@@ -310,10 +310,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               })}
             </select>
           </div>
-        </div>
 
-        {/* Filtros secundarios: Contexto, Modalidad y Cronometraje */}
-        <div className="pt-2 border-t border-outline/40 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div>
             <label className="block text-[11px] text-on-surface-variant mb-1 flex items-center gap-1">
               <Filter className="w-3 h-3" /> Contexto
@@ -321,7 +318,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             <select
               value={contextFilter}
               onChange={(e) => setContextFilter(e.target.value as MarkContext | 'all')}
-              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
+              className="w-full rounded-xl bg-surface-container border border-outline/50 px-2.5 py-2 text-xs text-on-surface"
             >
               <option value="all">Todos (Carrera + Entreno)</option>
               <option value="race">Solo Carrera / Torneo</option>
@@ -334,7 +331,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             <select
               value={modalityFilter}
               onChange={(e) => setModalityFilter(e.target.value as MarkModality | 'all')}
-              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
+              className="w-full rounded-xl bg-surface-container border border-outline/50 px-2.5 py-2 text-xs text-on-surface"
             >
               <option value="all">Todas las modalidades</option>
               <option value="individual">Individual</option>
@@ -348,7 +345,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             <select
               value={timingFilter}
               onChange={(e) => setTimingFilter(e.target.value as TimingMethod | 'all')}
-              className="w-full rounded-lg bg-surface-container border border-outline/50 px-2.5 py-1.5 text-xs text-on-surface"
+              className="w-full rounded-xl bg-surface-container border border-outline/50 px-2.5 py-2 text-xs text-on-surface"
             >
               <option value="all">Electrónico + Manual</option>
               <option value="electronic">Solo Electrónico / Placa</option>
@@ -431,7 +428,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
       {/* Gráficos Recharts: Curva de Evolución y Comparativa de Parciales */}
       {evolutionData.length > 0 && (
-        <div className="glass-card rounded-2xl p-4 space-y-4">
+        <div className="glass-card rounded-2xl p-4 space-y-4 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
               {chartMode === 'evolution' ? (
@@ -474,8 +471,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
 
           {chartMode === 'evolution' ? (
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64 md:h-80 lg:h-96 min-h-[256px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                 <LineChart
                   data={evolutionData}
                   margin={{ top: 10, right: 16, left: 0, bottom: 5 }}
@@ -537,8 +534,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               </ResponsiveContainer>
             </div>
           ) : splitComparisonData.length > 0 ? (
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64 md:h-80 lg:h-96 min-h-[256px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                 <BarChart
                   data={splitComparisonData}
                   margin={{ top: 10, right: 16, left: 0, bottom: 5 }}
@@ -594,7 +591,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             seleccionados.
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {filteredMarks.map((mark) => {
               const fina = calculateFinaPoints(
                 mark.timeSec,
@@ -612,7 +609,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               return (
                 <div
                   key={mark.id ?? `${mark.date}-${mark.timeSec}`}
-                  className="glass-card rounded-2xl p-4 space-y-3"
+                  className="glass-card rounded-2xl p-4 space-y-3 h-full"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -699,7 +696,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                       <div className="text-[11px] font-semibold text-on-surface-variant mb-1.5">
                         Desglose de Parciales (*Splits*):
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2">
                         {laps.map((lap) => {
                           const goalLap = activeGoal?.targetSplits
                             ? computeLapSplits(

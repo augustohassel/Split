@@ -43,6 +43,7 @@ describe('Header Component', () => {
     const handleSelect = vi.fn();
     render(<Header profile={mockProfile} onSelectTab={handleSelect} />);
     const chatBtn = screen.getByTitle('Abrir Asistente de Chat');
+    expect(chatBtn.className).toContain('md:hidden');
     fireEvent.click(chatBtn);
     expect(handleSelect).toHaveBeenCalledWith('chat');
   });
@@ -71,5 +72,41 @@ describe('Header Component', () => {
       />
     );
     expect(screen.getByRole('button', { name: /cambiar a modo oscuro/i })).toBeInTheDocument();
+  });
+
+  it('renderiza la barra de navegación superior de escritorio con los 5 accesos', () => {
+    const handleSelect = vi.fn();
+    render(
+      <Header
+        profile={mockProfile}
+        activeTab="dashboard"
+        marksCount={5}
+        onSelectTab={handleSelect}
+      />
+    );
+
+    const desktopNav = screen.getByRole('navigation', { name: /navegación superior/i });
+    expect(desktopNav).toBeInTheDocument();
+    expect(desktopNav.className).toContain('hidden md:flex');
+
+    const historyTab = screen.getByRole('button', { name: /historial/i });
+    expect(historyTab).toBeInTheDocument();
+    expect(historyTab).toHaveTextContent('5');
+
+    fireEvent.click(historyTab);
+    expect(handleSelect).toHaveBeenCalledWith('history');
+  });
+
+  it('destaca la pestaña activa en la navegación de escritorio', () => {
+    render(
+      <Header
+        profile={mockProfile}
+        activeTab="register"
+        onSelectTab={vi.fn()}
+      />
+    );
+
+    const registerTab = screen.getByRole('button', { name: /registrar/i });
+    expect(registerTab.className).toContain('text-primary-md3');
   });
 });

@@ -664,7 +664,10 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
           </div>
         )}
 
-        {/* Bloque Principal: Pileta, Prueba y Tiempo Total */}
+        {/* Layout adaptativo en 2 columnas para escritorio (datos a la izquierda, parciales y envío a la derecha) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          <div className="lg:col-span-6 space-y-5">
+            {/* Bloque Principal: Pileta, Prueba y Tiempo Total */}
         <div className="glass-card rounded-2xl p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Tamaño de Pileta */}
@@ -968,7 +971,9 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             </div>
           </div>
         </div>
+          </div>
 
+          <div className="lg:col-span-6 space-y-5">
         {/* Grilla Dinámica de Parciales Acumulados (Splits) */}
         <div className="glass-card rounded-2xl p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1291,6 +1296,8 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             </div>
           )}
         </div>
+          </div>
+        </div>
       </form>
 
       {/* Resumen de marcas guardadas en el dispositivo para confirmación visual permanente */}
@@ -1315,7 +1322,7 @@ export const RegisterMarkView: React.FC<RegisterMarkViewProps> = ({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {recentSavedMarks.map((mark) => {
               const ev = getEventById(mark.eventId);
               const fina = calculateFinaPoints(

@@ -267,4 +267,18 @@ describe('RegisterMarkView Component & Guardado de Marcas', () => {
       );
     });
   });
+
+  it('organiza los datos principales y la calculadora de parciales en dos columnas en escritorio', () => {
+    const { container } = render(
+      <RegisterMarkView
+        profile={mockProfile}
+        marks={[]}
+        goals={[]}
+        onSaveMark={vi.fn().mockResolvedValue({} as SwimMark)}
+      />
+    );
+
+    const twoColGrid = container.querySelector('form .grid.grid-cols-1.lg\\:grid-cols-12');
+    expect(twoColGrid).toBeInTheDocument();
+  });
 });

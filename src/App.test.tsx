@@ -69,27 +69,54 @@ describe('App Integration & Flujo Completo de Usuario', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('permite alternar entre Modo Oscuro y Modo Claro de forma sincronizada entre Header y Ajustes', async () => {
+  it('permite alternar entre Modo Claro (por defecto) y Modo Oscuro de forma sincronizada entre Header y Ajustes', async () => {
     render(<App />);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
 
-    // Alternar desde el botón rápido del Header
-    const headerToggle = screen.getByRole('button', { name: /cambiar a modo claro/i });
+    // Alternar desde el botón rápido del Header hacia Modo Oscuro
+    const headerToggle = screen.getByRole('button', { name: /cambiar a modo oscuro/i });
     fireEvent.click(headerToggle);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-    expect(localStorage.getItem('split_theme_v1')).toBe('light');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('split_theme_v1')).toBe('dark');
 
     // Verificar sincronización en Objetivos y Ajustes -> Perfil FINA
     const nav = screen.getByRole('navigation', { name: /navegación principal/i });
     fireEvent.click(within(nav).getByRole('button', { name: /objetivos/i }));
     fireEvent.click(screen.getByRole('button', { name: /perfil fina/i }));
 
-    const darkOptionBtn = screen.getByRole('button', { name: /^modo oscuro$/i });
-    fireEvent.click(darkOptionBtn);
+    const lightOptionBtn = screen.getByRole('button', { name: /^modo claro$/i });
+    fireEvent.click(lightOptionBtn);
 
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('split_theme_v1')).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('split_theme_v1')).toBe('light');
+  });
+
+  it('expande el contenedor principal para escritorio y permite navegar desde la barra superior sin perder estado al redimensionar', async () => {
+    render(<App />);
+
+    const mainEl = screen.getByRole('main');
+    expect(mainEl.className).toContain('md:max-w-6xl');
+    expect(mainEl.className).toContain('lg:max-w-7xl');
+    expect(mainEl.className).toContain('md:pb-8');
+
+    const topNav = screen.getByRole('navigation', { name: /navegación superior/i });
+    fireEvent.click(within(topNav).getByRole('button', { name: /registrar/i }));
+    expect(screen.getByRole('heading', { name: /^registrar marca$/i })).toBeInTheDocument();
+
+    const timeInput = screen.getByLabelText(/tiempo total/i) as HTMLInputElement;
+    fireEvent.change(timeInput, { target: { value: '27.15' } });
+    expect(timeInput.value).toBe('27.15');
+
+    // Simular redimensionamiento en vivo de escritorio a móvil y viceversa
+    window.innerWidth = 375;
+    fireEvent(window, new Event('resize'));
+    window.innerWidth = 1280;
+    fireEvent(window, new Event('resize'));
+
+    // Ni la pestaña activa ni el tiempo ingresado deben reiniciarse
+    expect(screen.getByRole('heading', { name: /^registrar marca$/i })).toBeInTheDocument();
+    expect((screen.getByLabelText(/tiempo total/i) as HTMLInputElement).value).toBe('27.15');
   });
 });

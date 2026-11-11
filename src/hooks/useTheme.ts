@@ -2,21 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 import { ThemeMode } from '../types';
 
 export const THEME_STORAGE_KEY = 'split_theme_v1';
+export const DEFAULT_THEME: ThemeMode = 'light';
 export const DARK_THEME_COLOR = '#0b111e';
 export const LIGHT_THEME_COLOR = '#f8fafc';
 
 export function readStoredTheme(): ThemeMode {
   try {
     if (typeof window === 'undefined' || !window.localStorage) {
-      return 'dark';
+      return DEFAULT_THEME;
     }
     const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
     if (raw === 'light' || raw === 'dark') {
       return raw;
     }
-    return 'dark';
+    return DEFAULT_THEME;
   } catch {
-    return 'dark';
+    return DEFAULT_THEME;
   }
 }
 

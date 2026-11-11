@@ -99,4 +99,25 @@ describe('DashboardView Component & Métricas del Nadador', () => {
     fireEvent.click(configBtn);
     expect(handleNavigate).toHaveBeenCalledWith('goals');
   });
+
+  it('organiza pruebas favoritas, objetivos y ranking/marcas en grillas multi-columna para escritorio', () => {
+    const { container } = render(
+      <DashboardView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onNavigate={vi.fn()}
+      />
+    );
+
+    expect(
+      container.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3')
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2')
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-12')
+    ).toBeInTheDocument();
+  });
 });
