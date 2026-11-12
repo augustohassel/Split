@@ -32,11 +32,15 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  Cloud,
+  CloudOff,
   Database,
   Download,
   FileSpreadsheet,
   KeyRound,
   Loader2,
+  LogIn,
+  LogOut,
   Moon,
   Plus,
   Save,
@@ -49,6 +53,7 @@ import {
   User,
 } from 'lucide-react';
 import { AiSettings } from '../../types';
+import { AuthUser, SyncStatus, useAuth } from '../../context/AuthContext';
 import { getAiSettings, saveAiSettings } from '../../services/aiSettings';
 import { testAiConnection } from '../../services/aiService';
 
@@ -67,6 +72,12 @@ interface GoalsAndSettingsViewProps {
   onNavigate?: (tab: ActiveTab, preselectedEventId?: SwimEventId, poolLength?: PoolLength) => void;
   theme?: ThemeMode;
   onSelectTheme?: (theme: ThemeMode) => void;
+  authUser?: AuthUser | null;
+  syncStatus?: SyncStatus;
+  authError?: string | null;
+  isFirebaseAvailable?: boolean;
+  onSignInGoogle?: () => Promise<void> | void;
+  onSignOutGoogle?: () => Promise<void> | void;
 }
 
 interface GoalDraftState {
@@ -116,7 +127,22 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
   onNavigate,
   theme = 'light',
   onSelectTheme,
+  authUser,
+  syncStatus,
+  authError,
+  isFirebaseAvailable,
+  onSignInGoogle,
+  onSignOutGoogle,
 }) => {
+  const auth = useAuth();
+  const resolvedUser = authUser !== undefined ? authUser : auth.user;
+  const resolvedSyncStatus = syncStatus ?? auth.syncStatus;
+  const resolvedAuthError = authError !== undefined ? authError : auth.authError;
+  const resolvedFirebaseAvailable =
+    isFirebaseAvailable !== undefined ? isFirebaseAvailable : auth.isFirebaseAvailable;
+  const handleSignIn = onSignInGoogle ?? (() => auth.signInWithGoogle());
+  const handleSignOut = onSignOutGoogle ?? (() => auth.signOutUser());
+
   const initialDraft = useMemo(() => readGoalDraft(), []);
 
   const [subTab, setSubTab] = useState<'goals' | 'profile' | 'ai' | 'backup'>(
@@ -1340,6 +1366,120 @@ export const GoalsAndSettingsView: React.FC<GoalsAndSettingsViewProps> = ({
       {/* SUBTAB 4: RESPALDO, RESTAURACIÓN Y DEMO */}
       {subTab === 'backup' && (
         <div className="space-y-4">
+          {/* Tarjeta de Cuenta de Google y Sincronización Cloud (Local-First) */}
+          <div className="glass-card rounded-2xl p-4 space-y-3 border border-primary-md3/30">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-primary-md3/15 border border-primary-md3/30 flex items-center justify-center text-primary-md3 shrink-0">
+                  {resolvedSyncStatus === 'offline-cached' || resolvedSyncStatus === 'error' ? (
+                    <CloudOff className="w-4 h-4" />
+                  ) : (
+                    <Cloud className="w-4 h-4" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-on-surface">
+                    Sincronización en la Nube (Google Cloud Firestore)
+                  </h2>
+                  <p className="text-xs text-on-surface-variant">
+                    Arquitectura Local-First · Respaldo automático de marcas, objetivos, perfil y chat
+                  </p>
+                </div>
+              </div>
+
+              {resolvedUser ? (
+                <span
+                  className={`text-[11px] px-2.5 py-1 rounded-xl font-bold flex items-center gap-1.5 border ${
+                    resolvedSyncStatus === 'offline-cached'
+                      ? 'bg-status-amber/15 border-status-amber/40 text-status-amber'
+                      : resolvedSyncStatus === 'error'
+                        ? 'bg-status-rose/15 border-status-rose/40 text-status-rose'
+                        : 'bg-status-emerald/15 border-status-emerald/40 text-status-emerald'
+                  }`}
+                >
+                  {resolvedSyncStatus === 'migrating' || resolvedSyncStatus === 'connecting' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Sincronizando datos...</span>
+                    </>
+                  ) : resolvedSyncStatus === 'offline-cached' ? (
+                    <>
+                      <CloudOff className="w-3.5 h-3.5" />
+                      <span>Offline · Guardado en caché local</span>
+                    </>
+                  ) : resolvedSyncStatus === 'error' ? (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>Alerta de permisos Cloud</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Sincronizado en Cloud Firestore</span>
+                    </>
+                  )}
+                </span>
+              ) : (
+                <span className="text-[11px] px-2.5 py-1 rounded-xl bg-surface-container border border-outline/50 text-on-surface-variant font-semibold">
+                  Modo Local-First (Dexie)
+                </span>
+              )}
+            </div>
+
+            {resolvedAuthError && (
+              <div
+                role="alert"
+                className="rounded-xl p-3 bg-status-amber/15 border border-status-amber/40 text-on-surface text-xs flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-status-amber shrink-0" />
+                <span>{resolvedAuthError}</span>
+              </div>
+            )}
+
+            {resolvedUser ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-outline/40">
+                <div className="text-xs space-y-0.5">
+                  <div className="font-bold text-on-surface">
+                    Conectado como {resolvedUser.displayName || resolvedUser.email || 'Nadador'}
+                  </div>
+                  {resolvedUser.email && (
+                    <div className="text-on-surface-variant">{resolvedUser.email}</div>
+                  )}
+                  <div className="text-[11px] text-on-surface-variant">
+                    Tu API Key de IA (BYOK) nunca se sube a la nube; permanece 100% en este navegador.
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => void handleSignOut()}
+                  className="px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-status-rose/15 text-on-surface hover:text-status-rose border border-outline hover:border-status-rose/40 font-bold text-xs flex items-center justify-center gap-2 transition-colors shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Cerrar sesión de Google</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-outline/40">
+                <p className="text-xs text-on-surface-variant leading-relaxed">
+                  Iniciá sesión con tu cuenta de Google para respaldar y sincronizar tus marcas,
+                  objetivos, perfil FINA y conversación entre múltiples dispositivos sin perder tus
+                  datos locales actuales.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => void handleSignIn()}
+                  disabled={!resolvedFirebaseAvailable && !onSignInGoogle}
+                  className="px-4 py-2.5 rounded-xl bg-primary-md3 hover:bg-primary-md3/90 disabled:opacity-50 text-on-primary font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-primary-md3/20 shrink-0"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Iniciar sesión con Google</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="glass-card rounded-2xl p-4 space-y-3">
             <h2 className="text-sm font-bold text-on-surface flex items-center gap-2">
               <Database className="w-4 h-4 text-primary-md3" />

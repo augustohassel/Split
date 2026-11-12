@@ -1,9 +1,15 @@
 import React from 'react';
 import { ActiveTab, SwimmerProfile, ThemeMode } from '../../types';
+import { AuthUser, SyncStatus, useAuth } from '../../context/AuthContext';
 import {
   Bot,
+  Cloud,
+  CloudOff,
   LayoutDashboard,
   LineChart,
+  Loader2,
+  LogIn,
+  LogOut,
   Moon,
   PlusCircle,
   Sun,
@@ -19,6 +25,11 @@ interface HeaderProps {
   onSelectTab: (tab: ActiveTab) => void;
   theme?: ThemeMode;
   onToggleTheme?: () => void;
+  authUser?: AuthUser | null;
+  syncStatus?: SyncStatus;
+  isFirebaseAvailable?: boolean;
+  onSignInGoogle?: () => void;
+  onSignOutGoogle?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +39,20 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTab,
   theme = 'light',
   onToggleTheme,
+  authUser,
+  syncStatus,
+  isFirebaseAvailable,
+  onSignInGoogle,
+  onSignOutGoogle,
 }) => {
+  const auth = useAuth();
+  const resolvedUser = authUser !== undefined ? authUser : auth.user;
+  const resolvedSyncStatus = syncStatus ?? auth.syncStatus;
+  const resolvedFirebaseAvailable =
+    isFirebaseAvailable !== undefined ? isFirebaseAvailable : auth.isFirebaseAvailable;
+  const handleSignIn = onSignInGoogle ?? (() => void auth.signInWithGoogle());
+  const handleSignOut = onSignOutGoogle ?? (() => void auth.signOutUser());
+
   const isDark = theme === 'dark';
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: number }[] = [
@@ -59,6 +83,54 @@ export const Header: React.FC<HeaderProps> = ({
       icon: <Target className="w-4 h-4" />,
     },
   ];
+
+  const renderSyncBadge = () => {
+    if (resolvedSyncStatus === 'migrating' || resolvedSyncStatus === 'connecting') {
+      return (
+        <span
+          className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-md3/15 text-primary-md3 border border-primary-md3/30 text-[10px] font-bold"
+          title="Sincronizando datos con Cloud Firestore"
+        >
+          <Loader2 className="w-3 h-3 animate-spin" />
+          <span className="hidden xl:inline">Sincronizando</span>
+        </span>
+      );
+    }
+
+    if (resolvedSyncStatus === 'offline-cached') {
+      return (
+        <span
+          className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-status-amber/15 text-status-amber border border-status-amber/30 text-[10px] font-bold"
+          title="Sin conexión: los cambios se guardan en caché local y se sincronizarán al reconectar"
+        >
+          <CloudOff className="w-3 h-3" />
+          <span className="hidden xl:inline">Offline</span>
+        </span>
+      );
+    }
+
+    if (resolvedSyncStatus === 'error') {
+      return (
+        <span
+          className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-status-rose/15 text-status-rose border border-status-rose/30 text-[10px] font-bold"
+          title="Alerta de permisos o sincronización en la nube"
+        >
+          <CloudOff className="w-3 h-3" />
+          <span className="hidden xl:inline">Alerta Cloud</span>
+        </span>
+      );
+    }
+
+    return (
+      <span
+        className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-status-emerald/15 text-status-emerald border border-status-emerald/30 text-[10px] font-bold"
+        title={`Sincronizado en la nube (${resolvedUser?.email || resolvedUser?.displayName || 'Google'})`}
+      >
+        <Cloud className="w-3 h-3" />
+        <span className="hidden xl:inline">Cloud</span>
+      </span>
+    );
+  };
 
   return (
     <header className="sticky top-0 z-30 glass-panel border-b border-outline/40 px-4 md:px-6 py-2.5 md:py-3 transition-colors">
@@ -117,6 +189,35 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
+          {resolvedUser ? (
+            <div className="flex items-center gap-1.5">
+              {renderSyncBadge()}
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline/50 text-on-surface-variant hover:text-status-rose text-xs font-semibold transition-colors"
+                title="Cerrar sesión de Google"
+                aria-label="Cerrar sesión de Google"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">Salir</span>
+              </button>
+            </div>
+          ) : (
+            (resolvedFirebaseAvailable || Boolean(onSignInGoogle)) && (
+              <button
+                type="button"
+                onClick={handleSignIn}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-primary-md3/15 hover:bg-primary-md3/25 border border-primary-md3/30 text-primary-md3 text-xs font-bold transition-colors"
+                title="Conectar Google para sincronizar en la nube"
+                aria-label="Conectar Google"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Conectar Google</span>
+              </button>
+            )
+          )}
+
           {onToggleTheme && (
             <button
               type="button"

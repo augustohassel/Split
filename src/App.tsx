@@ -20,8 +20,10 @@ import {
   LocalDatabaseMirror,
   saveGoalToDb,
   saveMarkToDb,
+  subscribeToDbStoreChanges,
   updateProfileInDb,
 } from './db';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { formatSwimTime } from './utils/calculator';
 import { getEventById } from './utils/events';
 import { Header } from './components/layout/Header';
@@ -32,7 +34,7 @@ import { HistoryView } from './features/history/HistoryView';
 import { GoalsAndSettingsView } from './features/goals/GoalsAndSettingsView';
 import { ChatView } from './features/chat/ChatView';
 import { useTheme } from './hooks/useTheme';
-import { ArrowRight, CheckCircle2, X } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, X } from 'lucide-react';
 
 const NAV_STATE_KEY = 'split_nav_state_v1';
 
@@ -74,8 +76,9 @@ function triggerDownload(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { theme, setTheme, toggleTheme } = useTheme();
+  const { authError, clearAuthError } = useAuth();
   const initialNav = useMemo(() => readNavState(), []);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(
@@ -101,6 +104,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     void ensureDefaultProfile().then(() => {
+      refreshStore();
+    });
+  }, [refreshStore]);
+
+  useEffect(() => {
+    return subscribeToDbStoreChanges(() => {
       refreshStore();
     });
   }, [refreshStore]);
@@ -263,6 +272,29 @@ export const App: React.FC = () => {
         onToggleTheme={toggleTheme}
       />
 
+      {authError && (
+        <div
+          role="alert"
+          className="max-w-3xl md:max-w-6xl lg:max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-8 pt-3"
+        >
+          <div className="rounded-2xl bg-status-amber/15 border border-status-amber/40 px-4 py-2.5 text-xs text-on-surface flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-status-amber shrink-0" />
+              <span>{authError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={clearAuthError}
+              className="p-1 text-on-surface-variant hover:text-on-surface shrink-0"
+              title="Cerrar aviso"
+              aria-label="Cerrar aviso de autenticación"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Toast flotante de confirmación inmediata en la parte inferior de la pantalla */}
       {toast && (
         <div
@@ -379,6 +411,14 @@ export const App: React.FC = () => {
         marksCount={marks.length}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
