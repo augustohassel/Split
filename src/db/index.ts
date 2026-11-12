@@ -1,9 +1,15 @@
 import Dexie, { Table } from 'dexie';
-import { SwimGoal, SwimMark, SwimmerGender, SwimmerProfile } from '../types';
+import { ChatMessage, SwimGoal, SwimMark, SwimmerGender, SwimmerProfile } from '../types';
 import { DEFAULT_SWIMMER_PROFILE, DEMO_GOALS, DEMO_MARKS } from './seeds';
 import { formatSwimTime } from '../utils/calculator';
 import { CONTEXT_LABELS, getEventById, MODALITY_LABELS, TIMING_LABELS } from '../utils/events';
 import { calculateFinaPoints } from '../utils/fina';
+import {
+  DexieSwimRepository,
+  readChatMessagesFromLocalStorage,
+  writeChatMessagesToLocalStorage,
+} from './repositories/dexie-swim-repository';
+import { ISwimRepository } from './repositories/swim-repository.interface';
 
 export class SplitDatabase extends Dexie {
   profile!: Table<SwimmerProfile, number>;
@@ -22,6 +28,60 @@ export class SplitDatabase extends Dexie {
 
 export const db = new SplitDatabase();
 
+export const localRepository = new DexieSwimRepository(db);
+let activeRepository: ISwimRepository = localRepository;
+
+const storeListeners = new Set<() => void>();
+const chatListeners = new Set<(messages: ChatMessage[]) => void>();
+
+export function subscribeToDbStoreChanges(listener: () => void): () => void {
+  storeListeners.add(listener);
+  return () => {
+    storeListeners.delete(listener);
+  };
+}
+
+export function subscribeToChatStoreChanges(
+  listener: (messages: ChatMessage[]) => void
+): () => void {
+  chatListeners.add(listener);
+  return () => {
+    chatListeners.delete(listener);
+  };
+}
+
+function notifyStoreListeners(): void {
+  storeListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {
+      // Ignorar errores en listeners de UI
+    }
+  });
+}
+
+function notifyChatListeners(messages: ChatMessage[]): void {
+  chatListeners.forEach((listener) => {
+    try {
+      listener(messages);
+    } catch {
+      // Ignorar errores en listeners de chat
+    }
+  });
+}
+
+export function getLocalSwimRepository(): DexieSwimRepository {
+  return localRepository;
+}
+
+export function getActiveSwimRepository(): ISwimRepository {
+  return activeRepository;
+}
+
+export function setActiveSwimRepository(repo: ISwimRepository | null): void {
+  activeRepository = repo ?? localRepository;
+}
+
 const LOCAL_MIRROR_KEY = 'split_db_mirror_v1';
 
 export interface LocalDatabaseMirror {
@@ -34,7 +94,7 @@ export interface LocalDatabaseMirror {
 // Estado en memoria siempre disponible incluso si localStorage o IndexedDB fallan
 let memoryStore: LocalDatabaseMirror | null = null;
 
-function isCustomProfile(p?: SwimmerProfile | null): boolean {
+export function isCustomProfile(p?: SwimmerProfile | null): boolean {
   if (!p) return false;
   return (
     p.name !== DEFAULT_SWIMMER_PROFILE.name ||
@@ -136,6 +196,7 @@ export function writeLocalMirror(
     // Si la cuota de localStorage falla, memoryStore conserva los datos en sesión
   }
 
+  notifyStoreListeners();
   return payload;
 }
 
@@ -175,6 +236,18 @@ function runIdbInBackground(operation: () => Promise<void>): void {
 }
 
 /**
+ * Ejecuta una operación contra el repositorio en la nube (si está activo) sin bloquear el flujo local.
+ */
+function runCloudRepoInBackground(operation: (repo: ISwimRepository) => Promise<void>): void {
+  if (activeRepository.mode === 'cloud') {
+    const repo = activeRepository;
+    void operation(repo).catch(() => {
+      // El repositorio cloud ya notifica errores de permisos o estado mediante sus callbacks
+    });
+  }
+}
+
+/**
  * Inicializa y verifica la base de datos sin bloquear nunca el hilo principal:
  * - Si ya existe espejo en localStorage, lo devuelve de inmediato.
  * - Si no existe espejo en localStorage, intenta recuperar datos previos de IndexedDB
@@ -185,7 +258,7 @@ export async function ensureDefaultProfile(): Promise<SwimmerProfile> {
   if (existing) {
     // Sincronizar en segundo plano hacia IndexedDB sin bloquear
     runIdbInBackground(async () => {
-      await db.profile.put(existing.profile);
+      await localRepository.saveProfile(existing.profile);
     });
     return existing.profile;
   }
@@ -219,7 +292,7 @@ export async function ensureDefaultProfile(): Promise<SwimmerProfile> {
   const fresh = createDefaultStore();
   writeLocalMirror(fresh.profile, fresh.marks, fresh.goals);
   runIdbInBackground(async () => {
-    await db.profile.put(fresh.profile);
+    await localRepository.saveProfile(fresh.profile);
   });
   return fresh.profile;
 }
@@ -247,7 +320,11 @@ export async function saveMarkToDb(
   writeLocalMirror(store.profile, nextMarks, store.goals);
 
   runIdbInBackground(async () => {
-    await db.marks.put(saved);
+    await localRepository.saveMark(saved);
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.saveMark(saved);
   });
 
   return saved;
@@ -259,7 +336,11 @@ export async function deleteMarkFromDb(id: number): Promise<void> {
   writeLocalMirror(store.profile, nextMarks, store.goals);
 
   runIdbInBackground(async () => {
-    await db.marks.delete(id);
+    await localRepository.deleteMark(id);
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.deleteMark(id);
   });
 }
 
@@ -280,7 +361,11 @@ export async function updateProfileInDb(updated: SwimmerProfile): Promise<Swimme
   writeLocalMirror(canonical, store.marks, store.goals);
 
   runIdbInBackground(async () => {
-    await db.profile.put(canonical);
+    await localRepository.saveProfile(canonical);
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.saveProfile(canonical);
   });
 
   return canonical;
@@ -310,7 +395,11 @@ export async function saveGoalToDb(goalData: Omit<SwimGoal, 'id'>): Promise<Swim
   writeLocalMirror(store.profile, store.marks, nextGoals);
 
   runIdbInBackground(async () => {
-    await db.goals.put(saved);
+    await localRepository.saveGoal(saved);
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.saveGoal(saved);
   });
 
   return saved;
@@ -322,8 +411,30 @@ export async function deleteGoalFromDb(id: number): Promise<void> {
   writeLocalMirror(store.profile, store.marks, nextGoals);
 
   runIdbInBackground(async () => {
-    await db.goals.delete(id);
+    await localRepository.deleteGoal(id);
   });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.deleteGoal(id);
+  });
+}
+
+export function getChatMessagesFromStore(): ChatMessage[] {
+  return readChatMessagesFromLocalStorage();
+}
+
+export async function saveChatMessagesToDb(
+  messages: ChatMessage[],
+  options?: { skipCloudSync?: boolean }
+): Promise<void> {
+  writeChatMessagesToLocalStorage(messages);
+  notifyChatListeners(messages);
+
+  if (!options?.skipCloudSync) {
+    runCloudRepoInBackground(async (repo) => {
+      await repo.saveChatMessages(messages);
+    });
+  }
 }
 
 /**
@@ -343,6 +454,12 @@ export async function loadDemoDataset(): Promise<{ marksAdded: number; goalsAdde
       await db.marks.bulkPut(demoMarksWithIds);
       await db.goals.bulkPut(demoGoalsWithIds);
     });
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.clearAll(false);
+    await repo.bulkSaveMarks(demoMarksWithIds);
+    await repo.bulkSaveGoals(demoGoalsWithIds);
   });
 
   return {
@@ -377,13 +494,11 @@ export async function clearAllData(resetProfile = false): Promise<void> {
   writeLocalMirror(nextProfile, [], []);
 
   runIdbInBackground(async () => {
-    await db.transaction('rw', db.profile, db.marks, db.goals, async () => {
-      await db.marks.clear();
-      await db.goals.clear();
-      if (resetProfile) {
-        await db.profile.put(nextProfile);
-      }
-    });
+    await localRepository.clearAll(resetProfile, nextProfile);
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.clearAll(resetProfile, nextProfile);
   });
 }
 
@@ -458,6 +573,13 @@ export async function importDatabaseFromJson(
         await db.goals.bulkPut(sanitizedGoals);
       }
     });
+  });
+
+  runCloudRepoInBackground(async (repo) => {
+    await repo.saveProfile(nextProfile);
+    await repo.clearAll(false);
+    await repo.bulkSaveMarks(sanitizedMarks);
+    await repo.bulkSaveGoals(sanitizedGoals);
   });
 
   return {
