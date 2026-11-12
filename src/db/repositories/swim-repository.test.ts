@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   getFirebaseClient,
   isFirebaseConfigured,
@@ -244,6 +244,5 @@ describe('Firebase Client, Repositorios y Migración Aditiva Local-First', () =>
 
     expect(buildMarkFingerprint(localMark)).toContain('50-fly|25|2026-11-01|26.80');
     expect(buildGoalKey(localGoal)).toBe('50-fly|25');
-    void vi;
   });
 });

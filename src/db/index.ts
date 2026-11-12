@@ -6,10 +6,13 @@ import { CONTEXT_LABELS, getEventById, MODALITY_LABELS, TIMING_LABELS } from '..
 import { calculateFinaPoints } from '../utils/fina';
 import {
   DexieSwimRepository,
+  isCustomProfile,
   readChatMessagesFromLocalStorage,
   writeChatMessagesToLocalStorage,
 } from './repositories/dexie-swim-repository';
 import { ISwimRepository } from './repositories/swim-repository.interface';
+
+export { isCustomProfile };
 
 export class SplitDatabase extends Dexie {
   profile!: Table<SwimmerProfile, number>;
@@ -93,20 +96,6 @@ export interface LocalDatabaseMirror {
 
 // Estado en memoria siempre disponible incluso si localStorage o IndexedDB fallan
 let memoryStore: LocalDatabaseMirror | null = null;
-
-export function isCustomProfile(p?: SwimmerProfile | null): boolean {
-  if (!p) return false;
-  return (
-    p.name !== DEFAULT_SWIMMER_PROFILE.name ||
-    p.gender !== DEFAULT_SWIMMER_PROFILE.gender ||
-    Boolean(p.club) ||
-    Boolean(p.birthYear) ||
-    p.defaultPoolLength !== DEFAULT_SWIMMER_PROFILE.defaultPoolLength ||
-    p.category !== DEFAULT_SWIMMER_PROFILE.category ||
-    JSON.stringify(p.favoriteEventIds) !==
-      JSON.stringify(DEFAULT_SWIMMER_PROFILE.favoriteEventIds)
-  );
-}
 
 function createDefaultStore(): LocalDatabaseMirror {
   return {

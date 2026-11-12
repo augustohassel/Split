@@ -15,7 +15,7 @@ export type DexieTablesLike = Dexie & {
   goals: Table<SwimGoal, number>;
 };
 
-function isCustomProfile(p?: SwimmerProfile | null): boolean {
+export function isCustomProfile(p?: SwimmerProfile | null): boolean {
   if (!p) return false;
   return (
     p.name !== DEFAULT_SWIMMER_PROFILE.name ||

@@ -106,6 +106,23 @@ export class FirestoreSwimRepository implements ISwimRepository {
     return doc(this.firestore, 'users', this.uid, 'chatMessages', id);
   }
 
+  private mapMarkDoc(docId: string, data: SwimMark): SwimMark {
+    const parsedId = Number(docId);
+    return {
+      ...data,
+      id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
+      splits: Array.isArray(data.splits) ? data.splits : [],
+    };
+  }
+
+  private mapGoalDoc(docId: string, data: SwimGoal): SwimGoal {
+    const parsedId = Number(docId);
+    return {
+      ...data,
+      id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
+    };
+  }
+
   private async touchUserRootDoc(): Promise<void> {
     try {
       await setDoc(
@@ -160,15 +177,7 @@ export class FirestoreSwimRepository implements ISwimRepository {
   async getMarks(): Promise<SwimMark[]> {
     try {
       const snap = await getDocs(this.marksColRef());
-      return snap.docs.map((d) => {
-        const data = d.data() as SwimMark;
-        const parsedId = Number(d.id);
-        return {
-          ...data,
-          id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
-          splits: Array.isArray(data.splits) ? data.splits : [],
-        };
-      });
+      return snap.docs.map((d) => this.mapMarkDoc(d.id, d.data() as SwimMark));
     } catch (err) {
       this.handleError(err);
     }
@@ -221,14 +230,7 @@ export class FirestoreSwimRepository implements ISwimRepository {
   async getGoals(): Promise<SwimGoal[]> {
     try {
       const snap = await getDocs(this.goalsColRef());
-      return snap.docs.map((d) => {
-        const data = d.data() as SwimGoal;
-        const parsedId = Number(d.id);
-        return {
-          ...data,
-          id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
-        };
-      });
+      return snap.docs.map((d) => this.mapGoalDoc(d.id, d.data() as SwimGoal));
     } catch (err) {
       this.handleError(err);
     }
@@ -372,15 +374,7 @@ export class FirestoreSwimRepository implements ISwimRepository {
       this.marksColRef(),
       (snap) => {
         if (callbacks.onMarksChange) {
-          const marks = snap.docs.map((d) => {
-            const data = d.data() as SwimMark;
-            const parsedId = Number(d.id);
-            return {
-              ...data,
-              id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
-              splits: Array.isArray(data.splits) ? data.splits : [],
-            };
-          });
+          const marks = snap.docs.map((d) => this.mapMarkDoc(d.id, d.data() as SwimMark));
           callbacks.onMarksChange(marks);
         }
       },
@@ -391,14 +385,7 @@ export class FirestoreSwimRepository implements ISwimRepository {
       this.goalsColRef(),
       (snap) => {
         if (callbacks.onGoalsChange) {
-          const goals = snap.docs.map((d) => {
-            const data = d.data() as SwimGoal;
-            const parsedId = Number(d.id);
-            return {
-              ...data,
-              id: data.id ?? (Number.isFinite(parsedId) ? parsedId : 1),
-            };
-          });
+          const goals = snap.docs.map((d) => this.mapGoalDoc(d.id, d.data() as SwimGoal));
           callbacks.onGoalsChange(goals);
         }
       },
