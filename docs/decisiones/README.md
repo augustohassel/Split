@@ -11,6 +11,7 @@ Este directorio almacena las decisiones técnicas y arquitectónicas de **Split*
 - [0003: Infraestructura de Testing de Componentes UI y Cobertura Automatizada](0003-infraestructura-testing-componentes-y-cobertura.md)
 - [0004: Arquitectura Conversacional, Parser Offline, BYOK y Dictado por Voz](0004-arquitectura-conversacional-byok-y-dictado-por-voz.md)
 - [0005: Tokens Semánticos Google Material 3 y Refactor Integral Bimodal](0005-tokens-semanticos-material-3.md)
+- [0006: Infraestructura Serverless en GCP con Terraform In-Repo y Workload Identity OIDC](0006-infraestructura-terraform-gcp.md)
 
 ## Plantilla de Decisión (ADR Ligero)
 

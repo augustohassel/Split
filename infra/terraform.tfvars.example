@@ -1,0 +1,13 @@
+# Copiar este archivo a `terraform.tfvars` (ignorado por Git) y completar con los datos reales de tu proyecto GCP:
+# cp terraform.tfvars.example terraform.tfvars
+
+project_id = "split-swim-app"
+region     = "nam5"
+
+authorized_domains = [
+  "localhost",
+  "127.0.0.1",
+  "augustohassel.github.io",
+  "split.hasselpunk.com",
+  "hasselpunk.com",
+]

@@ -26,3 +26,25 @@ coverage
 *.sw?
 *.tsbuildinfo
 
+# Terraform & GCP Credentials
+**/.terraform/*
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+*-credentials.json
+*service-account*.json
+gcp-key*.json
+
+
