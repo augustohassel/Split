@@ -136,5 +136,18 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 - **Alcance / Propósito**: Permitir la validación y el despliegue continuo de infraestructura (`terraform plan` y `terraform apply`) desde la rama principal del repositorio sin generar ni almacenar claves JSON de larga duración en GitHub Secrets.
 - **Lo que NO es**: No otorga acceso abierto a cualquier repositorio; valida criptográficamente la condición de atributo del repositorio origen (`augustohassel/Split`).
 
+### Sincronización Local-First (Patrón Repositorio Dual)
+
+- **Definición**: Estrategia de persistencia donde la aplicación opera por defecto de forma instantánea sobre el almacenamiento local del dispositivo (Dexie/IndexedDB y espejo local) y, cuando el nadador se autentica con Google OAuth, replica y escucha cambios en tiempo real sobre Cloud Firestore bajo `/users/{uid}/...`.
+- **Alcance / Propósito**: Garantizar que el nadador nunca pierda velocidad ni disponibilidad en piletas sin señal de internet, manteniendo a la vez sus marcas, objetivos, perfil FINA y conversación sincronizados entre múltiples dispositivos.
+- **Lo que NO es**: No es una arquitectura dependiente de servidor donde la falta de red o la ausencia de variables de entorno bloquea el uso de la aplicación, ni incluye el envío de la API Key de IA (BYOK) a la nube.
+
+### Migración Aditiva de Datos (Cloud Migration)
+
+- **Definición**: Proceso automático e idempotente que se ejecuta al iniciar sesión con Google para fusionar las marcas, objetivos, perfil personalizado y mensajes de chat registrados previamente en el dispositivo local con los existentes en la cuenta de Cloud Firestore del usuario.
+- **Alcance / Propósito**: Evitar que el nadador pierda las marcas cargadas antes de conectarse con Google y prevenir duplicaciones al iniciar sesión repetidamente o desde distintos dispositivos.
+- **Lo que NO es**: No es una sobrescritura destructiva que borre marcas remotas previas ni duplique registros idénticos en cada inicio de sesión.
+
+
 
 
