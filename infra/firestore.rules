@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Aislamiento estricto por nadador autenticado (Multi-Tenant por UID):
+    // Un usuario con UID "A" recibe PERMISSION_DENIED si intenta leer o escribir en /users/"B"/...
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 2. Denegación global por defecto para cualquier otra ruta o acceso no autenticado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

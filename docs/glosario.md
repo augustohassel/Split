@@ -118,4 +118,23 @@ Este documento registra la jerga, entidades de negocio y conceptos funcionales d
 - **Alcance / Propósito**: Aprovechar ergonómicamente el espacio horizontal en navegadores de escritorio y laptops sin alterar ni degradar la experiencia táctil compacta en dispositivos móviles.
 - **Lo que NO es**: No es una versión separada ni un rediseño móvil; comparte el mismo árbol de componentes, estado de sesión y tokens semánticos MD3.
 
+### Infraestructura como Código (Terraform In-Repo)
+
+- **Definición**: Conjunto de manifiestos declarativos alojados en el directorio `infra/` del repositorio que definen y aprovisionan los servicios serverless de Google Cloud Platform (Cloud Firestore en modo Native, Google Identity Platform, reglas de seguridad y federación de identidad OIDC).
+- **Alcance / Propósito**: Garantizar que la infraestructura cloud de la aplicación sea reproducible, auditable mediante Pull Requests y opere estrictamente dentro de las cuotas perpetuas del Free Tier ($0.00 USD/mes).
+- **Lo que NO es**: No aprovisiona servidores dedicados ni almacena archivos de estado sensibles (`.tfstate`) o variables privadas (`.tfvars`) dentro del control de versiones.
+
+### Aislamiento Multi-Usuario por UID (Firestore Security Rules)
+
+- **Definición**: Regla de control de acceso declarada en `infra/firestore.rules` que deniega por defecto toda lectura o escritura no autenticada y restringe las operaciones exclusivamente a la jerarquía `/users/{userId}/{document=**}` cuando el identificador del usuario autenticado (`request.auth.uid`) coincide exactamente con `{userId}`.
+- **Alcance / Propósito**: Asegurar la privacidad y el aislamiento estricto de las marcas, objetivos, perfil y mensajes de cada nadador en la base de datos compartida Cloud Firestore, rechazando con `PERMISSION_DENIED` cualquier intento de acceso cruzado entre cuentas.
+- **Lo que NO es**: No es un filtro visual en el cliente; es una barrera de seguridad evaluada directamente en el motor de Cloud Firestore antes de leer o escribir cualquier documento.
+
+### Workload Identity Federation (OIDC)
+
+- **Definición**: Mecanismo de autenticación sin claves estáticas mediante el cual GitHub Actions intercambia un token OIDC efímero y firmado criptográficamente con Google Cloud IAM para asumir temporalmente una cuenta de servicio autorizada.
+- **Alcance / Propósito**: Permitir la validación y el despliegue continuo de infraestructura (`terraform plan` y `terraform apply`) desde la rama principal del repositorio sin generar ni almacenar claves JSON de larga duración en GitHub Secrets.
+- **Lo que NO es**: No otorga acceso abierto a cualquier repositorio; valida criptográficamente la condición de atributo del repositorio origen (`augustohassel/Split`).
+
+
 

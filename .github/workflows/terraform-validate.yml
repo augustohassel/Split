@@ -1,0 +1,118 @@
+name: Terraform Infrastructure CI/CD
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+      - 'issue/**'
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terraform-validate.yml'
+  pull_request:
+    branches:
+      - master
+      - dev
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terraform-validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-infra
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Terraform fmt & validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar HashiCorp Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.17.0'
+
+      - name: Verificar formato (terraform fmt -check)
+        run: terraform fmt -check -recursive
+
+      - name: Inicializar sin backend remoto (terraform init -backend=false)
+        run: terraform init -backend=false
+
+      - name: Validar sintaxis y tipos (terraform validate)
+        run: terraform validate
+
+  plan:
+    name: Terraform Plan (GCP Remote State)
+    needs: validate
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Autenticar en GCP vía Workload Identity Federation (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER || 'projects/1031665473446/locations/global/workloadIdentityPools/github-actions-pool/providers/github-oidc' }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT || 'github-actions-tf@split-swim-app.iam.gserviceaccount.com' }}
+
+      - name: Configurar HashiCorp Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.17.0'
+
+      - name: Inicializar con backend remoto en GCS (terraform init)
+        run: terraform init
+
+      - name: Ejecutar Terraform Plan
+        env:
+          TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID || 'split-swim-app' }}
+        run: terraform plan -no-color
+
+  apply:
+    name: Terraform Apply (Producción en master)
+    needs: [validate, plan]
+    if: >-
+      github.ref == 'refs/heads/master' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Autenticar en GCP vía Workload Identity Federation (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER || 'projects/1031665473446/locations/global/workloadIdentityPools/github-actions-pool/providers/github-oidc' }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT || 'github-actions-tf@split-swim-app.iam.gserviceaccount.com' }}
+
+      - name: Configurar HashiCorp Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.17.0'
+
+      - name: Inicializar con backend remoto en GCS (terraform init)
+        run: terraform init
+
+      - name: Aplicar cambios en GCP (terraform apply)
+        env:
+          TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID || 'split-swim-app' }}
+        run: terraform apply -auto-approve -no-color
