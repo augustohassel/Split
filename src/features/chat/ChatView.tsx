@@ -8,6 +8,11 @@ import {
   SwimMark,
   SwimmerProfile,
 } from '../../types';
+import {
+  getChatMessagesFromStore,
+  saveChatMessagesToDb,
+  subscribeToChatStoreChanges,
+} from '../../db';
 import { parseQuickSwimCommand } from '../../utils/commandParser';
 import { sendChatMessage } from '../../services/aiService';
 import { getAiSettings } from '../../services/aiSettings';
@@ -26,8 +31,6 @@ import {
   Sparkles,
   User,
 } from 'lucide-react';
-
-const CHAT_STORAGE_KEY = 'split_chat_messages_v1';
 
 interface ChatViewProps {
   profile: SwimmerProfile;
@@ -56,30 +59,12 @@ Podés interactuar de dos formas:
   };
 }
 
-function readStoredMessages(profile: SwimmerProfile): ChatMessage[] {
-  try {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return [createWelcomeMessage(profile)];
-    }
-    const raw = window.localStorage.getItem(CHAT_STORAGE_KEY);
-    if (!raw) return [createWelcomeMessage(profile)];
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    return [createWelcomeMessage(profile)];
-  } catch {
-    return [createWelcomeMessage(profile)];
+function readInitialMessages(profile: SwimmerProfile): ChatMessage[] {
+  const stored = getChatMessagesFromStore();
+  if (stored.length > 0) {
+    return stored;
   }
-}
-
-function writeStoredMessages(messages: ChatMessage[]): void {
-  try {
-    if (typeof window === 'undefined' || !window.localStorage) return;
-    window.localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
-  } catch {
-    // Ignorar errores de cuota
-  }
+  return [createWelcomeMessage(profile)];
 }
 
 export const ChatView: React.FC<ChatViewProps> = ({
@@ -89,7 +74,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   onSaveMark,
   onSaveGoal,
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => readStoredMessages(profile));
+  const [messages, setMessages] = useState<ChatMessage[]>(() => readInitialMessages(profile));
   const [inputText, setInputText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -99,10 +84,25 @@ export const ChatView: React.FC<ChatViewProps> = ({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const baseTextRef = useRef<string>('');
+  const isRemoteUpdateRef = useRef<boolean>(false);
 
-  // Persistir mensajes al actualizarse
+  // Suscribirse a actualizaciones externas de mensajes (ej. sincronización con Cloud Firestore)
   useEffect(() => {
-    writeStoredMessages(messages);
+    return subscribeToChatStoreChanges((updatedMessages) => {
+      if (updatedMessages.length > 0) {
+        isRemoteUpdateRef.current = true;
+        setMessages(updatedMessages);
+      }
+    });
+  }, []);
+
+  // Persistir mensajes localmente y en Cloud Firestore (cuando el usuario está autenticado)
+  useEffect(() => {
+    if (isRemoteUpdateRef.current) {
+      isRemoteUpdateRef.current = false;
+      return;
+    }
+    void saveChatMessagesToDb(messages);
   }, [messages]);
 
   // Scroll automático hacia el último mensaje
@@ -492,4 +492,3 @@ Si deseas dialogar de forma libre y reflexiva con IA sobre tus entrenamientos y 
     </div>
   );
 };
-

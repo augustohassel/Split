@@ -307,4 +307,69 @@ describe('GoalsAndSettingsView Component & Flujos de Ajustes', () => {
 
     expect(handleSelectTheme).toHaveBeenCalledWith('light');
   });
+
+  it('muestra la tarjeta de Sincronización en la Nube en Datos y permite conectar/desconectar Google', () => {
+    const handleSignIn = vi.fn();
+    const handleSignOut = vi.fn();
+
+    const { rerender } = render(
+      <GoalsAndSettingsView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onUpdateProfile={vi.fn()}
+        onSaveGoal={vi.fn()}
+        onDeleteGoal={vi.fn()}
+        onExportJson={vi.fn()}
+        onImportJson={vi.fn()}
+        onExportCsv={vi.fn()}
+        onLoadDemo={vi.fn()}
+        onClearAllData={vi.fn()}
+        isFirebaseAvailable={true}
+        authUser={null}
+        onSignInGoogle={handleSignIn}
+        onSignOutGoogle={handleSignOut}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /datos/i }));
+    expect(
+      screen.getByText(/sincronización en la nube \(google cloud firestore\)/i)
+    ).toBeInTheDocument();
+
+    const signInBtn = screen.getByRole('button', { name: /iniciar sesión con google/i });
+    fireEvent.click(signInBtn);
+    expect(handleSignIn).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <GoalsAndSettingsView
+        profile={mockProfile}
+        marks={mockMarks}
+        goals={mockGoals}
+        onUpdateProfile={vi.fn()}
+        onSaveGoal={vi.fn()}
+        onDeleteGoal={vi.fn()}
+        onExportJson={vi.fn()}
+        onImportJson={vi.fn()}
+        onExportCsv={vi.fn()}
+        onLoadDemo={vi.fn()}
+        onClearAllData={vi.fn()}
+        isFirebaseAvailable={true}
+        authUser={{
+          uid: 'uid-123',
+          displayName: 'Augusto Hassel',
+          email: 'augusto@example.com',
+          photoURL: null,
+        }}
+        syncStatus="offline-cached"
+        onSignInGoogle={handleSignIn}
+        onSignOutGoogle={handleSignOut}
+      />
+    );
+
+    expect(screen.getByText(/offline · guardado en caché local/i)).toBeInTheDocument();
+    const signOutBtn = screen.getByRole('button', { name: /cerrar sesión de google/i });
+    fireEvent.click(signOutBtn);
+    expect(handleSignOut).toHaveBeenCalledTimes(1);
+  });
 });

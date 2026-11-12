@@ -109,4 +109,44 @@ describe('Header Component', () => {
     const registerTab = screen.getByRole('button', { name: /registrar/i });
     expect(registerTab.className).toContain('text-primary-md3');
   });
+
+  it('permite iniciar sesión con Google y cerrar sesión desde el Header', () => {
+    const handleSignIn = vi.fn();
+    const handleSignOut = vi.fn();
+
+    const { rerender } = render(
+      <Header
+        profile={mockProfile}
+        onSelectTab={vi.fn()}
+        isFirebaseAvailable={true}
+        authUser={null}
+        onSignInGoogle={handleSignIn}
+      />
+    );
+
+    const signInBtn = screen.getByRole('button', { name: /conectar google/i });
+    fireEvent.click(signInBtn);
+    expect(handleSignIn).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Header
+        profile={mockProfile}
+        onSelectTab={vi.fn()}
+        isFirebaseAvailable={true}
+        authUser={{
+          uid: 'uid-123',
+          displayName: 'Augusto',
+          email: 'augusto@example.com',
+          photoURL: null,
+        }}
+        syncStatus="synced"
+        onSignOutGoogle={handleSignOut}
+      />
+    );
+
+    expect(screen.getByText('Cloud')).toBeInTheDocument();
+    const signOutBtn = screen.getByRole('button', { name: /cerrar sesión de google/i });
+    fireEvent.click(signOutBtn);
+    expect(handleSignOut).toHaveBeenCalledTimes(1);
+  });
 });
