@@ -86,23 +86,24 @@ jobs:
           pr=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0] // empty | "[#\(.number)](\(.html_url)) \(.title)"')
 
           version=$(node -p "require('./package.json').version")
-          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
             echo "::error::La versión '$version' no cumple el formato major.minor.patch."
             exit 1
           fi
 
-          base_tag="v$version"
+          IFS=. read -r MAJOR MINOR PATCH <<< "$version"
+          tag="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Versión base de package.json: $tag"
 
-          if git ls-remote --exit-code --tags origin "refs/tags/$base_tag" >/dev/null; then
-            echo "::error::El tag '$base_tag' ya existe. Incrementá la versión en package.json antes de publicar."
-            exit 1
-          else
-            tag_status=$?
-            if [[ "$tag_status" -ne 2 ]]; then
-              exit "$tag_status"
-            fi
+          git fetch --tags origin
+          if git rev-parse --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag ya existe en el repositorio. Incrementando patch..."
+            while git rev-parse --verify "refs/tags/$tag" >/dev/null 2>&1; do
+              PATCH=$((PATCH + 1))
+              tag="v${MAJOR}.${MINOR}.${PATCH}"
+            done
           fi
-          tag="$base_tag"
+          echo "Tag final a registrar: $tag"
 
           # Armar notas del release
           {
